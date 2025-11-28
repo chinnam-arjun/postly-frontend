@@ -46,7 +46,7 @@
 // })
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllPosts,getSpecificUserPosts, getMyPosts } from "../redux_apis/post";
+import { getAllPosts,getSpecificUserPosts, getMyPosts,addPost } from "../redux_apis/post";
 
 export const getAllPostsThunk = createAsyncThunk(
     "posts/",
@@ -80,6 +80,18 @@ export const getMyPostsThunk = createAsyncThunk(
             return res.data.posts;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "failed to get posts")
+        }
+    }
+)
+
+export const addPostThunk = createAsyncThunk(
+    "posts/",
+    async (formData, { rejectWithValue }) => {
+        try {
+            const res = await addPost(formData);
+            return res.data.post;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to add post")
         }
     }
 )

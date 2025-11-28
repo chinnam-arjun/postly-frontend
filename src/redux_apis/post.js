@@ -56,3 +56,11 @@ export const getMyPosts = async ()=> {
         }
     })
 }
+
+export const addPost = async (formData) => {
+    return await axiosInstance.post("/posts/", formData, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    })
+}
