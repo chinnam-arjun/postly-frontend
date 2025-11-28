@@ -1,0 +1,28 @@
+
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v7.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 1786 modules transformed.
+[31m✗[39m Build failed in 2.26s
+[31merror during build:
+[31msrc/main.jsx (9:9): "store" is not exported by "src/store.js", imported by "src/main.jsx".[31m
+file: [36mC:/Users/Redmi/Desktop/blog-website/frontend/src/main.jsx:9:9[31m
+[33m
+ 7: import { Provider } from 'react-redux'
+ 8: import { PersistGate } from 'redux-persist/integration/react'
+ 9: import { store, persistor } from './store'
+             ^
+10: import { Toaster } from 'react-hot-toast'
+[31m
+    at getRollupError (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:16946:16)
+    at Module.traceVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17400:29)
+    at ModuleScope.findVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:15067:39)
+    at Identifier.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5415:40)
+    at Property.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2806:23)
+    at ObjectExpression.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2802:28)
+    at CallExpression.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2802:28)
+    at CallExpression.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:12114:15)[39m

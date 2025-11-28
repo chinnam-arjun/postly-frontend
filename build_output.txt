@@ -1,0 +1,29 @@
+
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v7.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 1764 modules transformed.
+[31m✗[39m Build failed in 2.13s
+[31merror during build:
+[31msrc/App.jsx (3:7): "default" is not exported by "src/components/ProtectedRoutes.jsx", imported by "src/App.jsx".[31m
+file: [36mC:/Users/Redmi/Desktop/blog-website/frontend/src/App.jsx:3:7[31m
+[33m
+1: import React from 'react'
+2: import { Routes, Route } from 'react-router-dom';
+3: import ProtectedRoute from './components/ProtectedRoutes';
+          ^
+4: import Home from './pages/Home';
+5: import SignIn from './pages/SignIn';
+[31m
+    at getRollupError (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:16946:16)
+    at Module.traceVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17400:29)
+    at ModuleScope.findVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:15067:39)
+    at ReturnValueScope.findVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5641:38)
+    at FunctionBodyScope.findVariable (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5641:38)
+    at Identifier.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5415:40)
+    at CallExpression.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2802:28)
+    at CallExpression.bind (file:///C:/Users/Redmi/Desktop/blog-website/frontend/node_modules/rollup/dist/es/shared/node-entry.js:12114:15)[39m
