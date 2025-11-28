@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllPostsThunk } from "../redux_thunks/postThunk";
+import { getAllPostsThunk,getMyPostsThunk,getSpecificUserPostsThunk } from "../redux_thunks/postThunk";
 
 const postSlice = createSlice({
     name: "posts",
@@ -36,6 +36,20 @@ const postSlice = createSlice({
             state.error = null;
         })
         .addCase(getSpecificUserPostsThunk.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.error.message;
+        })
+        //gets my posts 
+        .addCase(getMyPostsThunk.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        })
+        .addCase(getMyPostsThunk.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.posts = action.payload;
+            state.error = null;
+        })
+        .addCase(getMyPostsThunk.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.error.message;
         })

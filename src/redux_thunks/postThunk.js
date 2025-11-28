@@ -46,7 +46,7 @@
 // })
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllPosts } from "../redux_apis/post";
+import { getAllPosts,getSpecificUserPosts, getMyPosts } from "../redux_apis/post";
 
 export const getAllPostsThunk = createAsyncThunk(
     "posts/",
@@ -72,3 +72,14 @@ export const getSpecificUserPostsThunk = createAsyncThunk(
     }
 )
 
+export const getMyPostsThunk = createAsyncThunk(
+    "posts/my",
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await getMyPosts();
+            return res.data.posts;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to get posts")
+        }
+    }
+)

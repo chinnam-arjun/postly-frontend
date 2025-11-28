@@ -49,3 +49,10 @@ export const getSpecificUserPosts = async(userId)=>{
     })
 }
 
+export const getMyPosts = async ()=> {
+    return await axiosInstance.get("/posts/my", {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    })
+}
