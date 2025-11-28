@@ -107,3 +107,15 @@ export const editPostThunk = createAsyncThunk(
         }
     }
 )
+
+export const deletepostThunk = createAsyncThunk(
+    "posts/:postId",
+    async (postId, { rejectWithValue }) => {
+        try {
+            const res = await deletePost(postId);
+            return res.data.post;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to delete post")
+        }
+    }
+)

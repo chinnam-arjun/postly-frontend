@@ -73,3 +73,10 @@ export const editPost = async (postId,formData) => {
     })
 }
 
+export const deletePost = async (postId) => {
+    return await axiosInstance.delete(`/posts/${postId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    })
+}
