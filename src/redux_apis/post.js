@@ -64,3 +64,12 @@ export const addPost = async (formData) => {
         }
     })
 }
+
+export const editPost = async (postId,formData) => {
+    return await axiosInstance.put(`/posts/${postId}`, formData, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    })
+}
+
