@@ -1,121 +1,163 @@
+
 // import { createAsyncThunk } from "@reduxjs/toolkit";
-// import { addPost, deletePost, editPost, getAllPosts, getMyPosts, getSpecificPost, getSpecificUserPosts } from "../redux_apis/post";
-// import { register } from "swiper/element";
+// import { getAllPosts,getSpecificUserPosts, getMyPosts,addPost,editPost } from "../redux_apis/post";
 
-// export const addPostThunk = createAsyncThunk("posts/", async (formData)=>{
-//     const res = await addPost(formData);
-//     const data = res.data;
-//     return data;
-// })
+// export const getAllPostsThunk = createAsyncThunk(
+//     "posts/",
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             const res = await getAllPosts();
+//             return res.data.posts;//its the response structure 
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
+//         }
+//     }
+// )
 
-// export const deletepostThunk = createAsyncThunk("posts/:postId", async (postId)=>{
-//     const res = await deletePost(postId);
-//     const data  = res.data;
-//     return data;
-// })
+// export const getSpecificUserPostsThunk = createAsyncThunk(
+//     "posts/user/:userId",
+//     async (userId, { rejectWithValue }) => {
+//         try {
+//             const res = await getSpecificUserPosts(userId);
+//             return res.data.posts;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
+//         }
+//     }
+// )
 
-// export const editPostThunk = createAsyncThunk("posts/:postId", async (postId, formData)=>{
-//     const res = await editPost(postId, formData);
-//     const data = res.data;
-//     return data;
-// })
+// export const getMyPostsThunk = createAsyncThunk(
+//     "posts/my",
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             const res = await getMyPosts();
+//             return res.data.posts;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
+//         }
+//     }
+// )
 
-// export const getSpecificUserPostsThunk = createAsyncThunk("posts/user/:userId", async (userId) => {
-//     const res = await getSpecificUserPosts(userId);
-//     const data = res.data;
-//     return data;
-// })
+// export const addPostThunk = createAsyncThunk(
+//     "posts",
+//     async (formData, { rejectWithValue }) => {
+//         try {
+//             const res = await addPost(formData);
+//             return res.data.post;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to add post")
+//         }
+//     }
+// )
 
-// export const getAllPostThunk = createAsyncThunk("posts", async () => {
-//     const res = await getAllPosts();
-//     const data = res.data;
-//     return data;
-// })
+// export const editPostThunk = createAsyncThunk(
+//     "posts/:postId",
+//     async (postId, formData, { rejectWithValue }) => {
+//         try {
+//             const res = await editPost(postId, formData);
+//             return res.data.post;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to edit post")
+//         }
+//     }
+// )
 
-// export const getMyPostsThunk = createAsyncThunk("posts/my", async () => {
-//     const res = await getMyPosts();
-//     const data = res.data;
-//     return data;
-// })
-
-// //need to implement
-// export const getSpecificPost = createAsyncThunk("[posts/:postId", async (postId)=>{
-//     const res = await getSpecificPost(postId);
-//     const data = res.data;
-//     return data;
-// })
+// export const deletepostThunk = createAsyncThunk(
+//     "posts/:postId",
+//     async (postId, { rejectWithValue }) => {
+//         try {
+//             const res = await deletePost(postId);
+//             return res.data.post;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || "failed to delete post")
+//         }
+//     }
+// )
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllPosts,getSpecificUserPosts, getMyPosts,addPost,editPost } from "../redux_apis/post";
+import { 
+  getAllPosts,
+  getSpecificUserPosts,
+  getMyPosts,
+  addPost,
+  editPost,
+  deletePost
+} from "../redux_apis/post";
 
+// GET ALL POSTS
 export const getAllPostsThunk = createAsyncThunk(
-    "posts/",
+    "posts/getAll",
     async (_, { rejectWithValue }) => {
         try {
             const res = await getAllPosts();
-            return res.data.posts;//its the response structure 
+            return res.data.posts;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to get posts")
+            return rejectWithValue(error.response?.data?.message || "failed to get posts");
         }
     }
-)
+);
 
+// GET USER POSTS
 export const getSpecificUserPostsThunk = createAsyncThunk(
-    "posts/user/:userId",
+    "posts/getUserPosts",
     async (userId, { rejectWithValue }) => {
         try {
             const res = await getSpecificUserPosts(userId);
             return res.data.posts;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to get posts")
+            return rejectWithValue(error.response?.data?.message || "failed to get posts");
         }
     }
-)
+);
 
+// GET MY POSTS
 export const getMyPostsThunk = createAsyncThunk(
-    "posts/my",
+    "posts/getMine",
     async (_, { rejectWithValue }) => {
         try {
             const res = await getMyPosts();
             return res.data.posts;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to get posts")
+            return rejectWithValue(error.response?.data?.message || "failed to get posts");
         }
     }
-)
+);
 
+// ADD POST
 export const addPostThunk = createAsyncThunk(
-    "posts/",
+    "posts/add",
     async (formData, { rejectWithValue }) => {
         try {
             const res = await addPost(formData);
             return res.data.post;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to add post")
+            return rejectWithValue(error.response?.data?.message || "failed to add post");
         }
     }
-)
+);
 
+// EDIT POST
 export const editPostThunk = createAsyncThunk(
-    "posts/:postId",
-    async (postId, formData, { rejectWithValue }) => {
+    "posts/edit",
+    async ({ postId, formData }, { rejectWithValue }) => {
         try {
             const res = await editPost(postId, formData);
             return res.data.post;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to edit post")
+            return rejectWithValue(error.response?.data?.message || "failed to edit post");
         }
     }
-)
+);
 
+// DELETE POST
 export const deletepostThunk = createAsyncThunk(
-    "posts/:postId",
+    "posts/delete",
     async (postId, { rejectWithValue }) => {
         try {
             const res = await deletePost(postId);
             return res.data.post;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || "failed to delete post")
+            return rejectWithValue(error.response?.data?.message || "failed to delete post");
         }
     }
-)
+);
