@@ -9,9 +9,12 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 import { Navigation, Pagination } from "swiper/modules";
+import AddPost from '../components/posts/AddPost';
+import { useNavigate } from 'react-router-dom';
 
 
 const Home = () => {
+  const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const handleLogout = () => {
@@ -25,6 +28,11 @@ const Home = () => {
     const { posts, isLoading, error } = useSelector((state) => state.posts);
 
     console.log(posts)
+
+    const addPost = ()=>{
+      navigate("/addpost")
+      
+    }
 
     useEffect(()=>{
       dispatch(getAllPostsThunk())
@@ -44,11 +52,7 @@ const Home = () => {
       <div className='bg-grey min-h-screen w-full flex justify-center items-center flex-col'>
         <div className='bg-white p-6 rounded-lg shadow-lg w-1/2'>
             <h1 className='text-2xl font-bold mb-4'>Add New Post</h1>
-            {/* <div>
-              <input type="text" placeholder='title' />
-              <textarea name="" id=""></textarea>
-              <button onClick={handleAddPost}>Add Post</button>
-            </div> */}
+            <div onClick={()=>addPost} className='w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center cursor-pointer'>+</div>
         </div>
        <div>
   <h1 className="text-3xl font-bold my-6 text-center">Posts</h1>
