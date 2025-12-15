@@ -16,6 +16,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Feed />} />
           <Route path="/addpost" element={<AddPost />} />
+          <Route path="/home" element={<Home />} />
         </Route>
       </Routes>
     </div>
