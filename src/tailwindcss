@@ -1,0 +1,120 @@
+<header className="flex items-center justify-between bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100 px-4 sm:px-6 lg:px-8 h-16">
+        <div className="font-bold text-xl flex items-center gap-1">
+          <span>📝</span>
+          <span className="text-purple-600">POST</span>
+          <span className="text-blue-600">LY</span>
+        </div>
+
+        <div className="flex-1 max-w-2xl mx-8">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search articles, topics, or authors..."
+              className="w-full pl-12 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium"
+            onClick={()=>navigate(<PostCard />)}  >
+            <PenSquare size={18} />
+            Write Post
+          </button>
+          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <User size={20} className="text-gray-700" />
+          </button>
+        </div>
+</header>
+
+
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Search, PenSquare, User, Home, Library, List } from "lucide-react";
+
+import ForYou from "./ForYou";
+import LibraryPage from "./LibraryPage";
+import FollowingFeed from "./FollowingFeed";
+import AccountPage from "./AccountPage";
+import FeedPageHome from "./FeedPageHome";
+import PostCard from "../components/PostCard";
+
+const HomePage = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("home");
+  const renderSection = () => {
+    switch (activeTab) {
+      case "home":
+        return <FeedPageHome />;
+      case "library":
+        return <LibraryPage />;
+      case "lists":
+        return <FollowingFeed />;
+      case "profile":
+        return <AccountPage />;
+      default:
+        return <FeedPageHome />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      
+      <header className="flex items-center justify-between bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100 px-4 sm:px-6 lg:px-8 h-16">
+        <div className="font-bold text-xl flex items-center gap-1">
+          <span>📝</span>
+          <span className="text-purple-600">POST</span>
+          <span className="text-blue-600">LY</span>
+        </div>
+
+        <div className="flex-1 max-w-2xl mx-8">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search articles, topics, or authors..."
+              className="w-full pl-12 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium"
+            onClick={()=>navigate(<PostCard />)}  >
+            <PenSquare size={18} />
+            Write Post
+          </button>
+          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <User size={20} className="text-gray-700" />
+          </button>
+        </div>
+      </header>
+
+      
+      <div className="flex flex-1">
+        
+        <nav className="flex flex-col items-center justify-center gap-8 w-16 bg-white border-r border-gray-100 shadow-sm sticky top-16 h-[calc(100vh-4rem)]">
+          <div onClick={() => setActiveTab("home")} className={`p-2 rounded-lg cursor-pointer ${activeTab === "home" ? "bg-purple-100 text-purple-600" : "text-gray-500 hover:bg-gray-100"}`}>
+            <Home />
+          </div>
+          <div onClick={() => setActiveTab("library")} className={`p-2 rounded-lg cursor-pointer ${activeTab === "library" ? "bg-purple-100 text-purple-600" : "text-gray-500 hover:bg-gray-100"}`}>
+            <Library />
+          </div>
+          <div onClick={() => setActiveTab("lists")} className={`p-2 rounded-lg cursor-pointer ${activeTab === "lists" ? "bg-purple-100 text-purple-600" : "text-gray-500 hover:bg-gray-100"}`}>
+            <List />
+          </div>
+          <div onClick={() => setActiveTab("profile")} className={`p-2 rounded-lg cursor-pointer ${activeTab === "profile" ? "bg-purple-100 text-purple-600" : "text-gray-500 hover:bg-gray-100"}`}>
+            <User />
+          </div>
+        </nav>
+
+        
+        <main className="flex-1 bg-gray-50 p-6 overflow-y-auto">{renderSection()}</main>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginThunk } from '../redux_thunks/authThunk';
+import { loginThunk } from '../../redux_thunks/authThunk';
 import toast from 'react-hot-toast';
 import { Loader2, Mail, Lock } from 'lucide-react';
 

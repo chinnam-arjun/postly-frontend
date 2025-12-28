@@ -1,9 +1,9 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoutes';
-import Home from './pages/Home';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+import Home from './pages/dashboard/Home';
+import SignIn from './pages/auth/SignIn';
+import SignUp from './pages/auth/SignUp';
 import AddPost from './components/posts/AddPost';
 import Feed from './components/posts/Feed';
 
@@ -14,9 +14,9 @@ const App = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Feed />} />
+          <Route path="/feed" element={<Feed />} />
           <Route path="/addpost" element={<AddPost />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
         </Route>
       </Routes>
     </div>

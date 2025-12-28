@@ -14,8 +14,33 @@ const Posts = [
     tags: ["travel", "nature"],
     likes: [],
     likesCount: 0,
-    comments: [],
-    commentsCount: 0,
+    comments: [
+      {
+        _id: "comm001",
+        author: { _id: "user001", username: "john doe" },
+        text: "Amazing view!",
+        createdAt: "2025-01-01T12:00:00.000Z",
+        updatedAt: "2025-01-01T12:00:00.000Z",
+        __v: 0,
+      },
+      {
+        _id: "comm002",
+        author: { _id: "user002", username: "emma watson" },
+        text: "Nice shot!",
+        createdAt: "2025-01-01T13:00:00.000Z",
+        updatedAt: "2025-01-01T13:00:00.000Z",
+        __v: 0,
+      },
+      {
+        _id: "comm003",
+        author: { _id: "user003", username: "alex turner" },
+        text: "Nice shot!",
+        createdAt: "2025-01-01T14:00:00.000Z",
+        updatedAt: "2025-01-01T14:00:00.000Z",
+        __v: 0,
+      }
+    ],
+    commentsCount: 3,
     saves: [],
     savesCount: 0,
     isPublished: true,
@@ -137,7 +162,21 @@ for (let i = 6; i <= 20; i++) {
     tags: ["tag1", "tag2"],
     likes: [],
     likesCount: 0,
-    comments: [],
+    comments: [
+      
+        Array.from({ length: Math.floor(Math.random() * 4) }, (_, cidx) => ({
+          _id: `comm${i}${cidx}`,
+          author: {
+            _id: `user${String(i).padStart(3, "0")}`,
+            username: `user ${i}`,
+          },
+          text: `This is a comment ${cidx} on post ${i}.`,
+          createdAt: `2025-02-${String(i).padStart(2, "0")}T10:00:00.000Z`,
+          updatedAt: `2025-02-${String(i).padStart(2, "0")}T10:00:00.000Z`,
+          __v: 0,
+        }))
+      
+    ],
     commentsCount: 0,
     saves: [],
     savesCount: 0,
