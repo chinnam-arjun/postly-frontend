@@ -109,119 +109,67 @@
 import React, { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import PostLayout from './PostLayout/PostLayout';
-import { usePosts } from '../../hooks/usePosts'; // Import the hook we created above
+import { usePosts } from '../../hooks/usePosts';
 
 const Feed = () => {
-    const [activeTab, setActiveTab] = useState('for-you'); // 'for-you' or 'following'
+    const [activeTab, setActiveTab] = useState('for-you');
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = usePosts(activeTab);
+    const { ref, inView } = useInView({ rootMargin: '600px' });
 
-    // 1. Use the TanStack Query Hook
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading, // Initial loading state
-        isError,
-        error
-    } = usePosts(activeTab);
-
-    // 2. Setup Intersection Observer
-    // rootMargin '400px' loads the next batch before the user hits the exact bottom
-    const { ref, inView } = useInView({
-        rootMargin: '400px',
-    });
-
-    // 3. Trigger fetch when user scrolls near bottom
     useEffect(() => {
-        if (inView && hasNextPage) {
-            fetchNextPage();
-        }
-    }, [inView, hasNextPage, fetchNextPage]);
+        if (inView && hasNextPage) fetchNextPage();
+    }, [inView, hasNextPage]);
 
     return (
-        <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 px-4 md:px-8 lg:px-12 py-6">
-            <div className="max-w-[1400px] mx-auto">
-                
-                {/* --- Header & Tabs --- */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Feed</h1>
+        <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-950">
+            {/* --- FIXED STICKY HEADER --- */}
+            <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+                <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Feed</h1>
                     
-                    <div className="inline-flex p-1 bg-gray-200 dark:bg-gray-800 rounded-xl">
-                        <button 
-                            className={`px-6 py-2 text-sm font-medium rounded-lg transition-all ${
-                                activeTab === 'for-you' 
-                                ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' 
-                                : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                            onClick={() => setActiveTab('for-you')}
-                        >
-                            For You
-                        </button>
-                        <button 
-                            className={`px-6 py-2 text-sm font-medium rounded-lg transition-all ${
-                                activeTab === 'following' 
-                                ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' 
-                                : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                            onClick={() => setActiveTab('following')}
-                        >
-                            Following
-                        </button>
-                    </div>
-                </div>
-
-                {/* --- Initial Loading State (Skeleton) --- */}
-                {isLoading && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                            <div key={n} className="h-64 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-2xl"></div>
+                    <div className="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        {['for-you', 'following'].map((tab) => (
+                            <button 
+                                key={tab}
+                                className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                                    activeTab === tab 
+                                    ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                                onClick={() => setActiveTab(tab)}
+                            >
+                                {tab === 'for-you' ? 'For You' : 'Following'}
+                            </button>
                         ))}
                     </div>
-                )}
+                </div>
+            </header>
 
-                {/* --- Error State --- */}
-                {isError && (
-                    <div className="max-w-md mx-auto p-4 bg-red-100 text-red-700 rounded-lg text-center">
-                        {error?.response?.data?.message || "Could not load posts. Please try again later."}
+            <main className="max-w-[1400px] mx-auto p-4 lg:p-8">
+                {isLoading ? (
+                    <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+                        {[1, 2].map((n) => (
+                            <div key={n} className="h-[500px] bg-gray-200 dark:bg-gray-800 animate-pulse rounded-2xl" />
+                        ))}
                     </div>
-                )}
-
-                {/* --- Posts Grid --- */}
-                {!isLoading && !isError && (
-                    <div className="posts-container flex flex-col gap-4">
-                        {/* React Query returns 'pages' array. 
-                           We map over pages, then map over posts inside each page.
-                        */}
-                        {data?.pages.map((page, pageIndex) => (
-                            <React.Fragment key={pageIndex}>
-                                {page.posts && page.posts.map((post) => (
+                ) : (
+                    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+                        {data?.pages.map((page, i) => (
+                            <React.Fragment key={i}>
+                                {page.posts?.map((post) => (
                                     <PostLayout key={post._id} post={post} />
                                 ))}
                             </React.Fragment>
                         ))}
-                        
-                        {/* Check if Feed is completely empty */}
-                        {data?.pages[0]?.posts?.length === 0 && (
-                             <p className="text-center text-gray-500 py-10">No posts found in this feed.</p>
-                        )}
                     </div>
                 )}
 
-                {/* --- Infinite Scroll Trigger & Bottom Loader --- */}
-                <div ref={ref} className="mt-8 h-10 flex justify-center">
-                    {isFetchingNextPage && (
-                        // Small Loading Spinner or Skeleton for "Loading more..."
-                         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div className="h-64 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-2xl"></div>
-                        </div>
-                    )}
-                    
-                    {!hasNextPage && !isLoading && data?.pages[0]?.posts?.length > 0 && (
-                        <p className="text-gray-400 text-sm">You're all caught up! 🎉</p>
-                    )}
+                {/* Observer Trigger */}
+                <div ref={ref} className="py-10 flex justify-center">
+                    {isFetchingNextPage && <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />}
+                    {!hasNextPage && <p className="text-gray-400 text-sm italic">You've reached the end of the universe.</p>}
                 </div>
-
-            </div>
+            </main>
         </div>
     );
 };
