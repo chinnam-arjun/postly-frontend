@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <div className='min-h-screen bg-white relative'>
       {/* Header: Fixed at top */}
-      <div className='w-full h-16 z-50'>
+      <div className='w-full h-12 z-50'>
         <Header isSearchOpen={isSearchOpen} setIsSearchOpen={setIsSearchOpen} />
       </div>
       <div className='flex'>

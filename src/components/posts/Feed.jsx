@@ -123,7 +123,8 @@ const Feed = () => {
     return (
         <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* --- FIXED STICKY HEADER --- */}
-            <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+            <header className="sticky top-14
+             z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
                     <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Feed</h1>
                     
