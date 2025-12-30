@@ -17,7 +17,7 @@ const Home = () => {
         <NavBar setIsSearchOpen={setIsSearchOpen} />
         {/* Main Content Area */}
         <main className="flex-1 pb-20 md:pb-0 md:pl-16">
-          <div className="p-4">
+          <div className="p-0">
              {/* Feed/Posts Component goes here */}
              {/* <h1 className="text-2xl font-bold">Your Feed</h1>
              <div className="h-[200vh] mt-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
