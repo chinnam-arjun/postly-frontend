@@ -11,7 +11,7 @@ const fetchPosts = async ({ pageParam = 1, queryKey }) => {
     headers: {
       'Content-Type': 'application/json',
       // Note: Ideally, get this token from a global AuthContext, not hardcoded
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY2ODQyODM1LCJleHAiOjE3Njc0NDc2MzV9.9bZm-cpmuHHs4lMKr-Sw_HqajsdK15WwL7DXOap0KLc`
+      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc2NzUzMTgyNiwiZXhwIjoxNzY4MTM2NjI2fQ.DzDuesZZ1JTzFdHAUZ0KXCP5jCeRERMLY9Ngw_y1xg4`
     }
   });
 
