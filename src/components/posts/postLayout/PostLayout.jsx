@@ -1,8 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js'; // Import your hooks
 
 const PostLayout = ({ post }) => {
+    // --- Get current user from Redux ---
+    const { user } = useSelector((state) => state.auth);
+    const currentUserId = user?._id;
+    
     // --- States ---
     const [isLiked, setIsLiked] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -12,7 +17,6 @@ const PostLayout = ({ post }) => {
     const [replyingTo, setReplyingTo] = useState(null);
     
     const commentInputRef = useRef(null);
-    const currentUserId = "694fe15d081bf990bc06fe64"; // Replace with Auth Context
 
     // --- Mutations ---
     const commentMutation = useCommentMutation(post._id);
@@ -26,7 +30,7 @@ const PostLayout = ({ post }) => {
 
     const handleReplyClick = (comment) => {
         setReplyingTo(comment);
-        setCommentText(`@${comment.userId.username} `);
+        setCommentText(`@${comment.userId?.username || 'user'} `);
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
         setTimeout(() => commentInputRef.current?.focus(), 100);
     };
@@ -132,7 +136,7 @@ const PostLayout = ({ post }) => {
                 <div className="p-4 border-t dark:border-gray-800 bg-white dark:bg-gray-900">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-50 dark:bg-blue-900/20 py-1 rounded-lg">
-                            <span className="text-[10px] text-blue-500 font-bold">Replying to @{replyingTo.userId.username}</span>
+                            <span className="text-[10px] text-blue-500 font-bold">Replying to @{replyingTo.userId?.username || 'user'}</span>
                             <X size={12} className="cursor-pointer text-blue-500" onClick={() => {setReplyingTo(null); setCommentText("");}} />
                         </div>
                     )}
@@ -180,17 +184,18 @@ const UserHeader = ({ author, isFollowing, setIsFollowing }) => (
 
 // --- Sub-Component: Comment Item (Recursive) ---
 const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = false }) => {
-    const isOwner = comment.userId._id === currentUserId;
-    console.log(comment.userId._id, currentUserId);
+    // userId is just a string ID from your backend, not a full user object
+    const isOwner = comment.userId === currentUserId;
+    console.log(comment.userId, currentUserId);
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l dark:border-gray-800 pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={comment.userId.profile} className="w-7 h-7 rounded-full object-cover shrink-0" alt="" />
+                <img src={comment.userId?.profile || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0" alt="" />
                 <div className="flex flex-col grow">
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl rounded-tl-none">
                         <div className="flex justify-between items-center mb-0.5">
-                            <span className="font-bold text-[11px] dark:text-gray-300">{comment.userId.username}</span>
+                            <span className="font-bold text-[11px] dark:text-gray-300">{comment.userId?.username || 'Anonymous'}</span>
                             {isOwner && (
                                 <Trash2 size={10} className="text-gray-400 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100" onClick={() => onDelete(comment._id)} />
                             )}
