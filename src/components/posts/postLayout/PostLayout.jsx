@@ -12,7 +12,7 @@ const PostLayout = ({ post }) => {
     const [replyingTo, setReplyingTo] = useState(null);
     
     const commentInputRef = useRef(null);
-    const currentUserId = "694fe1d21cf5ec903185730e"; // Replace with Auth Context
+    const currentUserId = "694fe15d081bf990bc06fe64"; // Replace with Auth Context
 
     // --- Mutations ---
     const commentMutation = useCommentMutation(post._id);
@@ -181,6 +181,7 @@ const UserHeader = ({ author, isFollowing, setIsFollowing }) => (
 // --- Sub-Component: Comment Item (Recursive) ---
 const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = false }) => {
     const isOwner = comment.userId._id === currentUserId;
+    console.log(comment.userId._id, currentUserId);
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l dark:border-gray-800 pl-3' : 'mt-4'}`}>

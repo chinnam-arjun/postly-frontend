@@ -6,12 +6,13 @@ import axios from 'axios';
 const fetchPosts = async ({ pageParam = 1, queryKey }) => {
   const [_, type] = queryKey; // Extract 'for-you' or 'following' from key
   
+  const token = localStorage.getItem('token');
+  
   const response = await axios.get(`http://localhost:5000/feed/${type}?page=${pageParam}&limit=10`, {
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',
-      // Note: Ideally, get this token from a global AuthContext, not hardcoded
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc3NDY4NjkxMCwiZXhwIjoxNzc1MjkxNzEwfQ.Ii4awk9yx33x5Hyj6ozLCM98UVZIJqCx1Dj2Ir14iEk`
+      'Authorization': token ? `Bearer ${token}` : ''
     }
   });
 
