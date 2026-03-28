@@ -1,5 +1,5 @@
 // usePosts.js
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 // 1. Move the fetcher outside the hook
@@ -11,7 +11,7 @@ const fetchPosts = async ({ pageParam = 1, queryKey }) => {
     headers: {
       'Content-Type': 'application/json',
       // Note: Ideally, get this token from a global AuthContext, not hardcoded
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc2NzUzMTgyNiwiZXhwIjoxNzY4MTM2NjI2fQ.DzDuesZZ1JTzFdHAUZ0KXCP5jCeRERMLY9Ngw_y1xg4`
+      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc3NDY4NjkxMCwiZXhwIjoxNzc1MjkxNzEwfQ.Ii4awk9yx33x5Hyj6ozLCM98UVZIJqCx1Dj2Ir14iEk`
     }
   });
 
@@ -39,5 +39,46 @@ export const usePosts = (type) => {
     
     // Keep data fresh to avoid refetching on simple navigation
     staleTime: 1000 * 60 * 5, 
+  });
+};
+
+export const useCommentMutation = (postId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ content, parentCommentId }) => {
+      // Switch URL based on whether it's a new comment or a reply
+      const url = parentCommentId 
+        ? `http://localhost:5000/posts/${postId}/comment/${parentCommentId}/reply`
+        : `http://localhost:5000/posts/${postId}/comment`;
+
+      const response = await axios.post(url, { content }, {
+        withCredentials: true,
+        headers: { 
+          'Content-Type': 'application/json',
+         }
+      });
+      return response.data;
+    },
+    // When the mutation succeeds, refresh the post data
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+};
+
+export const useDeleteCommentMutation = (postId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (commentId) => {
+      await axios.delete(`http://localhost:5000/posts/${postId}/comment/${commentId}`, {
+        withCredentials: true,
+        headers: { 'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc2NzUzMTgyNiwiZXhwIjoxNzY4MTM2NjI2fQ.DzDuesZZ1JTzFdHAUZ0KXCP5jCeRERMLY9Ngw_y1xg4` }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
   });
 };

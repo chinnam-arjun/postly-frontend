@@ -113,12 +113,12 @@ import { usePosts } from '../../hooks/usePosts';
 
 const Feed = () => {
     const [activeTab, setActiveTab] = useState('for-you');
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = usePosts(activeTab);
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading,  } = usePosts(activeTab);
     const { ref, inView } = useInView({ rootMargin: '600px' });
 
     useEffect(() => {
         if (inView && hasNextPage) fetchNextPage();
-    }, [inView, hasNextPage]);
+    }, [inView, hasNextPage, fetchNextPage]);
 
     return (
         <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-950">
