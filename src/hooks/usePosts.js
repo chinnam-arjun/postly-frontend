@@ -1,6 +1,7 @@
 // usePosts.js
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import axiosInstance from '../utils/AxiosInstance';
 
 // 1. Move the fetcher outside the hook
 const fetchPosts = async ({ pageParam = 1, queryKey }) => {
@@ -8,7 +9,7 @@ const fetchPosts = async ({ pageParam = 1, queryKey }) => {
   
   const token = localStorage.getItem('token');
   
-  const response = await axios.get(`http://localhost:5000/feed/${type}?page=${pageParam}&limit=10`, {
+  const response = await axiosInstance.get(`/feed/${type}?page=${pageParam}&limit=10`, {
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',
