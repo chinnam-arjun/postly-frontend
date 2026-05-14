@@ -9,5 +9,5 @@ export const login = (formData) => {
 };
 
 export const getCurrentUser = () => {
-    return axiosInstance.get("/auth/me");
+    return axiosInstance.get("/auth/current");
 };
