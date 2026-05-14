@@ -1,5 +1,5 @@
 // usePosts.js
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import axiosInstance from '../utils/AxiosInstance';
 
@@ -19,6 +19,25 @@ const fetchPosts = async ({ pageParam = 1, queryKey }) => {
 
   // Return the data exactly as your backend sends it
   return response.data; 
+};
+
+// Hook for fetching user's own posts
+const fetchUserPosts = async () => {
+  const response = await axiosInstance.get('/posts/my', {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+  return response.data.posts || [];
+};
+
+export const useUserPosts = () => {
+  return useQuery({
+    queryKey: ['userPosts'],
+    queryFn: fetchUserPosts,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 };
 
 export const usePosts = (type) => {

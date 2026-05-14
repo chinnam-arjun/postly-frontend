@@ -6,6 +6,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import AddPost from './components/posts/AddPost';
 import Feed from './components/posts/Feed';
+import ProfilePage from './pages/profile/mine/ProfilePage';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/feed" element={<Feed />} />
           <Route path="/addpost" element={<AddPost />} />
           <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </div>
