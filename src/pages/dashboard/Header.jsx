@@ -127,7 +127,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
         <div className="flex items-center min-w-[40px]">
           {/* Mobile: Write Post Icon (Hidden on md+) */}
           <button 
-            onClick={() => navigate('/create')}
+            onClick={() => navigate('/addpost')}
             className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
           >
             <PenSquare size={24} />
