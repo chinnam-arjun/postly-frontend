@@ -86,7 +86,7 @@ import {
 
 // GET ALL POSTS
 export const getAllPostsThunk = createAsyncThunk(
-    "posts/getAll",
+    "posts/",
     async (_, { rejectWithValue }) => {
         try {
             const res = await getAllPosts();
@@ -99,7 +99,7 @@ export const getAllPostsThunk = createAsyncThunk(
 
 // GET USER POSTS
 export const getSpecificUserPostsThunk = createAsyncThunk(
-    "posts/getUserPosts",
+    "posts/user/:userId",
     async (userId, { rejectWithValue }) => {
         try {
             const res = await getSpecificUserPosts(userId);
@@ -112,7 +112,7 @@ export const getSpecificUserPostsThunk = createAsyncThunk(
 
 // GET MY POSTS
 export const getMyPostsThunk = createAsyncThunk(
-    "posts/getMine",
+    "posts/my",
     async (_, { rejectWithValue }) => {
         try {
             const res = await getMyPosts();
@@ -125,7 +125,7 @@ export const getMyPostsThunk = createAsyncThunk(
 
 // ADD POST
 export const addPostThunk = createAsyncThunk(
-    "posts/add",
+    "posts/",
     async (formData, { rejectWithValue }) => {
         try {
             const res = await addPost(formData);
@@ -138,7 +138,7 @@ export const addPostThunk = createAsyncThunk(
 
 // EDIT POST
 export const editPostThunk = createAsyncThunk(
-    "posts/edit",
+    "posts/:postId",
     async ({ postId, formData }, { rejectWithValue }) => {
         try {
             const res = await editPost(postId, formData);
@@ -151,7 +151,7 @@ export const editPostThunk = createAsyncThunk(
 
 // DELETE POST
 export const deletepostThunk = createAsyncThunk(
-    "posts/delete",
+    "posts/:postId",
     async (postId, { rejectWithValue }) => {
         try {
             const res = await deletePost(postId);
