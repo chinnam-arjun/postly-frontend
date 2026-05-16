@@ -15,7 +15,7 @@ export const loginThunk = createAsyncThunk("auth/signin", async (formData)=>{
     return data;
 })
 
-export const getCurrentUserThunk = createAsyncThunk("auth/me", async ()=>{
+export const getCurrentUserThunk = createAsyncThunk("auth/current", async ()=>{
     const res = await getCurrentUser();
     const data = res.data;
     return data;
