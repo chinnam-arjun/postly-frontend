@@ -11,15 +11,15 @@ const SignIn = () => {
     password: '',
   });
 
-  const { isLoading, token } = useSelector((state) => state.auth);
+  const { isLoading, token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
+    if (token && user) {
       navigate('/');
     }
-  }, [token, navigate]);
+  }, [token, user, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

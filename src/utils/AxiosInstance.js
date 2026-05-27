@@ -1,5 +1,7 @@
 import axios from "axios";
 import { baseUrl } from "./base_url";
+import { store, persistor } from "../store";
+import { clearAuth } from "../redux_slices/authSlice";
 
 const axiosInstance = axios.create({
     baseURL: baseUrl,
@@ -26,14 +28,17 @@ axiosInstance.interceptors.request.use(
 // 2. Response Interceptor (Handles the 401 Unauthorized)
 axiosInstance.interceptors.response.use(
     (response) => {
-        return response; // Success! Just pass the response through
+        return response;
     },
     (error) => {
-        // This is where the 401 is caught
         if (error.response && error.response.status === 401) {
-            console.log("Unauthorized! Redirecting...");
+            console.log("Unauthorized: clearing auth state and redirecting to signin.");
+            store.dispatch(clearAuth());
+            persistor.purge();
             localStorage.removeItem('token');
-            window.location.href = '/signin';
+            if (typeof window !== 'undefined') {
+                window.location.href = '/signin';
+            }
         }
         return Promise.reject(error);
     }

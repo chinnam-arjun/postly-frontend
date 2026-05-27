@@ -1,24 +1,12 @@
 // usePosts.js
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import axiosInstance from '../utils/AxiosInstance';
 
 // 1. Move the fetcher outside the hook
 const fetchPosts = async ({ pageParam = 1, queryKey }) => {
   const [_, type] = queryKey; // Extract 'for-you' or 'following' from key
-  
-  const token = localStorage.getItem('token');
-  
-  const response = await axiosInstance.get(`/feed/${type}?page=${pageParam}&limit=10`, {
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    }
-  });
-
-  // Return the data exactly as your backend sends it
-  return response.data; 
+  const response = await axiosInstance.get(`/feed/${type}?page=${pageParam}&limit=10`);
+  return response.data;
 };
 
 // Hook for fetching user's own posts
@@ -68,17 +56,11 @@ export const useCommentMutation = (postId) => {
 
   return useMutation({
     mutationFn: async ({ content, parentCommentId }) => {
-      // Switch URL based on whether it's a new comment or a reply
       const url = parentCommentId 
-        ? `http://localhost:5000/posts/${postId}/comment/${parentCommentId}/reply`
-        : `http://localhost:5000/posts/${postId}/comment`;
+        ? `/posts/${postId}/comment/${parentCommentId}/reply`
+        : `/posts/${postId}/comment`;
 
-      const response = await axios.post(url, { content }, {
-        withCredentials: true,
-        headers: { 
-          'Content-Type': 'application/json',
-         }
-      });
+      const response = await axiosInstance.post(url, { content });
       return response.data;
     },
     // When the mutation succeeds, refresh the post data
@@ -93,10 +75,7 @@ export const useDeleteCommentMutation = (postId) => {
 
   return useMutation({
     mutationFn: async (commentId) => {
-      await axios.delete(`http://localhost:5000/posts/${postId}/comment/${commentId}`, {
-        withCredentials: true,
-        headers: { 'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGZlMWQyMWNmNWVjOTAzMTg1NzMwZSIsImlhdCI6MTc2NzUzMTgyNiwiZXhwIjoxNzY4MTM2NjI2fQ.DzDuesZZ1JTzFdHAUZ0KXCP5jCeRERMLY9Ngw_y1xg4` }
-      });
+      await axiosInstance.delete(`/posts/${postId}/comment/${commentId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
