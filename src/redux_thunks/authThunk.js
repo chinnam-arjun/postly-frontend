@@ -12,26 +12,11 @@ export const loginThunk = createAsyncThunk("auth/signin", async (formData)=>{
     const res = await login(formData);
     const data = res.data;
     localStorage.setItem("token", data.token);
-    console.log("login response: ", data)
-    // return data;
-
-    const userRes = await getCurrentUser();
-    return {
-        token: data.token,
-        user: userRes.data.user  // full user object
-    };
+    return data;
 })
 
-// export const getCurrentUserThunk = createAsyncThunk("auth/me", async ()=>{
-//     const res = await getCurrentUser();
-//     const data = res.data;
-//     return data;
-// })
-
-
-export const getCurrentUserThunk = createAsyncThunk("auth/me", async () => {
+export const getCurrentUserThunk = createAsyncThunk("auth/me", async ()=>{
     const res = await getCurrentUser();
     const data = res.data;
-    console.log("getCurrentUser API response:", data); // idi em chupistundi?
     return data;
 })
