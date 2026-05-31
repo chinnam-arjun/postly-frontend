@@ -115,6 +115,7 @@
 import React from 'react';
 import { Search, PenSquare, User, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import NavbarProfileDropdown from './NavBarProfileDropDown';
 
 const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const navigate = useNavigate();
@@ -180,12 +181,13 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
           </button>
 
           {/* Profile Icon (Visible on All) */}
-          <button 
+          {/* <button 
             className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors border border-gray-200"
             onClick={() => navigate('/profile')}
           >
             <User size={20} className="text-gray-700" />
-          </button>
+          </button> */}
+          <NavbarProfileDropdown />
         </div>
       </div>
 
