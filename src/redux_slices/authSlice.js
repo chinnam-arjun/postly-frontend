@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 // import { register, login, logout, getCurrentUser } from "../redux_apis/auth";
 import { registerThunk, loginThunk, getCurrentUserThunk } from "../redux_thunks/authThunk";
+import { editMyProfileThunk, followThunk } from "../redux_thunks/userThunk";
 
 const initialState = {
     user: null,
@@ -79,6 +80,18 @@ const authSlice = createSlice({
         .addCase(getCurrentUserThunk.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.error.message;
+        })
+        // Handle profile edits - sync with authSlice
+        .addCase(editMyProfileThunk.fulfilled, (state, action) => {
+            if (state.user) {
+                state.user = { ...state.user, ...action.payload };
+            }
+        })
+        // Handle follow/unfollow - sync followers/following with authSlice
+        .addCase(followThunk.fulfilled, (state, action) => {
+            if (state.user) {
+                state.user = { ...state.user, ...action.payload };
+            }
         })
     }
 })

@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
 import { useUserPosts } from '../../../hooks/usePosts';
 import PostLayout from '../../../components/posts/postLayout/PostLayout';
-import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark } from 'lucide-react';
+import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSnow } from 'lucide-react';
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
@@ -33,6 +33,7 @@ const ProfilePage = () => {
     );
   }
 
+  console.log(user)//why its just id not any details ?
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-3">
@@ -53,7 +54,7 @@ const ProfilePage = () => {
             <div className="flex items-end justify-between -mt-10 mb-3">
               <div className="relative">
                 <img
-                  src={user.profilepic || 'https://via.placeholder.com/150'}
+                  src={user.username || 'https://via.placeholder.com/150'}
                   alt={user.username}
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white dark:border-gray-900 object-cover bg-gray-100 dark:bg-gray-800"
                 />

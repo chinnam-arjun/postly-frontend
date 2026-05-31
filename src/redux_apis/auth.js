@@ -8,6 +8,6 @@ export const login = (formData) => {
     return axiosInstance.post("/auth/signin", formData);
 };
 
-export const getCurrentUser = () => {
+export const getCurrentUser = () => {    
     return axiosInstance.get("/auth/current");
 };
