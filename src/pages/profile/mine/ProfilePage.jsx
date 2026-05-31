@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
+
 import { useUserPosts } from '../../../hooks/usePosts';
 import PostLayout from '../../../components/posts/postLayout/PostLayout';
 import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSnow } from 'lucide-react';
