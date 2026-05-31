@@ -54,7 +54,7 @@ const ProfilePage = () => {
             <div className="flex items-end justify-between -mt-10 mb-3">
               <div className="relative">
                 <img
-                  src={user.username || 'https://via.placeholder.com/150'}
+                  src={user.profile || 'https://via.placeholder.com/150'}
                   alt={user.username}
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white dark:border-gray-900 object-cover bg-gray-100 dark:bg-gray-800"
                 />
