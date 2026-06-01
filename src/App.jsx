@@ -7,6 +7,9 @@ import SignUp from './pages/auth/SignUp';
 import AddPost from './components/posts/AddPost';
 import Feed from './components/posts/Feed';
 import ProfilePage from './pages/profile/mine/ProfilePage';
+import CreateArticle from './pages/articles/CreateArticle';      // ✅
+import ArticleFeed from './pages/articles/ArticleFeed';          // ✅
+import ArticleRead from './pages/articles/ArticleRead';          // ✅
 
 const App = () => {
   return (
@@ -19,6 +22,11 @@ const App = () => {
           <Route path="/addpost" element={<AddPost />} />
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Article Routes ✅ */}
+          <Route path="/articles" element={<ArticleFeed />} />
+          <Route path="/articles/create" element={<CreateArticle />} />
+          <Route path="/articles/:storyId" element={<ArticleRead />} />
         </Route>
       </Routes>
     </div>
