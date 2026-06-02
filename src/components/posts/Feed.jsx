@@ -15,11 +15,11 @@ const Feed = () => {
     return (
         <div className="w-full min-h-screen bg-gray-950">
             {/* --- FIXED STICKY HEADER --- */}
-            <header className="sticky top-16 z-40 w-full bg-gray-950/80 backdrop-blur-md">
+            <header className="sticky top-16 z-40 w-full bg-gray-950/80 backdrop-blur-md border-b border-gray-800/50">
                 <div className="max-w-[1400px] mx-auto px-4 h-14 flex items-center justify-between">
                     <h1 className="text-lg font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Feed</h1>
                     
-                    <div className="inline-flex p-0.5 bg-gray-900/50 rounded-lg">
+                    <div className="inline-flex p-0.5 bg-gray-900/50 rounded-lg border border-gray-800">
                         {['for-you', 'following'].map((tab) => (
                             <button 
                                 key={tab}
