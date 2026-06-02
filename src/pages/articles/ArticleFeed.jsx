@@ -5,52 +5,52 @@ import { getArticleFeedThunk } from '../../redux_thunks/articleThunk'
 
 const styles = {
   page: {
-    maxWidth: '680px',
+    maxWidth: '800px',
     margin: '0 auto',
-    padding: '1.5rem 1rem',
+    padding: '2rem 1rem',
     fontFamily: "'DM Sans', sans-serif",
     minHeight: '100vh',
-    backgroundColor: '#0d0f0e',
     color: '#e8ede9',
   },
   topbar: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '1.5rem',
+    marginBottom: '2rem',
     paddingBottom: '1rem',
-    borderBottom: '0.5px solid #2a2e2c',
+    borderBottom: '1px solid #1f2937', // border-gray-800
   },
   pageTitle: {
     fontFamily: "'Lora', serif",
-    fontSize: '18px',
+    fontSize: '24px',
     fontWeight: '600',
     color: '#e8ede9',
   },
   writeBtn: {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
     background: '#4caf6e',
     border: 'none',
     color: '#0d1a10',
-    padding: '7px 16px',
+    padding: '8px 20px',
     borderRadius: '999px',
-    fontSize: '13px',
-    fontWeight: '500',
+    fontSize: '14px',
+    fontWeight: '600',
     fontFamily: "'DM Sans', sans-serif",
     cursor: 'pointer',
+    transition: 'transform 0.2s',
   },
 
   // Article Card
   card: {
-    background: '#141716',
-    border: '0.5px solid #2a2e2c',
-    borderRadius: '12px',
-    marginBottom: '1rem',
+    background: '#111827', // bg-gray-900
+    border: '1px solid #1f2937', // border-gray-800
+    borderRadius: '16px',
+    marginBottom: '1.5rem',
     cursor: 'pointer',
     overflow: 'hidden',
-    transition: 'border-color 0.2s',
+    transition: 'all 0.2s',
   },
   cardBody: {
     padding: '1rem 1.25rem',

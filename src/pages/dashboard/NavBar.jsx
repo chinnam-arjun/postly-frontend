@@ -28,9 +28,9 @@ const NavBar = ({ setIsSearchOpen }) => {
   return (
     <nav className="
       /* Mobile Styles */
-      fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 px-4 flex flex-row items-center justify-around z-40
+      fixed bottom-0 left-0 w-full h-16 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 px-4 flex flex-row items-center justify-around z-40
       /* Desktop/Tablet Styles */
-      md:top-16 md:left-0 md:w-16 md:h-[calc(100vh-64px)] md:flex-col md:justify-start md:pt-8 md:border-t-0 md:border-r
+      md:top-16 md:left-0 md:w-16 md:h-[calc(100vh-64px)] md:flex-col md:justify-start md:pt-8 md:border-t-0 md:border-r md:border-gray-800
     ">
       {navItems.map((item) => {
         const Icon = item.icon;
@@ -41,7 +41,7 @@ const NavBar = ({ setIsSearchOpen }) => {
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className="p-2 text-gray-500 hover:text-purple-600 md:hidden transition-colors"
+              className="p-2 text-gray-400 hover:text-purple-400 md:hidden transition-colors"
             >
               <Icon size={24} />
             </button>
@@ -52,15 +52,15 @@ const NavBar = ({ setIsSearchOpen }) => {
           <button
             key={item.id}
             onClick={() => handleNavClick(item)}
-            className={`p-3 md:mb-4 rounded-xl transition-all duration-200 flex flex-col items-center group
-              ${activeTab === item.id ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:bg-gray-100'}
+            className={`p-3 md:mb-4 rounded-xl transition-all duration-200 flex flex-col items-center group relative
+              ${activeTab === item.id ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500 hover:bg-gray-900 hover:text-gray-300'}
             `}
           >
             <Icon size={24} strokeWidth={activeTab === item.id ? 2.5 : 2} />
             <span className="text-[10px] mt-1 md:hidden font-medium">{item.label}</span>
             
             {/* Tooltip for Desktop */}
-            <span className="hidden md:group-hover:block absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded ml-2 whitespace-nowrap">
+            <span className="hidden md:group-hover:block absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded ml-2 whitespace-nowrap z-50">
               {item.label}
             </span>
           </button>

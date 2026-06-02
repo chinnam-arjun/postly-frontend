@@ -13,21 +13,20 @@ const Feed = () => {
     }, [inView, hasNextPage, fetchNextPage]);
 
     return (
-        <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="w-full min-h-screen bg-gray-950">
             {/* --- FIXED STICKY HEADER --- */}
-            <header className="sticky top-14
-             z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+            <header className="sticky top-0 z-40 w-full bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
                 <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Feed</h1>
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Feed</h1>
                     
-                    <div className="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <div className="inline-flex p-1 bg-gray-900 rounded-lg border border-gray-800">
                         {['for-you', 'following'].map((tab) => (
                             <button 
                                 key={tab}
                                 className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                     activeTab === tab 
-                                    ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' 
-                                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                    ? 'bg-gray-800 text-purple-400 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-300'
                                 }`}
                                 onClick={() => setActiveTab(tab)}
                             >
@@ -42,7 +41,7 @@ const Feed = () => {
                 {isLoading ? (
                     <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
                         {[1, 2].map((n) => (
-                            <div key={n} className="h-[500px] bg-gray-200 dark:bg-gray-800 animate-pulse rounded-2xl" />
+                            <div key={n} className="h-[500px] bg-gray-900 animate-pulse rounded-2xl border border-gray-800" />
                         ))}
                     </div>
                 ) : (

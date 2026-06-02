@@ -35,11 +35,11 @@ const ProfilePage = () => {
 
   console.log(user)//why its just id not any details ?
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-950">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-3">
 
         {/* ── Profile card ── */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+        <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
 
           {/* Cover */}
           <div className="h-36 sm:h-44 bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 relative">
@@ -100,10 +100,10 @@ const ProfilePage = () => {
         </div>
 
         {/* ── Tabs + content ── */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+        <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
 
           {/* Tab bar */}
-          <div className="flex border-b border-gray-100 dark:border-gray-800">
+          <div className="flex border-b border-gray-800">
             {[
               { key: 'posts', label: 'Posts', Icon: Grid3X3 },
               { key: 'articles', label: 'Articles', Icon: FileText },
@@ -113,8 +113,8 @@ const ProfilePage = () => {
                 onClick={() => setActiveTab(key)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === key
-                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                    : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
                 <Icon size={16} />
@@ -195,7 +195,7 @@ const ProfilePage = () => {
           className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
           onClick={(e) => e.target === e.currentTarget && setSelectedPost(null)}
         >
-          <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden relative shadow-2xl">
+          <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden relative shadow-2xl border border-gray-800">
             <button
               onClick={() => setSelectedPost(null)}
               className="absolute top-3 right-3 z-10 w-8 h-8 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors"
