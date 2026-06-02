@@ -5,32 +5,46 @@ import {
     createArticleThunk,
     updateArticleThunk,
     deleteArticleThunk,
+    toggleArticleLikeThunk,
+    toggleArticleSaveThunk,
+    getArticleCommentsThunk,
+    addArticleCommentThunk,
+    deleteArticleCommentThunk,
 } from "../redux_thunks/articleThunk";
 
 const articleSlice = createSlice({
     name: "articles",
     initialState: {
-        articles: [],          // feed articles list
-        currentArticle: null,  // single article view
-        pagination: null,      // feed pagination info
+        articles: [],
+        currentArticle: null,
+        comments: [],
+        pagination: null,
         isLoading: false,
+        commentsLoading: false,
         error: null,
     },
     reducers: {
         clearCurrentArticle: (state) => {
             state.currentArticle = null;
+            state.comments = [];
         },
     },
     extraReducers: (builder) => {
         builder
-        // Feed
+
+        // ── Feed ─────────────────────────────────────────
         .addCase(getArticleFeedThunk.pending, (state) => {
             state.isLoading = true;
             state.error = null;
         })
         .addCase(getArticleFeedThunk.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.articles = action.payload.stories;
+            // Load more — page 1 replace, page 2+ append
+            if (action.payload.pagination?.page === 1) {
+                state.articles = action.payload.stories;
+            } else {
+                state.articles = [...state.articles, ...action.payload.stories];
+            }
             state.pagination = action.payload.pagination;
         })
         .addCase(getArticleFeedThunk.rejected, (state, action) => {
@@ -38,7 +52,7 @@ const articleSlice = createSlice({
             state.error = action.payload;
         })
 
-        // Single Article
+        // ── Single Article ────────────────────────────────
         .addCase(getArticleByIdThunk.pending, (state) => {
             state.isLoading = true;
             state.error = null;
@@ -52,7 +66,7 @@ const articleSlice = createSlice({
             state.error = action.payload;
         })
 
-        // Create
+        // ── Create ────────────────────────────────────────
         .addCase(createArticleThunk.pending, (state) => {
             state.isLoading = true;
             state.error = null;
@@ -66,7 +80,7 @@ const articleSlice = createSlice({
             state.error = action.payload;
         })
 
-        // Update
+        // ── Update ────────────────────────────────────────
         .addCase(updateArticleThunk.pending, (state) => {
             state.isLoading = true;
             state.error = null;
@@ -83,7 +97,7 @@ const articleSlice = createSlice({
             state.error = action.payload;
         })
 
-        // Delete
+        // ── Delete ────────────────────────────────────────
         .addCase(deleteArticleThunk.pending, (state) => {
             state.isLoading = true;
             state.error = null;
@@ -93,10 +107,64 @@ const articleSlice = createSlice({
             state.articles = state.articles.filter(
                 a => a._id !== action.payload.storyId
             );
+            state.currentArticle = null;
         })
         .addCase(deleteArticleThunk.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload;
+        })
+
+        // ── Toggle Like ───────────────────────────────────
+        .addCase(toggleArticleLikeThunk.fulfilled, (state, action) => {
+            const { storyId, likesCount } = action.payload;
+            if (state.currentArticle?._id === storyId) {
+                state.currentArticle.likesCount = likesCount;
+                const userId = action.meta.arg; // not available here — handle in component
+            }
+            state.articles = state.articles.map(a =>
+                a._id === storyId ? { ...a, likesCount } : a
+            );
+        })
+
+        // ── Toggle Save ───────────────────────────────────
+        .addCase(toggleArticleSaveThunk.fulfilled, (state, action) => {
+            const { storyId, savesCount } = action.payload;
+            if (state.currentArticle?._id === storyId) {
+                state.currentArticle.savesCount = savesCount;
+            }
+            state.articles = state.articles.map(a =>
+                a._id === storyId ? { ...a, savesCount } : a
+            );
+        })
+
+        // ── Get Comments ──────────────────────────────────
+        .addCase(getArticleCommentsThunk.pending, (state) => {
+            state.commentsLoading = true;
+        })
+        .addCase(getArticleCommentsThunk.fulfilled, (state, action) => {
+            state.commentsLoading = false;
+            state.comments = action.payload.comments;
+        })
+        .addCase(getArticleCommentsThunk.rejected, (state) => {
+            state.commentsLoading = false;
+        })
+
+        // ── Add Comment ───────────────────────────────────
+        .addCase(addArticleCommentThunk.fulfilled, (state, action) => {
+            state.comments = [...state.comments, action.payload.comment];
+            if (state.currentArticle) {
+                state.currentArticle.commentsCount++;
+            }
+        })
+
+        // ── Delete Comment ────────────────────────────────
+        .addCase(deleteArticleCommentThunk.fulfilled, (state, action) => {
+            state.comments = state.comments.filter(
+                c => c._id !== action.payload.commentId
+            );
+            if (state.currentArticle) {
+                state.currentArticle.commentsCount--;
+            }
         })
     },
 });
