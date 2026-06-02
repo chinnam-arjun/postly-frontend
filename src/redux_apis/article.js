@@ -33,3 +33,32 @@ export const deleteArticleAPI = async (storyId) => {
     const res = await axiosInstance.delete(`/stories/${storyId}`);
     return res.data;
 };
+
+// ── Interactions ──────────────────────────────────────
+
+export const toggleArticleLikeAPI = async (storyId) => {
+    const res = await axiosInstance.post(`/stories/${storyId}/like`);
+    return res.data;
+};
+
+export const toggleArticleSaveAPI = async (storyId) => {
+    const res = await axiosInstance.post(`/stories/${storyId}/save`);
+    return res.data;
+};
+
+// ── Comments ──────────────────────────────────────────
+
+export const getArticleCommentsAPI = async (storyId) => {
+    const res = await axiosInstance.get(`/stories/${storyId}/comments`);
+    return res.data;
+};
+
+export const addArticleCommentAPI = async (storyId, content) => {
+    const res = await axiosInstance.post(`/stories/${storyId}/comment`, { content });
+    return res.data;
+};
+
+export const deleteArticleCommentAPI = async (storyId, commentId) => {
+    const res = await axiosInstance.delete(`/stories/${storyId}/comment/${commentId}`);
+    return res.data;
+};
