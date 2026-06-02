@@ -7,7 +7,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-gray-950/80 backdrop-blur-md fixed w-full top-0 z-50 border-b border-gray-800/50 px-4 sm:px-6 lg:px-8 h-16 flex items-center">
+    <header className="bg-gray-950/80 backdrop-blur-md fixed w-full top-0 z-50 px-4 sm:px-6 lg:px-8 h-16 flex items-center">
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
         
         {/* --- LEFT SECTION --- */}

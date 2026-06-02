@@ -59,17 +59,17 @@ const PostLayout = ({ post }) => {
     }, [showCommentsMobile]);
 
     return (
-        <article className="w-full bg-gray-900 border border-gray-800/50 rounded-2xl overflow-hidden flex flex-col lg:flex-row shadow-xl lg:h-[650px] relative">
+        <article className="w-full bg-gray-900 rounded-3xl overflow-hidden flex flex-col lg:flex-row shadow-2xl lg:h-[650px] relative">
             
             {/* LEFT SIDE: Media & Main Info */}
-            <div className="w-full lg:w-[60%] flex flex-col border-r border-gray-800/50 h-full">
+            <div className="w-full lg:w-[60%] flex flex-col h-full">
                 {/* Mobile User Header */}
                 <div className="lg:hidden">
                     <UserHeader author={post.author} isFollowing={isFollowing} setIsFollowing={setIsFollowing} />
                 </div>
 
                 {/* Desktop Title */}
-                <div className="hidden lg:flex px-4 border-b border-gray-800/50 h-14 items-center justify-between bg-gray-900/50">
+                <div className="hidden lg:flex px-6 h-14 items-center justify-between bg-gray-900/50">
                     <h2 className="text-sm font-bold text-gray-200 truncate">{post.title}</h2>
                     <MoreHorizontal className="text-gray-500 cursor-pointer hover:text-gray-300 transition-colors" size={18} />
                 </div>
@@ -98,7 +98,7 @@ const PostLayout = ({ post }) => {
                 </div>
 
                 {/* Caption */}
-                <div className="px-4 pb-4 bg-gray-900">
+                <div className="px-4 pb-6 bg-gray-900">
                     <p className="text-sm font-bold text-white mb-1">{isLiked ? post.likesCount + 1 : post.likesCount} likes</p>
                     <p className="text-sm text-gray-400">
                         <span className="font-bold mr-2 text-gray-200">{post.author.username}</span>
@@ -109,9 +109,9 @@ const PostLayout = ({ post }) => {
 
             {/* RIGHT SIDE: Comments */}
             <div className={`
-                w-full lg:w-[40%] flex flex-col h-full bg-gray-950/50
+                w-full lg:w-[40%] flex flex-col h-full bg-gray-950/30
                 ${showCommentsMobile ? 'fixed inset-0 z-[60] pt-10 lg:pt-0' : 'hidden lg:flex'} 
-                lg:relative border-l border-gray-800/50
+                lg:relative
             `}>
                 <div className="absolute top-4 right-4 lg:hidden z-[70]">
                     <X className="text-gray-400 cursor-pointer hover:text-white transition-colors" onClick={() => setShowCommentsMobile(false)} />
@@ -133,14 +133,14 @@ const PostLayout = ({ post }) => {
                 </div>
 
                 {/* Comment Input Section */}
-                <div className="p-4 border-t border-gray-800/50 bg-gray-900">
+                <div className="p-4 bg-gray-900">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-900/20 py-1 rounded-lg">
                             <span className="text-[10px] text-blue-400 font-bold">Replying to @{replyingTo.userId?.username || 'user'}</span>
                             <X size={12} className="cursor-pointer text-blue-400" onClick={() => {setReplyingTo(null); setCommentText("");}} />
                         </div>
                     )}
-                    <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-700 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                    <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                         <input 
                             ref={commentInputRef}
                             type="text" 
@@ -165,9 +165,9 @@ const PostLayout = ({ post }) => {
 
 // --- Sub-Component: User Header ---
 const UserHeader = ({ author, isFollowing, setIsFollowing }) => (
-    <div className="p-4 flex items-center justify-between border-b border-gray-800/50 h-14 shrink-0 bg-gray-900">
+    <div className="p-4 flex items-center justify-between h-14 shrink-0 bg-gray-900/80">
         <div className="flex items-center gap-3">
-            <img src={author.profilepic} className="w-8 h-8 rounded-full object-cover border border-gray-700" alt="" />
+            <img src={author.profilepic} className="w-8 h-8 rounded-full object-cover" alt="" />
             <div className="flex flex-col">
                 <span className="font-bold text-xs text-white">{author.username}</span>
                 <span className="text-[9px] text-gray-500 uppercase tracking-wider">Author</span>
@@ -175,7 +175,7 @@ const UserHeader = ({ author, isFollowing, setIsFollowing }) => (
         </div>
         <button 
             onClick={() => setIsFollowing(!isFollowing)}
-            className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-gray-800 text-gray-400 border border-gray-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
+            className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-gray-800 text-gray-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
         >
             {isFollowing ? 'Following' : 'Follow'}
         </button>
@@ -188,11 +188,11 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = fals
     const isOwner = comment.userId === currentUserId;
 
     return (
-        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
+        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={comment.userId?.profile || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt="" />
+                <img src={comment.userId?.profile || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0" alt="" />
                 <div className="flex flex-col grow">
-                    <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none border border-gray-800/30">
+                    <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none">
                         <div className="flex justify-between items-center mb-0.5">
                             <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || 'Anonymous'}</span>
                             {isOwner && (
