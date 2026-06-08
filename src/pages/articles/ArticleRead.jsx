@@ -450,9 +450,14 @@ const ArticleRead = () => {
                     ← Back to articles
                 </button>
                 {isAuthor && (
-                    <button style={s.deleteBtn} onClick={handleDeleteArticle}>
-                        Delete article
-                    </button>
+                    <>
+                        <button onClick={() => navigate(`/articles/${storyId}/edit`)}>
+                        Edit
+                        </button>
+                        <button style={s.deleteBtn} onClick={handleDeleteArticle}>
+                            Delete article
+                        </button>
+                    </>
                 )}
             </div>
 

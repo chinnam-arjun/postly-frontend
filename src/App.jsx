@@ -10,6 +10,7 @@ import ProfilePage from './pages/profile/mine/ProfilePage';
 import CreateArticle from './pages/articles/CreateArticle';
 import ArticleFeed from './pages/articles/ArticleFeed';
 import ArticleRead from './pages/articles/ArticleRead';
+import EditArticle from './pages/articles/EditArticle';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="/articles" element={<ArticleFeed />} />
             <Route path="/articles/create" element={<CreateArticle />} />
             <Route path="/articles/:storyId" element={<ArticleRead />} />
+            <Route path="/articles/:storyId/edit" element={<EditArticle />} />
           </Route>
         </Route>
       </Routes>
