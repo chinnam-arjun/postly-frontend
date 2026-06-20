@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
     getArticleFeedThunk,
+    getMyArticlesThunk,
     getArticleByIdThunk,
     createArticleThunk,
     updateArticleThunk,
@@ -48,6 +49,25 @@ const articleSlice = createSlice({
             state.pagination = action.payload.pagination;
         })
         .addCase(getArticleFeedThunk.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload;
+        })
+
+        // ── My Articles ───────────────────────────────────
+        .addCase(getMyArticlesThunk.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        })
+        .addCase(getMyArticlesThunk.fulfilled, (state, action) => {
+            state.isLoading = false;
+            if (action.payload.pagination?.page === 1) {
+                state.articles = action.payload.stories;
+            } else {
+                state.articles = [...state.articles, ...action.payload.stories];
+            }
+            state.pagination = action.payload.pagination;
+        })
+        .addCase(getMyArticlesThunk.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload;
         })

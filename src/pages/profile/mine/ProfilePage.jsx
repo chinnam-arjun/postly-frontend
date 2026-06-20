@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
+import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
 import { useUserPosts } from '../../../hooks/usePosts';
 import PostLayout from '../../../components/posts/postLayout/PostLayout';
 import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSnow } from 'lucide-react';
@@ -10,12 +11,19 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const { user, isLoading: authLoading } = useSelector((state) => state.auth);
   const { data: posts, isLoading: postsLoading, error: postsError } = useUserPosts();
+  const { articles, isLoading: articlesLoading, error: articlesError } = useSelector((state) => state.articles);
   const [activeTab, setActiveTab] = useState('posts');
   const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   useEffect(() => {
     if (!user) dispatch(getCurrentUserThunk());
   }, [dispatch, user]);
+
+  // Fetch articles when component mounts
+  useEffect(() => {
+    dispatch(getMyArticlesThunk());
+  }, [dispatch]);
 
   if (authLoading) {
     return (
@@ -179,12 +187,53 @@ const ProfilePage = () => {
 
           {/* Articles tab */}
           {activeTab === 'articles' && (
-            <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
-              <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                <FileText size={24} className="text-gray-300 dark:text-gray-600" />
-              </div>
-              <p className="text-sm">Articles coming soon</p>
-            </div>
+            <>
+              {articlesLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-gray-700 dark:border-gray-700 dark:border-t-gray-300" />
+                </div>
+              ) : articlesError ? (
+                <div className="py-16 text-center text-sm text-gray-400">
+                  Failed to load articles
+                </div>
+              ) : articles && articles.length > 0 ? (
+                <div className="grid grid-cols-3 gap-0.5 p-0.5">
+                  {articles.map((article, idx) => (
+                    <div
+                      key={article._id}
+                      onClick={() => setSelectedArticle(article)}
+                      className={`relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer group
+                        ${idx === 0 ? 'rounded-tl-xl' : ''}
+                        ${idx === 2 ? 'rounded-tr-xl' : ''}
+                        ${idx === articles.length - 1 && articles.length % 3 === 0 ? 'rounded-br-xl' : ''}
+                        ${idx === articles.length - 3 && articles.length % 3 === 0 ? 'rounded-bl-xl' : ''}
+                      `}
+                    >
+                      <img
+                        src={article.thumbnail || 'https://via.placeholder.com/300'}
+                        alt={article.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      {/* hover overlay */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-2">
+                        <p className="text-white text-xs font-semibold text-center line-clamp-2">{article.title}</p>
+                        <span className="flex items-center gap-1.5 text-white text-sm font-semibold">
+                          <Heart size={16} fill="white" />
+                          {article.likesCount ?? article.likes?.length ?? 0}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <FileText size={24} className="text-gray-300 dark:text-gray-600" />
+                  </div>
+                  <p className="text-sm">No articles yet</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -215,6 +264,68 @@ const ProfilePage = () => {
                   userId: comment.author || comment.userId,
                 })) || [],
               }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Article modal ── */}
+      {selectedArticle && (
+        <div
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setSelectedArticle(null)}
+        >
+          <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative shadow-2xl border border-gray-800">
+            <button
+              onClick={() => setSelectedArticle(null)}
+              className="absolute top-3 right-3 z-10 w-8 h-8 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <X size={16} />
+            </button>
+            <div className="overflow-y-auto max-h-[90vh]">
+              {/* Article header with thumbnail */}
+              {selectedArticle.thumbnail && (
+                <div className="w-full h-96 overflow-hidden bg-gray-800">
+                  <img 
+                    src={selectedArticle.thumbnail} 
+                    alt={selectedArticle.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              
+              {/* Article content */}
+              <div className="p-8 text-gray-100">
+                <h1 className="text-3xl font-bold mb-4 text-white">{selectedArticle.title}</h1>
+                
+                {/* Author info */}
+                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-700">
+                  <img 
+                    src={selectedArticle.author?.profile || 'https://via.placeholder.com/150'}
+                    alt={selectedArticle.author?.username}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-white">{selectedArticle.author?.username}</p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(selectedArticle.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Article content */}
+                <div className="prose prose-invert max-w-none mb-6 leading-relaxed">
+                  {selectedArticle.content}
+                </div>
+
+                {/* Stats */}
+                <div className="flex gap-6 text-gray-400 text-sm border-t border-gray-700 pt-6">
+                  <div className="flex items-center gap-2">
+                    <Heart size={18} />
+                    <span>{selectedArticle.likesCount ?? selectedArticle.likes?.length ?? 0}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

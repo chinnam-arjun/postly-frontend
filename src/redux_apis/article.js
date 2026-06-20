@@ -6,6 +6,12 @@ export const getArticleFeedAPI = async (page = 1, limit = 10) => {
     return res.data;
 };
 
+// Current user's articles
+export const getMyArticlesAPI = async (page = 1, limit = 10) => {
+    const res = await axiosInstance.get(`/stories/mine?page=${page}&limit=${limit}`);
+    return res.data;
+};
+
 // Single article
 export const getArticleByIdAPI = async (storyId) => {
     const res = await axiosInstance.get(`/stories/${storyId}`);

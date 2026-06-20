@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js'; // Import your hooks
 
@@ -15,8 +15,30 @@ const PostLayout = ({ post }) => {
     const [showCommentsMobile, setShowCommentsMobile] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [replyingTo, setReplyingTo] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     
     const commentInputRef = useRef(null);
+
+    const mediaItems = Array.isArray(post.images)
+        ? post.images
+        : post.images
+            ? [post.images]
+            : [];
+
+    const getMediaUrl = (media) => {
+        if (typeof media === 'string') return media;
+        return media?.url || media?.secure_url || media?.src || '';
+    };
+
+    const currentImageUrl = mediaItems.length > 0 ? getMediaUrl(mediaItems[currentImageIndex]) : '';
+
+    const goToPreviousImage = () => {
+        setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
+    };
+
+    const goToNextImage = () => {
+        setCurrentImageIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
+    };
 
     // --- Mutations ---
     const commentMutation = useCommentMutation(post._id);
@@ -75,8 +97,50 @@ const PostLayout = ({ post }) => {
                 </div>
 
                 {/* Media */}
-                <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center">
-                    <img src={post.images} alt="Post content" className="w-full h-full object-contain" />
+                <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center overflow-hidden">
+                    {currentImageUrl ? (
+                        <img
+                            key={currentImageUrl}
+                            src={currentImageUrl}
+                            alt="Post content"
+                            className="w-full h-full object-contain"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-sm">
+                            No image available
+                        </div>
+                    )}
+
+                    {mediaItems.length > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={goToPreviousImage}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={goToNextImage}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                            >
+                                <ChevronRight size={18} />
+                            </button>
+                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                {mediaItems.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        onClick={() => setCurrentImageIndex(index)}
+                                        className={`h-2 rounded-full transition-all ${
+                                            index === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Interactions */}

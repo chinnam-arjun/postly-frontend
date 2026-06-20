@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
     getArticleFeedAPI,
+    getMyArticlesAPI,
     getArticleByIdAPI,
     createArticleAPI,
     updateArticleAPI,
@@ -19,6 +20,17 @@ export const getArticleFeedThunk = createAsyncThunk(
             return await getArticleFeedAPI(page, limit);
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || "Failed to fetch feed");
+        }
+    }
+);
+
+export const getMyArticlesThunk = createAsyncThunk(
+    "articles/getMine",
+    async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+        try {
+            return await getMyArticlesAPI(page, limit);
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Failed to fetch your articles");
         }
     }
 );
