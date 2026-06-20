@@ -254,16 +254,17 @@ const ProfilePage = () => {
             <div className="overflow-y-auto max-h-[90vh]">
               <PostLayout post={{
                 ...selectedPost,
-                images: Array.isArray(selectedPost.images) ? selectedPost.images[0]?.url : selectedPost.images,
+                images: selectedPost.images,   // 👈 pass the full array, no transform needed
                 author: {
                   ...selectedPost.author,
-                  profilepic: selectedPost.author?.profilepic || selectedPost.author?.profile || 'https://via.placeholder.com/150',
+                  profilepic: selectedPost.author?.profilepic || selectedPost.author?.profile || 'https://via.placeholder.com/150'
                 },
                 comments: selectedPost.comments?.map(comment => ({
                   ...comment,
-                  userId: comment.author || comment.userId,
-                })) || [],
-              }} />
+                  userId: comment.author || comment.userId
+                })) || []
+              }} 
+              />
             </div>
           </div>
         </div>

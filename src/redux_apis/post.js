@@ -57,10 +57,12 @@ export const getMyPosts = async ()=> {
     })
 }
 
+// in redux_apis/post.js
 export const addPost = async (formData) => {
     return await axiosInstance.post("/posts/", formData, {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",   // 👈 add this
         }
     })
 }
@@ -68,7 +70,8 @@ export const addPost = async (formData) => {
 export const editPost = async (postId,formData) => {
     return await axiosInstance.put(`/posts/${postId}`, formData, {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",   // 👈 add this
         }
     })
 }
