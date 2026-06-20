@@ -103,7 +103,7 @@ const PostLayout = ({ post }) => {
                             key={currentImageUrl}
                             src={currentImageUrl}
                             alt="Post content"
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-cover object-top"
                         />
                     ) : (
                         <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-sm">
