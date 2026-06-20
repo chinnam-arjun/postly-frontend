@@ -141,8 +141,12 @@ const PostLayout = ({ post }) => {
                             </div>
                         </>
                     )}
-                </div>
 
+                {/* <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center">
+                    <img src={post.images[0]} alt="Post content" className="w-full h-full object-contain" />
+
+                </div> */}
+            </div>
                 {/* Interactions */}
                 <div className="p-4 flex items-center justify-between bg-gray-900">
                     <div className="flex items-center gap-5">
