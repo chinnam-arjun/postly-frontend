@@ -65,3 +65,10 @@ export const toggleSavePost = async (postId) => {
         }
     });
 };
+
+// redux_apis/post.js
+export const getSavedPosts = async () => {
+    return await axiosInstance.get("/posts/saved", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+};

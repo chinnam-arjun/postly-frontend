@@ -8,7 +8,8 @@ import {
   editPost,
   deletePost,
   toggleLikePost,
-  toggleSavePost
+  toggleSavePost,
+  getSavedPosts
 } from "../redux_apis/post";
 
 export const getAllPostsThunk = createAsyncThunk(
@@ -83,12 +84,13 @@ export const deletepostThunk = createAsyncThunk(
     }
 );
 
+// postThunk.js
 export const toggleLikePostThunk = createAsyncThunk(
     "posts/toggleLike",
     async (postId, { rejectWithValue }) => {
         try {
             const res = await toggleLikePost(postId);
-            return res.data.post || res.data;
+            return { postId: res.data.postId, likesCount: res.data.likesCount, isLiked: res.data.isLiked };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "failed to toggle like");
         }
@@ -100,9 +102,22 @@ export const toggleSavePostThunk = createAsyncThunk(
     async (postId, { rejectWithValue }) => {
         try {
             const res = await toggleSavePost(postId);
-            return res.data.post || res.data;
+            return { postId: res.data.postId, savesCount: res.data.savesCount, isSaved: res.data.isSaved };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "failed to toggle save");
+        }
+    }
+);
+
+// postThunk.js
+export const getSavedPostsThunk = createAsyncThunk(
+    "posts/getSaved",
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await getSavedPosts();
+            return res.data.posts;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to get saved posts");
         }
     }
 );

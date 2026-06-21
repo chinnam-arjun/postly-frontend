@@ -33,14 +33,16 @@ const PostLayout = ({ post }) => {
     const currentImageUrl = mediaItems.length > 0 ? getMediaUrl(mediaItems[currentImageIndex]) : '';
     const comments = currentPost?.comments || [];
     const likesCount = currentPost?.likesCount ?? currentPost?.likes?.length ?? 0;
-    const isLiked = Boolean(
-        currentUserId &&
-        (currentPost?.likedBy?.includes(currentUserId) || currentPost?.isLiked)
-    );
-    const isSaved = Boolean(
-        currentUserId &&
-        (currentPost?.savedBy?.includes(currentUserId) || currentPost?.isSaved)
-    );
+    // const isLiked = Boolean(
+    //     currentUserId &&
+    //     (currentPost?.likedBy?.includes(currentUserId) || currentPost?.isLiked)
+    // );
+    // const isSaved = Boolean(
+    //     currentUserId &&
+    //     (currentPost?.savedBy?.includes(currentUserId) || currentPost?.isSaved)
+    // );
+    const isLiked = Boolean(currentPost?.isLiked);
+    const isSaved = Boolean(currentPost?.isSaved);
 
     const goToPreviousImage = () => {
         setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));

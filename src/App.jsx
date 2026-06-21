@@ -11,6 +11,7 @@ import CreateArticle from './pages/articles/CreateArticle';
 import ArticleFeed from './pages/articles/ArticleFeed';
 import ArticleRead from './pages/articles/ArticleRead';
 import EditArticle from './pages/articles/EditArticle';
+import LibraryPage from './pages/library/LibraryPage';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="/feed" element={<Feed />} />
             <Route path="/addpost" element={<AddPost />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/library" element={<LibraryPage />} />
 
             {/* Article Routes */}
             <Route path="/articles" element={<ArticleFeed />} />
