@@ -1,28 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js'; // Import your hooks
+import { useDispatch, useSelector } from 'react-redux';
+import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js';
+import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
+import { followThunk } from '../../../redux_thunks/userThunk.js';
 
 const PostLayout = ({ post }) => {
-    // --- Get current user from Redux ---
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
+    const reduxPost = useSelector((state) => state.posts.postsById?.[post._id] || null);
+    const currentPost = reduxPost || post;
     const currentUserId = user?._id;
-    
-    // --- States ---
-    const [isLiked, setIsLiked] = useState(false);
-    const [isSaved, setIsSaved] = useState(false);
-    const [isFollowing, setIsFollowing] = useState(false);
+
     const [showCommentsMobile, setShowCommentsMobile] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [replyingTo, setReplyingTo] = useState(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    
+
     const commentInputRef = useRef(null);
 
-    const mediaItems = Array.isArray(post.images)
-        ? post.images
-        : post.images
-            ? [post.images]
+    const mediaItems = Array.isArray(currentPost?.images)
+        ? currentPost.images
+        : currentPost?.images
+            ? [currentPost.images]
             : [];
 
     const getMediaUrl = (media) => {
@@ -31,6 +31,16 @@ const PostLayout = ({ post }) => {
     };
 
     const currentImageUrl = mediaItems.length > 0 ? getMediaUrl(mediaItems[currentImageIndex]) : '';
+    const comments = currentPost?.comments || [];
+    const likesCount = currentPost?.likesCount ?? currentPost?.likes?.length ?? 0;
+    const isLiked = Boolean(
+        currentUserId &&
+        (currentPost?.likedBy?.includes(currentUserId) || currentPost?.isLiked)
+    );
+    const isSaved = Boolean(
+        currentUserId &&
+        (currentPost?.savedBy?.includes(currentUserId) || currentPost?.isSaved)
+    );
 
     const goToPreviousImage = () => {
         setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
@@ -40,11 +50,9 @@ const PostLayout = ({ post }) => {
         setCurrentImageIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
     };
 
-    // --- Mutations ---
-    const commentMutation = useCommentMutation(post._id);
-    const deleteMutation = useDeleteCommentMutation(post._id);
+    const commentMutation = useCommentMutation(currentPost._id);
+    const deleteMutation = useDeleteCommentMutation(currentPost._id);
 
-    // --- Handlers ---
     const handleCommentAction = () => {
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
         else commentInputRef.current?.focus();
@@ -59,18 +67,30 @@ const PostLayout = ({ post }) => {
 
     const handlePostComment = () => {
         if (!commentText.trim()) return;
-        commentMutation.mutate({
-            content: commentText,
-            parentCommentId: replyingTo?._id 
-        }, {
-            onSuccess: () => {
-                setCommentText("");
-                setReplyingTo(null);
+        commentMutation.mutate(
+            {
+                content: commentText,
+                parentCommentId: replyingTo?._id
+            },
+            {
+                onSuccess: () => {
+                    setCommentText("");
+                    setReplyingTo(null);
+                }
             }
-        });
+        );
     };
 
-    // --- Scroll Lock Effect ---
+    const handleToggleLike = () => {
+        if (!currentUserId) return;
+        dispatch(toggleLikePostThunk(currentPost._id));
+    };
+
+    const handleToggleSave = () => {
+        if (!currentUserId) return;
+        dispatch(toggleSavePostThunk(currentPost._id));
+    };
+
     useEffect(() => {
         if (showCommentsMobile && window.innerWidth < 1024) {
             document.body.style.overflow = 'hidden';
@@ -82,21 +102,16 @@ const PostLayout = ({ post }) => {
 
     return (
         <article className="w-full bg-gray-900 border border-gray-800/50 rounded-2xl overflow-hidden flex flex-col lg:flex-row shadow-xl lg:h-[650px] relative">
-            
-            {/* LEFT SIDE: Media & Main Info */}
             <div className="w-full lg:w-[60%] flex flex-col border-r border-gray-800/50 h-full">
-                {/* Mobile User Header */}
                 <div className="lg:hidden">
-                    <UserHeader author={post.author} isFollowing={isFollowing} setIsFollowing={setIsFollowing} />
+                    <UserHeader author={currentPost.author} />
                 </div>
 
-                {/* Desktop Title */}
                 <div className="hidden lg:flex px-4 border-b border-gray-800/50 h-14 items-center justify-between bg-gray-900/50">
-                    <h2 className="text-sm font-bold text-gray-200 truncate">{post.title}</h2>
+                    <h2 className="text-sm font-bold text-gray-200 truncate">{currentPost.title}</h2>
                     <MoreHorizontal className="text-gray-500 cursor-pointer hover:text-gray-300 transition-colors" size={18} />
                 </div>
 
-                {/* Media */}
                 <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center overflow-hidden">
                     {currentImageUrl ? (
                         <img
@@ -141,58 +156,50 @@ const PostLayout = ({ post }) => {
                             </div>
                         </>
                     )}
+                </div>
 
-                {/* <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center">
-                    <img src={post.images[0]} alt="Post content" className="w-full h-full object-contain" />
-
-                </div> */}
-            </div>
-                {/* Interactions */}
                 <div className="p-4 flex items-center justify-between bg-gray-900">
                     <div className="flex items-center gap-5">
-                        <Heart 
-                            onClick={() => setIsLiked(!isLiked)}
-                            className={`cursor-pointer transition-all active:scale-125 ${isLiked ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-gray-200'}`} 
-                            size={24} 
+                        <Heart
+                            onClick={handleToggleLike}
+                            className={`cursor-pointer transition-all active:scale-125 ${isLiked ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-gray-200'}`}
+                            size={24}
                         />
                         <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-gray-400 hover:text-gray-200" size={24} />
                         <Share2 className="cursor-pointer text-gray-400 hover:text-gray-200" size={22} />
                     </div>
-                    <Bookmark 
-                        onClick={() => setIsSaved(!isSaved)}
-                        className={`cursor-pointer transition-all ${isSaved ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400 hover:text-gray-200'}`} 
-                        size={24} 
+                    <Bookmark
+                        onClick={handleToggleSave}
+                        className={`cursor-pointer transition-all ${isSaved ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400 hover:text-gray-200'}`}
+                        size={24}
                     />
                 </div>
 
-                {/* Caption */}
                 <div className="px-4 pb-4 bg-gray-900">
-                    <p className="text-sm font-bold text-white mb-1">{isLiked ? post.likesCount + 1 : post.likesCount} likes</p>
+                    <p className="text-sm font-bold text-white mb-1">{likesCount} likes</p>
                     <p className="text-sm text-gray-400">
-                        <span className="font-bold mr-2 text-gray-200">{post.author.username}</span>
-                        {post.caption}
+                        <span className="font-bold mr-2 text-gray-200">{currentPost.author?.username}</span>
+                        {currentPost.caption}
                     </p>
                 </div>
             </div>
 
-            {/* RIGHT SIDE: Comments */}
             <div className={`
                 w-full lg:w-[40%] flex flex-col h-full bg-gray-950/50
-                ${showCommentsMobile ? 'fixed inset-0 z-[60] pt-10 lg:pt-0' : 'hidden lg:flex'} 
+                ${showCommentsMobile ? 'fixed inset-0 z-[60] pt-10 lg:pt-0' : 'hidden lg:flex'}
                 lg:relative border-l border-gray-800/50
             `}>
                 <div className="absolute top-4 right-4 lg:hidden z-[70]">
                     <X className="text-gray-400 cursor-pointer hover:text-white transition-colors" onClick={() => setShowCommentsMobile(false)} />
                 </div>
 
-                <UserHeader author={post.author} isFollowing={isFollowing} setIsFollowing={setIsFollowing} />
+                <UserHeader author={currentPost.author} />
 
-                {/* Comments List */}
                 <div className="grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {post.comments?.map(comment => (
-                        <CommentItem 
-                            key={comment._id} 
-                            comment={comment} 
+                    {comments.map((comment) => (
+                        <CommentItem
+                            key={comment._id}
+                            comment={comment}
                             currentUserId={currentUserId}
                             onReply={handleReplyClick}
                             onDelete={(id) => deleteMutation.mutate(id)}
@@ -200,24 +207,23 @@ const PostLayout = ({ post }) => {
                     ))}
                 </div>
 
-                {/* Comment Input Section */}
                 <div className="p-4 border-t border-gray-800/50 bg-gray-900">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-900/20 py-1 rounded-lg">
                             <span className="text-[10px] text-blue-400 font-bold">Replying to @{replyingTo.userId?.username || 'user'}</span>
-                            <X size={12} className="cursor-pointer text-blue-400" onClick={() => {setReplyingTo(null); setCommentText("");}} />
+                            <X size={12} className="cursor-pointer text-blue-400" onClick={() => { setReplyingTo(null); setCommentText(""); }} />
                         </div>
                     )}
                     <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-700 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
-                        <input 
+                        <input
                             ref={commentInputRef}
-                            type="text" 
+                            type="text"
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Add a comment..." 
+                            placeholder="Add a comment..."
                             className="w-full bg-transparent border-none focus:ring-0 text-sm text-white"
                         />
-                        <button 
+                        <button
                             onClick={handlePostComment}
                             disabled={commentMutation.isPending || !commentText.trim()}
                             className="text-blue-400 font-bold text-sm disabled:opacity-30"
@@ -231,29 +237,37 @@ const PostLayout = ({ post }) => {
     );
 };
 
-// --- Sub-Component: User Header ---
-const UserHeader = ({ author, isFollowing, setIsFollowing }) => (
-    <div className="p-4 flex items-center justify-between border-b border-gray-800/50 h-14 shrink-0 bg-gray-900">
-        <div className="flex items-center gap-3">
-            <img src={author.profilepic} className="w-8 h-8 rounded-full object-cover border border-gray-700" alt="" />
-            <div className="flex flex-col">
-                <span className="font-bold text-xs text-white">{author.username}</span>
-                <span className="text-[9px] text-gray-500 uppercase tracking-wider">Author</span>
-            </div>
-        </div>
-        <button 
-            onClick={() => setIsFollowing(!isFollowing)}
-            className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-gray-800 text-gray-400 border border-gray-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
-        >
-            {isFollowing ? 'Following' : 'Follow'}
-        </button>
-    </div>
-);
+const UserHeader = ({ author }) => {
+    const dispatch = useDispatch();
+    const [isFollowing, setIsFollowing] = useState(Boolean(author?.isFollowing));
 
-// --- Sub-Component: Comment Item (Recursive) ---
+    const handleFollowToggle = async () => {
+        if (!author?._id) return;
+        await dispatch(followThunk(author._id));
+        setIsFollowing((prev) => !prev);
+    };
+
+    return (
+        <div className="p-4 flex items-center justify-between border-b border-gray-800/50 h-14 shrink-0 bg-gray-900">
+            <div className="flex items-center gap-3">
+                <img src={author?.profilepic} className="w-8 h-8 rounded-full object-cover border border-gray-700" alt="" />
+                <div className="flex flex-col">
+                    <span className="font-bold text-xs text-white">{author?.username}</span>
+                    <span className="text-[9px] text-gray-500 uppercase tracking-wider">Author</span>
+                </div>
+            </div>
+            <button
+                onClick={handleFollowToggle}
+                className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-gray-800 text-gray-400 border border-gray-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
+            >
+                {isFollowing ? 'Following' : 'Follow'}
+            </button>
+        </div>
+    );
+};
+
 const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = false }) => {
-    // userId is just a string ID from your backend, not a full user object
-    const isOwner = comment.userId === currentUserId;
+    const isOwner = comment.userId?._id === currentUserId || comment.userId === currentUserId;
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
@@ -278,7 +292,7 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = fals
                     </div>
                 </div>
             </div>
-            {comment.replies?.map(reply => (
+            {comment.replies?.map((reply) => (
                 <CommentItem key={reply._id} comment={reply} currentUserId={currentUserId} onReply={onReply} onDelete={onDelete} isReply={true} />
             ))}
         </div>

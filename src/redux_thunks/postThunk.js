@@ -1,90 +1,16 @@
 
-// import { createAsyncThunk } from "@reduxjs/toolkit";
-// import { getAllPosts,getSpecificUserPosts, getMyPosts,addPost,editPost } from "../redux_apis/post";
-
-// export const getAllPostsThunk = createAsyncThunk(
-//     "posts/",
-//     async (_, { rejectWithValue }) => {
-//         try {
-//             const res = await getAllPosts();
-//             return res.data.posts;//its the response structure 
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
-//         }
-//     }
-// )
-
-// export const getSpecificUserPostsThunk = createAsyncThunk(
-//     "posts/user/:userId",
-//     async (userId, { rejectWithValue }) => {
-//         try {
-//             const res = await getSpecificUserPosts(userId);
-//             return res.data.posts;
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
-//         }
-//     }
-// )
-
-// export const getMyPostsThunk = createAsyncThunk(
-//     "posts/my",
-//     async (_, { rejectWithValue }) => {
-//         try {
-//             const res = await getMyPosts();
-//             return res.data.posts;
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to get posts")
-//         }
-//     }
-// )
-
-// export const addPostThunk = createAsyncThunk(
-//     "posts",
-//     async (formData, { rejectWithValue }) => {
-//         try {
-//             const res = await addPost(formData);
-//             return res.data.post;
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to add post")
-//         }
-//     }
-// )
-
-// export const editPostThunk = createAsyncThunk(
-//     "posts/:postId",
-//     async (postId, formData, { rejectWithValue }) => {
-//         try {
-//             const res = await editPost(postId, formData);
-//             return res.data.post;
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to edit post")
-//         }
-//     }
-// )
-
-// export const deletepostThunk = createAsyncThunk(
-//     "posts/:postId",
-//     async (postId, { rejectWithValue }) => {
-//         try {
-//             const res = await deletePost(postId);
-//             return res.data.post;
-//         } catch (error) {
-//             return rejectWithValue(error.response?.data?.message || "failed to delete post")
-//         }
-//     }
-// )
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { 
+import {
   getAllPosts,
   getSpecificUserPosts,
   getMyPosts,
   addPost,
   editPost,
-  deletePost
+  deletePost,
+  toggleLikePost,
+  toggleSavePost
 } from "../redux_apis/post";
 
-// GET ALL POSTS
 export const getAllPostsThunk = createAsyncThunk(
     "posts/getAll",
     async (_, { rejectWithValue }) => {
@@ -97,7 +23,6 @@ export const getAllPostsThunk = createAsyncThunk(
     }
 );
 
-// GET USER POSTS
 export const getSpecificUserPostsThunk = createAsyncThunk(
     "posts/getUserPosts",
     async (userId, { rejectWithValue }) => {
@@ -110,7 +35,6 @@ export const getSpecificUserPostsThunk = createAsyncThunk(
     }
 );
 
-// GET MY POSTS
 export const getMyPostsThunk = createAsyncThunk(
     "posts/getMine",
     async (_, { rejectWithValue }) => {
@@ -123,7 +47,6 @@ export const getMyPostsThunk = createAsyncThunk(
     }
 );
 
-// ADD POST
 export const addPostThunk = createAsyncThunk(
     "posts/add",
     async (formData, { rejectWithValue }) => {
@@ -136,7 +59,6 @@ export const addPostThunk = createAsyncThunk(
     }
 );
 
-// EDIT POST
 export const editPostThunk = createAsyncThunk(
     "posts/edit",
     async ({ postId, formData }, { rejectWithValue }) => {
@@ -149,7 +71,6 @@ export const editPostThunk = createAsyncThunk(
     }
 );
 
-// DELETE POST
 export const deletepostThunk = createAsyncThunk(
     "posts/delete",
     async (postId, { rejectWithValue }) => {
@@ -158,6 +79,30 @@ export const deletepostThunk = createAsyncThunk(
             return res.data.post;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "failed to delete post");
+        }
+    }
+);
+
+export const toggleLikePostThunk = createAsyncThunk(
+    "posts/toggleLike",
+    async (postId, { rejectWithValue }) => {
+        try {
+            const res = await toggleLikePost(postId);
+            return res.data.post || res.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to toggle like");
+        }
+    }
+);
+
+export const toggleSavePostThunk = createAsyncThunk(
+    "posts/toggleSave",
+    async (postId, { rejectWithValue }) => {
+        try {
+            const res = await toggleSavePost(postId);
+            return res.data.post || res.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "failed to toggle save");
         }
     }
 );

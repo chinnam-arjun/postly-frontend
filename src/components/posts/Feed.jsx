@@ -1,19 +1,29 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useDispatch } from 'react-redux';
 import PostLayout from './PostLayout/PostLayout';
 import { usePosts } from '../../hooks/usePosts';
+import { setPosts } from '../../redux_slices/postSlice';
 import { ChevronUp, Filter, Check } from 'lucide-react';
 
 const Feed = () => {
     const [activeTab, setActiveTab] = useState('for-you');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading,  } = usePosts(activeTab);
+    const dispatch = useDispatch();
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = usePosts(activeTab);
     const { ref, inView } = useInView({ rootMargin: '600px' });
     const menuRef = useRef(null);
 
     useEffect(() => {
         if (inView && hasNextPage) fetchNextPage();
     }, [inView, hasNextPage, fetchNextPage]);
+
+    useEffect(() => {
+        if (data?.pages) {
+            const allPosts = data.pages.flatMap((page) => page.posts || []);
+            dispatch(setPosts(allPosts));
+        }
+    }, [data, dispatch]);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -33,7 +43,6 @@ const Feed = () => {
     return (
         <div className="w-full min-h-screen bg-gray-950">
             <main className="max-w-[1400px] mx-auto p-4 lg:p-8">
-                {/* --- MOVABLE HEADER --- */}
                 <div className="max-w-4xl mx-auto mb-8 mt-4">
                     <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                         {activeTab === 'for-you' ? 'For You' : 'Following'}
@@ -59,19 +68,15 @@ const Feed = () => {
                     </div>
                 )}
 
-                {/* Observer Trigger */}
                 <div ref={ref} className="py-10 flex justify-center">
                     {isFetchingNextPage && <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />}
                     {!hasNextPage && <p className="text-gray-600 text-sm italic font-medium">You've reached the end of the universe.</p>}
                 </div>
             </main>
 
-            {/* --- FLOATING ACTION BUTTON & MENU --- */}
             <div className="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 flex flex-col items-end gap-3">
-                
-                {/* Switcher Menu */}
                 {isMenuOpen && (
-                    <div 
+                    <div
                         ref={menuRef}
                         className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-2 mb-2 w-48 animate-in fade-in slide-in-from-bottom-4 duration-200"
                     >
@@ -84,9 +89,9 @@ const Feed = () => {
                                     scrollToTop();
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                                    activeTab === tab 
-                                    ? 'bg-purple-600 text-white' 
-                                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                                    activeTab === tab
+                                        ? 'bg-purple-600 text-white'
+                                        : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
                                 }`}
                             >
                                 <span>{tab === 'for-you' ? 'For You' : 'Following'}</span>
@@ -96,21 +101,20 @@ const Feed = () => {
                     </div>
                 )}
 
-                {/* Main FABs */}
                 <div className="flex flex-col gap-3">
-                    <button 
+                    <button
                         onClick={scrollToTop}
                         className="w-12 h-12 bg-gray-900 text-gray-400 rounded-full flex items-center justify-center shadow-xl hover:bg-gray-800 hover:text-white transition-all active:scale-90 border border-gray-800"
                     >
                         <ChevronUp size={24} />
                     </button>
-                    
-                    <button 
+
+                    <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 ${
-                            isMenuOpen 
-                            ? 'bg-white text-black rotate-90' 
-                            : 'bg-gradient-to-tr from-blue-600 to-purple-600 text-white hover:shadow-purple-500/20 hover:scale-105'
+                            isMenuOpen
+                                ? 'bg-white text-black rotate-90'
+                                : 'bg-gradient-to-tr from-blue-600 to-purple-600 text-white hover:shadow-purple-500/20 hover:scale-105'
                         }`}
                     >
                         <Filter size={24} />
