@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js';
 import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
 import { followThunk } from '../../../redux_thunks/userThunk.js';
@@ -243,15 +244,39 @@ const PostLayout = ({ post }) => {
 const UserHeader = ({ author }) => {
     const dispatch = useDispatch();
     const [isFollowing, setIsFollowing] = useState(Boolean(author?.isFollowing));
+    const queryClient = useQueryClient();
 
     const handleFollowToggle = async () => {
         if (!author?._id) return;
-        // perform follow/unfollow on the server
-        await dispatch(followThunk(author._id));
-        // optimistic UI update: toggle local state and update posts in store
-        const newFollowing = !isFollowing;
-        setIsFollowing(newFollowing);
-        dispatch(updateAuthorFollowing({ userId: author._id, isFollowing: newFollowing }));
+        try {
+            // perform follow/unfollow on the server and get the response payload
+            const actionResult = await dispatch(followThunk(author._id));
+            const payload = actionResult?.payload ?? actionResult;
+            // helpful debug log (remove in production)
+            // eslint-disable-next-line no-console
+            console.log('followThunk payload:', payload);
+
+            // derive new following state from server response when possible
+            let newFollowing;
+            if (payload && Array.isArray(payload.following)) {
+                newFollowing = payload.following.includes(author._id);
+            } else if (typeof payload.isFollowing === 'boolean') {
+                newFollowing = payload.isFollowing;
+            } else if (payload && payload.user && Array.isArray(payload.user.following)) {
+                newFollowing = payload.user.following.includes(author._id);
+            } else {
+                // fallback to toggling local state
+                newFollowing = !isFollowing;
+            }
+
+            setIsFollowing(newFollowing);
+            dispatch(updateAuthorFollowing({ userId: author._id, isFollowing: newFollowing }));
+            // invalidate react-query posts cache so feeds refetch (for-you & following)
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('follow error', err);
+        }
     };
 
     return (
