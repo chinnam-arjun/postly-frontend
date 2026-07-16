@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js';
 import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
 import { followThunk } from '../../../redux_thunks/userThunk.js';
+import { updateAuthorFollowing } from '../../../redux_slices/postSlice.js';
 
 const PostLayout = ({ post }) => {
     const dispatch = useDispatch();
@@ -245,8 +246,12 @@ const UserHeader = ({ author }) => {
 
     const handleFollowToggle = async () => {
         if (!author?._id) return;
+        // perform follow/unfollow on the server
         await dispatch(followThunk(author._id));
-        setIsFollowing((prev) => !prev);
+        // optimistic UI update: toggle local state and update posts in store
+        const newFollowing = !isFollowing;
+        setIsFollowing(newFollowing);
+        dispatch(updateAuthorFollowing({ userId: author._id, isFollowing: newFollowing }));
     };
 
     return (

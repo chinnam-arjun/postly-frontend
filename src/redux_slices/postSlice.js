@@ -39,6 +39,19 @@ const postSlice = createSlice({
         setPosts: (state, action) => {
             applyPosts(state, action.payload);
         },
+        updateAuthorFollowing: (state, action) => {
+            const { userId, isFollowing } = action.payload || {};
+            if (!userId) return;
+            // update any post authored by this user
+            state.posts = state.posts.map((post) => {
+                if (post?.author?._id === userId || post?.author?._id === String(userId)) {
+                    const updated = { ...post, author: { ...post.author, isFollowing } };
+                    state.postsById[post._id] = updated;
+                    return updated;
+                }
+                return post;
+            });
+        },
         updatePostInStore: (state, action) => {
             const updatedPost = action.payload;
             if (!updatedPost?._id) return;
@@ -201,5 +214,5 @@ const postSlice = createSlice({
     }
 });
 
-export const { setPosts, updatePostInStore } = postSlice.actions;
+export const { setPosts, updateAuthorFollowing, updatePostInStore } = postSlice.actions;
 export default postSlice.reducer;
