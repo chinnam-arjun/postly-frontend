@@ -1,15 +1,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PostLayout from './PostLayout/PostLayout';
 import { usePosts } from '../../hooks/usePosts';
 import { setPosts } from '../../redux_slices/postSlice';
 import { ChevronUp, Filter, Check } from 'lucide-react';
 
+const normalizeUserIds = (value = []) => {
+    if (!Array.isArray(value)) return [];
+    return value
+        .map((item) => typeof item === 'string' ? item : item?._id || item?.id)
+        .filter(Boolean)
+        .map(String);
+};
+
 const Feed = () => {
     const [activeTab, setActiveTab] = useState('for-you');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dispatch = useDispatch();
+    const currentUserFollowing = useSelector((state) => normalizeUserIds(state.auth.user?.followingIds || state.auth.user?.following || []));
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = usePosts(activeTab);
     const { ref, inView } = useInView({ rootMargin: '600px' });
     const menuRef = useRef(null);
@@ -21,9 +30,14 @@ const Feed = () => {
     useEffect(() => {
         if (data?.pages) {
             const allPosts = data.pages.flatMap((page) => page.posts || []);
-            dispatch(setPosts(allPosts));
+            const filteredPosts = allPosts.filter((post) => {
+                const authorId = post?.author?._id ? String(post.author._id) : '';
+                const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                return activeTab === 'following' ? isFollowedAuthor : !isFollowedAuthor;
+            });
+            dispatch(setPosts(filteredPosts));
         }
-    }, [data, dispatch]);
+    }, [activeTab, currentUserFollowing, data, dispatch]);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -58,13 +72,31 @@ const Feed = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-                        {data?.pages.map((page, i) => (
-                            <React.Fragment key={i}>
-                                {page.posts?.map((post) => (
-                                    <PostLayout key={post._id} post={post} />
-                                ))}
-                            </React.Fragment>
-                        ))}
+                        {activeTab === 'following' && (!data?.pages?.some((page) => (page.posts || []).some((post) => {
+                            const authorId = post?.author?._id ? String(post.author._id) : '';
+                            return Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                        })) ) ? (
+                            <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-8 text-center">
+                                <p className="text-lg font-semibold text-white">No posts from people you follow yet.</p>
+                                <p className="mt-2 text-sm text-gray-500">Follow some creators and their latest posts will appear here.</p>
+                            </div>
+                        ) : (
+                            data?.pages.map((page, i) => (
+                                <React.Fragment key={i}>
+                                    {page.posts?.filter((post) => {
+                                        const authorId = post?.author?._id ? String(post.author._id) : '';
+                                        const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                                        return activeTab === 'following' ? isFollowedAuthor : !isFollowedAuthor;
+                                    }).sort((a, b) => {
+                                        const aTime = new Date(a?.createdAt || 0).getTime();
+                                        const bTime = new Date(b?.createdAt || 0).getTime();
+                                        return bTime - aTime;
+                                    }).map((post) => (
+                                        <PostLayout key={post._id} post={post} />
+                                    ))}
+                                </React.Fragment>
+                            ))
+                        )}
                     </div>
                 )}
 

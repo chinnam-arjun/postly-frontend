@@ -3,6 +3,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import { registerThunk, loginThunk, getCurrentUserThunk } from "../redux_thunks/authThunk";
 import { editMyProfileThunk, followThunk } from "../redux_thunks/userThunk";
 
+const normalizeFollowingIds = (user) => {
+    if (!user) return [];
+    const rawFollowing = user.followingIds || user.following || [];
+    if (Array.isArray(rawFollowing)) {
+        return rawFollowing.map((item) => typeof item === 'string' ? item : item?._id || item?.id).filter(Boolean);
+    }
+    return [];
+};
+
 const initialState = {
     user: null,
     token: null,
@@ -22,6 +31,20 @@ const authSlice = createSlice({
             state.role = user?.role || "user";
             state.error = null;
             state.isLoading = false; 
+        },
+        setFollowRelationship: (state, action) => {
+            const { userId, isFollowing } = action.payload || {};
+            if (!state.user || !userId) return;
+
+            const normalizedFollowing = normalizeFollowingIds(state.user);
+            const nextFollowing = new Set(normalizedFollowing.map(String));
+            if (isFollowing) nextFollowing.add(String(userId)); else nextFollowing.delete(String(userId));
+
+            state.user = {
+                ...state.user,
+                followingIds: Array.from(nextFollowing),
+                following: Array.from(nextFollowing),
+            };
         },
         clearAuth: (state) => {
             state.user = null;
@@ -90,11 +113,24 @@ const authSlice = createSlice({
         // Handle follow/unfollow - sync followers/following with authSlice
         .addCase(followThunk.fulfilled, (state, action) => {
             if (state.user) {
-                state.user = { ...state.user, ...action.payload };
+                const payload = action.payload || {};
+                const nextUser = { ...state.user, ...payload };
+
+                if (typeof payload.isFollowing === 'boolean' && payload.targetUserId) {
+                    const normalizedFollowing = normalizeFollowingIds(nextUser);
+                    const nextFollowing = new Set(normalizedFollowing.map(String));
+                    if (payload.isFollowing) nextFollowing.add(String(payload.targetUserId));
+                    else nextFollowing.delete(String(payload.targetUserId));
+
+                    nextUser.followingIds = Array.from(nextFollowing);
+                    nextUser.following = Array.from(nextFollowing);
+                }
+
+                state.user = nextUser;
             }
         })
     }
 })
 
-export const { setCredentials, clearAuth } = authSlice.actions;
+export const { setCredentials, setFollowRelationship, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

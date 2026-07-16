@@ -6,6 +6,17 @@ import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/use
 import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
 import { followThunk } from '../../../redux_thunks/userThunk.js';
 import { updateAuthorFollowing } from '../../../redux_slices/postSlice.js';
+import { setFollowRelationship } from '../../../redux_slices/authSlice.js';
+
+const normalizeUserIds = (value = []) => {
+    if (!Array.isArray(value)) return [];
+    return value
+        .map((item) => typeof item === 'string' ? item : item?._id || item?.id)
+        .filter(Boolean)
+        .map(String);
+};
+
+const getAuthorId = (author) => (author?._id ? String(author._id) : '');
 
 const PostLayout = ({ post }) => {
     const dispatch = useDispatch();
@@ -200,9 +211,9 @@ const PostLayout = ({ post }) => {
                 <UserHeader author={currentPost.author} />
 
                 <div className="grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {comments.map((comment) => (
+                    {comments.map((comment, index) => (
                         <CommentItem
-                            key={comment._id}
+                            key={comment._id || `comment-${index}`}
                             comment={comment}
                             currentUserId={currentUserId}
                             onReply={handleReplyClick}
@@ -243,38 +254,39 @@ const PostLayout = ({ post }) => {
 
 const UserHeader = ({ author }) => {
     const dispatch = useDispatch();
-    const [isFollowing, setIsFollowing] = useState(Boolean(author?.isFollowing));
+    const currentUserFollowing = useSelector((state) => normalizeUserIds(state.auth.user?.followingIds || state.auth.user?.following || []));
+    const authorId = getAuthorId(author);
+    const [isFollowing, setIsFollowing] = useState(() => Boolean(author?.isFollowing) || currentUserFollowing.includes(authorId));
     const queryClient = useQueryClient();
 
-    const handleFollowToggle = async () => {
-        if (!author?._id) return;
-        try {
-            // perform follow/unfollow on the server and get the response payload
-            const actionResult = await dispatch(followThunk(author._id));
-            const payload = actionResult?.payload ?? actionResult;
-            // helpful debug log (remove in production)
-            // eslint-disable-next-line no-console
-            console.log('followThunk payload:', payload);
+    useEffect(() => {
+        setIsFollowing(Boolean(author?.isFollowing) || currentUserFollowing.includes(authorId));
+    }, [authorId, author?.isFollowing, currentUserFollowing]);
 
-            // derive new following state from server response when possible
-            let newFollowing;
-            if (payload && Array.isArray(payload.following)) {
-                newFollowing = payload.following.includes(author._id);
-            } else if (typeof payload.isFollowing === 'boolean') {
+    const handleFollowToggle = async () => {
+        if (!authorId) return;
+        try {
+            const actionResult = await dispatch(followThunk(authorId));
+            const payload = actionResult?.payload ?? actionResult;
+
+            let newFollowing = !isFollowing;
+            if (typeof payload?.isFollowing === 'boolean') {
                 newFollowing = payload.isFollowing;
+            } else if (payload && Array.isArray(payload.following)) {
+                newFollowing = normalizeUserIds(payload.following).includes(authorId);
             } else if (payload && payload.user && Array.isArray(payload.user.following)) {
-                newFollowing = payload.user.following.includes(author._id);
-            } else {
-                // fallback to toggling local state
-                newFollowing = !isFollowing;
+                newFollowing = normalizeUserIds(payload.user.following).includes(authorId);
+            } else if (typeof payload?.message === 'string') {
+                const message = payload.message.toLowerCase();
+                if (message.includes('follow')) newFollowing = true;
+                if (message.includes('unfollow')) newFollowing = false;
             }
 
             setIsFollowing(newFollowing);
-            dispatch(updateAuthorFollowing({ userId: author._id, isFollowing: newFollowing }));
-            // invalidate react-query posts cache so feeds refetch (for-you & following)
+            dispatch(setFollowRelationship({ userId: authorId, isFollowing: newFollowing }));
+            dispatch(updateAuthorFollowing({ userId: authorId, isFollowing: newFollowing }));
             queryClient.invalidateQueries({ queryKey: ['posts'] });
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error('follow error', err);
         }
     };
@@ -324,8 +336,8 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = fals
                     </div>
                 </div>
             </div>
-            {comment.replies?.map((reply) => (
-                <CommentItem key={reply._id} comment={reply} currentUserId={currentUserId} onReply={onReply} onDelete={onDelete} isReply={true} />
+            {comment.replies?.map((reply, index) => (
+                <CommentItem key={reply._id || `reply-${index}`} comment={reply} currentUserId={currentUserId} onReply={onReply} onDelete={onDelete} isReply={true} />
             ))}
         </div>
     );
