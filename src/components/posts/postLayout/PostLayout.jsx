@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
@@ -254,7 +254,8 @@ const PostLayout = ({ post }) => {
 
 const UserHeader = ({ author }) => {
     const dispatch = useDispatch();
-    const currentUserFollowing = useSelector((state) => normalizeUserIds(state.auth.user?.followingIds || state.auth.user?.following || []));
+    const currentUserFollowingIds = useSelector((state) => state.auth.user?.followingIds || state.auth.user?.following || null);
+    const currentUserFollowing = useMemo(() => normalizeUserIds(currentUserFollowingIds), [currentUserFollowingIds]);
     const authorId = getAuthorId(author);
     const [isFollowing, setIsFollowing] = useState(() => Boolean(author?.isFollowing) || currentUserFollowing.includes(authorId));
     const queryClient = useQueryClient();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useDispatch, useSelector } from 'react-redux';
 import PostLayout from './PostLayout/PostLayout';
@@ -18,7 +18,8 @@ const Feed = () => {
     const [activeTab, setActiveTab] = useState('for-you');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dispatch = useDispatch();
-    const currentUserFollowing = useSelector((state) => normalizeUserIds(state.auth.user?.followingIds || state.auth.user?.following || []));
+    const currentUserFollowingIds = useSelector((state) => state.auth.user?.followingIds || state.auth.user?.following || null);
+    const currentUserFollowing = useMemo(() => normalizeUserIds(currentUserFollowingIds), [currentUserFollowingIds]);
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = usePosts(activeTab);
     const { ref, inView } = useInView({ rootMargin: '600px' });
     const menuRef = useRef(null);
