@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js';
@@ -17,6 +17,41 @@ const normalizeUserIds = (value = []) => {
 };
 
 const getAuthorId = (author) => (author?._id ? String(author._id) : '');
+
+const getInitials = (name = '') => {
+    if (!name) return '';
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .map((part) => part[0].toUpperCase())
+        .slice(0, 2)
+        .join('');
+};
+
+const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderClass = 'border-gray-700' }) => {
+    const profileUrl = author?.profilepic || author?.profile || '';
+    const initials = getInitials(author?.username);
+
+    if (profileUrl) {
+        return (
+            <img
+                src={profileUrl}
+                className={`${sizeClasses} rounded-full object-cover border ${borderClass}`}
+                alt={author?.username || 'Author avatar'}
+            />
+        );
+    }
+
+    return (
+        <div className={`${sizeClasses} rounded-full border ${borderClass} bg-gray-800 text-gray-400 grid place-items-center`}> 
+            {initials ? (
+                <span className="text-[10px] font-bold uppercase">{initials}</span>
+            ) : (
+                <User size={iconSize} />
+            )}
+        </div>
+    );
+};
 
 const PostLayout = ({ post }) => {
     const dispatch = useDispatch();
@@ -201,10 +236,10 @@ const PostLayout = ({ post }) => {
 
             <div className={`
                 w-full lg:w-[40%] flex flex-col h-full bg-gray-950/50
-                ${showCommentsMobile ? 'fixed inset-0 z-[60] pt-10 lg:pt-0' : 'hidden lg:flex'}
+                ${showCommentsMobile ? 'fixed inset-0 z-60 pt-10 lg:pt-0' : 'hidden lg:flex'}
                 lg:relative border-l border-gray-800/50
             `}>
-                <div className="absolute top-4 right-4 lg:hidden z-[70]">
+                <div className="absolute top-4 right-4 lg:hidden z-70">
                     <X className="text-gray-400 cursor-pointer hover:text-white transition-colors" onClick={() => setShowCommentsMobile(false)} />
                 </div>
 
@@ -295,7 +330,7 @@ const UserHeader = ({ author }) => {
     return (
         <div className="p-4 flex items-center justify-between border-b border-gray-800/50 h-14 shrink-0 bg-gray-900">
             <div className="flex items-center gap-3">
-                <img src={author?.profilepic} className="w-8 h-8 rounded-full object-cover border border-gray-700" alt="" />
+                <AuthorAvatar author={author} sizeClasses="w-8 h-8" iconSize={14} borderClass="border-gray-700" />
                 <div className="flex flex-col">
                     <span className="font-bold text-xs text-white">{author?.username}</span>
                     <span className="text-[9px] text-gray-500 uppercase tracking-wider">Author</span>
