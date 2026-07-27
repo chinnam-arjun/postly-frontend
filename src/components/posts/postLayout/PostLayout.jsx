@@ -110,7 +110,7 @@ const PostLayout = ({ post }) => {
 
     const handleReplyClick = (comment) => {
         setReplyingTo(comment);
-        setCommentText(`@${comment.userId?.username || 'user'} `);
+        setCommentText(`@${comment.userId?.username || comment.author?.username || 'user'} `);
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
         setTimeout(() => commentInputRef.current?.focus(), 100);
     };
@@ -260,7 +260,7 @@ const PostLayout = ({ post }) => {
                 <div className="p-4 border-t border-gray-800/50 bg-gray-900">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-900/20 py-1 rounded-lg">
-                            <span className="text-[10px] text-blue-400 font-bold">Replying to @{replyingTo.userId?.username || 'user'}</span>
+                            <span className="text-[10px] text-blue-400 font-bold">Replying to @{replyingTo.userId?.username || replyingTo.author?.username || 'user'}</span>
                             <X size={12} className="cursor-pointer text-blue-400" onClick={() => { setReplyingTo(null); setCommentText(""); }} />
                         </div>
                     )}
@@ -346,25 +346,31 @@ const UserHeader = ({ author }) => {
     );
 };
 
+const getCommentAuthor = (comment) => comment.userId || comment.author || {};
+const getCommentText = (comment) => comment.content ?? comment.text ?? '';
+
 const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = false }) => {
-    const isOwner = comment.userId?._id === currentUserId || comment.userId === currentUserId;
+    const author = getCommentAuthor(comment);
+    const isOwner = author?._id === currentUserId || author === currentUserId;
+    const authorProfile = author?.profilepic || author?.profile || 'https://via.placeholder.com/28';
+    const authorName = author?.username || author?.name || 'Anonymous';
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={comment.userId?.profile || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt="" />
+                <img src={authorProfile} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt={authorName} />
                 <div className="flex flex-col grow">
                     <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none border border-gray-800/30">
                         <div className="flex justify-between items-center mb-0.5">
-                            <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || 'Anonymous'}</span>
+                            <span className="font-bold text-[11px] text-gray-300">{authorName}</span>
                             {isOwner && (
                                 <Trash2 size={10} className="text-gray-500 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
                             )}
                         </div>
-                        <p className="text-xs text-gray-400 leading-snug">{comment.content}</p>
+                        <p className="text-xs text-gray-400 leading-snug">{getCommentText(comment)}</p>
                     </div>
                     <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-gray-600">
-                        <span>2h</span>
+                        <span>{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now'}</span>
                         <button className="hover:text-red-400 transition-colors">Like</button>
                         <button onClick={() => onReply(comment)} className="hover:text-blue-400 flex items-center gap-1 transition-colors">
                             <Reply size={10} /> Reply
