@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCommentMutation, useDeleteCommentMutation } from '../../../hooks/usePosts.js';
+import { useCommentMutation, useDeleteCommentMutation, useLikeCommentMutation } from '../../../hooks/usePosts.js';
 import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
 import { followThunk } from '../../../redux_thunks/userThunk.js';
 import { updateAuthorFollowing } from '../../../redux_slices/postSlice.js';
@@ -102,6 +102,7 @@ const PostLayout = ({ post }) => {
 
     const commentMutation = useCommentMutation(currentPost._id);
     const deleteMutation = useDeleteCommentMutation(currentPost._id);
+    const likeCommentMutation = useLikeCommentMutation(currentPost._id);
 
     const handleCommentAction = () => {
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
@@ -246,15 +247,36 @@ const PostLayout = ({ post }) => {
                 <UserHeader author={currentPost.author} />
 
                 <div className="grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {comments.map((comment, index) => (
-                        <CommentItem
-                            key={comment._id || `comment-${index}`}
-                            comment={comment}
-                            currentUserId={currentUserId}
-                            onReply={handleReplyClick}
-                            onDelete={(id) => deleteMutation.mutate(id)}
-                        />
-                    ))}
+                    {/** Flatten comments to a single array with parent reference for flat rendering */}
+                    {(() => {
+                        const flat = [];
+                        for (const c of comments || []) {
+                            const parent = {
+                                ...c,
+                                parentCommentId: c.parentCommentId || null,
+                                parentAuthorName: c.parentAuthorName || null,
+                            };
+                            flat.push(parent);
+                            // handle nested replies if backend returns them under `replies`
+                            if (Array.isArray(c.replies) && c.replies.length) {
+                                for (const r of c.replies) {
+                                    flat.push({ ...r, parentCommentId: c._id, parentAuthorName: c.userId?.username || c.author?.username || null });
+                                }
+                            }
+                        }
+                        // sort newest first
+                        flat.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+                        return flat.map((comment) => (
+                            <CommentItem
+                                key={comment._id}
+                                comment={comment}
+                                currentUserId={currentUserId}
+                                onReply={handleReplyClick}
+                                onDelete={(id) => deleteMutation.mutate(id)}
+                                onLike={(id) => likeCommentMutation.mutate(id)}
+                            />
+                        ));
+                    })()}
                 </div>
 
                 <div className="p-4 border-t border-gray-800/50 bg-gray-900">
@@ -346,8 +368,9 @@ const UserHeader = ({ author }) => {
     );
 };
 
-const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = false }) => {
+const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isReply = false }) => {
     const isOwner = comment.userId?._id === currentUserId || comment.userId === currentUserId;
+    const parentName = comment.parentAuthorName || comment.parentAuthor || null;
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
@@ -356,7 +379,10 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = fals
                 <div className="flex flex-col grow">
                     <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none border border-gray-800/30">
                         <div className="flex justify-between items-center mb-0.5">
-                            <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || 'Anonymous'}</span>
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || comment.author?.username || 'Anonymous'}</span>
+                                {parentName && <span className="text-[10px] text-gray-500">· replying to <span className="font-bold text-gray-300">@{parentName}</span></span>}
+                            </div>
                             {isOwner && (
                                 <Trash2 size={10} className="text-gray-500 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
                             )}
@@ -364,8 +390,11 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, isReply = fals
                         <p className="text-xs text-gray-400 leading-snug">{comment.content}</p>
                     </div>
                     <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-gray-600">
-                        <span>2h</span>
-                        <button className="hover:text-red-400 transition-colors">Like</button>
+                        <span>{new Date(comment.createdAt || Date.now()).toLocaleTimeString()}</span>
+                        <button onClick={() => onLike && onLike(comment._id)} className="hover:text-red-400 transition-colors flex items-center gap-1">
+                            <Heart size={12} className={`${comment.likesCount > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                            <span>{comment.likesCount > 0 ? comment.likesCount : 'Like'}</span>
+                        </button>
                         <button onClick={() => onReply(comment)} className="hover:text-blue-400 flex items-center gap-1 transition-colors">
                             <Reply size={10} /> Reply
                         </button>

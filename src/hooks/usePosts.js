@@ -82,3 +82,18 @@ export const useDeleteCommentMutation = (postId) => {
     },
   });
 };
+
+export const useLikeCommentMutation = (postId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (commentId) => {
+      // Backend expected to support toggling like on a comment
+      const res = await axiosInstance.post(`/posts/${postId}/comment/${commentId}/like`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    }
+  });
+};
