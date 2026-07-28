@@ -45,6 +45,12 @@ const Feed = () => {
             const filteredPosts = allPosts.filter((post) => {
                 return activeTab === 'following' ? isFollowedPost(post) : true;
             });
+            // Diagnostic logging to help debug why posts may be filtered out
+            try {
+                const firstPost = allPosts[0];
+                // eslint-disable-next-line no-console
+                console.log('Feed debug:', { activeTab, pages: data.pages.length, totalPosts: allPosts.length, firstPostAuthor: firstPost?.author?._id, firstPostIsFollowed: isFollowedPost(firstPost), currentUserFollowing });
+            } catch (e) {}
             dispatch(setPosts(filteredPosts));
         }
     }, [activeTab, currentUserFollowing, data, dispatch]);
@@ -96,7 +102,8 @@ const Feed = () => {
                                     {page.posts?.filter((post) => {
                                         const authorId = post?.author?._id ? String(post.author._id) : '';
                                         const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
-                                        return activeTab === 'following' ? isFollowedAuthor : !isFollowedAuthor;
+                                        // Show all posts for "for-you"; only followed authors for "following"
+                                        return activeTab === 'following' ? isFollowedAuthor : true;
                                     }).sort((a, b) => {
                                         const aTime = new Date(a?.createdAt || 0).getTime();
                                         const bTime = new Date(b?.createdAt || 0).getTime();
