@@ -46,6 +46,5 @@ const UserSection = ({ author, isFollowing, setIsFollowing, onMobileClose }) => 
             {onMobileClose && <X className="lg:hidden cursor-pointer dark:text-white" onClick={onMobileClose} />}
         </div>
     </div>
-
-)};
+);
 export default UserSection;

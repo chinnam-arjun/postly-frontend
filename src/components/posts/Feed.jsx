@@ -28,22 +28,13 @@ const Feed = () => {
         if (inView && hasNextPage) fetchNextPage();
     }, [inView, hasNextPage, fetchNextPage]);
 
-    const getPagePosts = (page) => {
-        if (!page) return [];
-        if (Array.isArray(page)) return page;
-        return page.posts || page.data || page || [];
-    };
-
-    const isFollowedPost = (post) => {
-        const authorId = post?.author?._id ? String(post.author._id) : '';
-        return Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
-    };
-
     useEffect(() => {
         if (data?.pages) {
-            const allPosts = data.pages.flatMap((page) => getPagePosts(page));
+            const allPosts = data.pages.flatMap((page) => page.posts || []);
             const filteredPosts = allPosts.filter((post) => {
-                return activeTab === 'following' ? isFollowedPost(post) : true;
+                const authorId = post?.author?._id ? String(post.author._id) : '';
+                const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                return activeTab === 'following' ? isFollowedAuthor : !isFollowedAuthor;
             });
             // Diagnostic logging to help debug why posts may be filtered out
             try {
