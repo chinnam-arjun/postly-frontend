@@ -63,9 +63,9 @@ export const useCommentMutation = (postId) => {
       const response = await axiosInstance.post(url, { content });
       return response.data;
     },
-    // When the mutation succeeds, refresh the post data for all feed types
+    // When the mutation succeeds, refresh the post data
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };
@@ -78,7 +78,7 @@ export const useDeleteCommentMutation = (postId) => {
       await axiosInstance.delete(`/posts/${postId}/comment/${commentId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };
