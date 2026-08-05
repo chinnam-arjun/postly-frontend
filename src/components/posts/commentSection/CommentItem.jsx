@@ -1,84 +1,92 @@
 import React from 'react';
 import { Heart, Trash2, Reply } from 'lucide-react';
 
-const CommentItem = ({ 
-    comment, 
-    currentUserId, 
-    onReply, 
-    onDelete, 
-    isReply = false 
+const CommentItem = ({
+    comment,
+    currentUserId,
+    onReply,
+    onDelete,
+    onLike,
+    depth = 0,
 }) => {
-    // Check if the logged-in user is the one who wrote this comment
-    const isOwner = comment.userId._id === currentUserId;
-
-    const deleteMutation = useDeleteCommentMutation(postId);
-
-const handleDelete = (id) => {
-    if (window.confirm("Delete this comment?")) {
-        deleteMutation.mutate(id);
-    }
-};
+    const author = comment.userId || comment.author || {};
+    const isOwner = author?._id === currentUserId || author === currentUserId;
+    const content = comment.content || comment.text || '';
+    const parentName = comment.parentAuthorName || comment.parentAuthor || null;
 
     return (
-        <div className={`flex flex-col gap-2 ${isReply ? 'ml-10 mt-2 border-l-2 border-gray-100 dark:border-gray-800 pl-4' : 'mt-4'}`}>
-            <div className="flex gap-3 group">
-                <img 
-                    src={comment.userId.profile} 
-                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-100" 
-                    alt={comment.userId.username} 
-                />
-                
+        <div className={`flex flex-col gap-2 ${depth > 0 ? 'pt-2' : 'mt-4'}`}>
+            <div className={`flex gap-3 group ${depth > 0 ? 'pl-4 border-l border-gray-800/40' : ''}`}>
+                <div className="w-8 h-8 shrink-0 overflow-hidden rounded-full bg-slate-700 text-center text-sm font-bold text-white">
+                    {author?.profile ? (
+                        <img
+                            src={author.profile}
+                            alt={author.username || 'User avatar'}
+                            className="h-full w-full object-cover"
+                        />
+                    ) : (
+                        (author?.username || 'U').charAt(0).toUpperCase()
+                    )}
+                </div>
+
                 <div className="flex flex-col grow">
-                    {/* Comment Bubble */}
-                    <div className="bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-2xl rounded-tl-none">
-                        <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs dark:text-white">
-                                {comment.userId.username}
-                            </span>
+                    <div className="bg-gray-900 border border-gray-800 px-3 py-2 rounded-2xl rounded-tl-none">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-semibold text-sm text-white">{author?.username || 'Anonymous'}</span>
+                                {parentName && (
+                                    <span className="text-xs text-blue-300">replying to @{parentName}</span>
+                                )}
+                            </div>
+
                             {isOwner && (
-                                <button 
-                                    onClick={() => onDelete(comment._id)}
-                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
+                                <button
+                                    type="button"
+                                    onClick={() => onDelete && onDelete(comment._id)}
+                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
                                 >
-                                    <Trash2 size={12} />
+                                    <Trash2 size={14} />
                                 </button>
                             )}
                         </div>
-                        <p className="text-sm text-gray-800 dark:text-gray-200 mt-0.5 leading-snug">
-                            {/* If it's a reply, we can prefix with @username logic if needed */}
-                            {comment.content}
+                        <p className="mt-2 text-sm leading-6 text-gray-300 whitespace-pre-wrap">
+                            {content}
                         </p>
                     </div>
 
-                    {/* Actions Row */}
-                    <div className="flex items-center gap-4 mt-1 ml-2 text-[10px] font-bold text-gray-500 dark:text-gray-400">
-                        <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                        <button className="hover:text-red-500 transition-colors flex items-center gap-1">
-                            <Heart size={10} fill={comment.likesCount > 0 ? "currentColor" : "none"} />
-                            {comment.likesCount > 0 ? comment.likesCount : 'Like'}
-                        </button>
-                        <button 
-                            onClick={() => onReply(comment)} 
-                            className="hover:text-blue-500 flex items-center gap-1"
+                    <div className="flex flex-wrap items-center gap-3 mt-2 ml-1 text-[10px] font-bold text-gray-500">
+                        <span>{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now'}</span>
+                        <button
+                            type="button"
+                            onClick={() => onLike && onLike(comment._id)}
+                            className="flex items-center gap-1 transition text-gray-400 hover:text-red-400"
                         >
-                            <Reply size={10} />
+                            <Heart size={12} fill={comment.likesCount > 0 ? 'currentColor' : 'none'} />
+                            <span>{comment.likesCount > 0 ? comment.likesCount : 'Like'}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onReply && onReply(comment)}
+                            className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition"
+                        >
+                            <Reply size={12} />
                             Reply
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Recursively render replies */}
-            {comment.replies && comment.replies.length > 0 && (
-                <div className="flex flex-col">
+            {Array.isArray(comment.replies) && comment.replies.length > 0 && (
+                <div className="flex flex-col gap-2">
                     {comment.replies.map((reply) => (
-                        <CommentItem 
-                            key={reply._id} 
-                            comment={reply} 
+                        <CommentItem
+                            key={reply._id}
+                            comment={reply}
                             currentUserId={currentUserId}
                             onReply={onReply}
                             onDelete={onDelete}
-                            isReply={true}
+                            onLike={onLike}
+                            depth={Math.min(depth + 1, 3)}
                         />
                     ))}
                 </div>
@@ -86,6 +94,8 @@ const handleDelete = (id) => {
         </div>
     );
 };
+
+export default CommentItem;
 /**
  * Key UI/UX Improvements:
 Thread Visualizer: Added ml-10 border-l-2 to the child replies. This creates a vertical line that visually connects the replies to the parent, making the "nested" structure easy to follow.
