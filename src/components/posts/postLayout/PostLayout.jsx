@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
+import axiosInstance from '../../../utils/AxiosInstance';
 import { useCommentMutation, useDeleteCommentMutation, useLikeCommentMutation } from '../../../hooks/usePosts.js';
 import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/postThunk.js';
 import { followThunk } from '../../../redux_thunks/userThunk.js';
@@ -53,11 +54,49 @@ const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderCl
     );
 };
 
+const normalizeComment = (comment) => ({
+    ...comment,
+    content: comment.content || comment.text || '',
+    parentCommentId: comment.parentCommentId || null,
+    replies: Array.isArray(comment.replies) ? comment.replies.map(normalizeComment) : [],
+});
+
+const buildCommentTree = (commentList = []) => {
+    const nodes = {};
+    const roots = [];
+
+    commentList.forEach((comment) => {
+        const normalized = normalizeComment(comment);
+        nodes[normalized._id] = normalized;
+    });
+
+    Object.values(nodes).forEach((comment) => {
+        if (comment.parentCommentId && nodes[comment.parentCommentId] && comment.parentCommentId !== comment._id) {
+            nodes[comment.parentCommentId].replies.push(comment);
+        } else {
+            roots.push(comment);
+        }
+    });
+
+    const sortComments = (items) => {
+        items.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        items.forEach((item) => {
+            if (Array.isArray(item.replies) && item.replies.length) {
+                sortComments(item.replies);
+            }
+        });
+    };
+
+    sortComments(roots);
+    return roots;
+};
+
 const PostLayout = ({ post }) => {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const reduxPost = useSelector((state) => state.posts.postsById?.[post._id] || null);
     const currentPost = reduxPost || post;
+    const currentPostId = currentPost?._id;
     const currentUserId = user?._id;
 
     const [showCommentsMobile, setShowCommentsMobile] = useState(false);
@@ -79,16 +118,9 @@ const PostLayout = ({ post }) => {
     };
 
     const currentImageUrl = mediaItems.length > 0 ? getMediaUrl(mediaItems[currentImageIndex]) : '';
-    const comments = currentPost?.comments || [];
+    const [comments, setComments] = useState(currentPost?.comments || []);
+    const commentTree = useMemo(() => buildCommentTree(comments), [comments]);
     const likesCount = currentPost?.likesCount ?? currentPost?.likes?.length ?? 0;
-    // const isLiked = Boolean(
-    //     currentUserId &&
-    //     (currentPost?.likedBy?.includes(currentUserId) || currentPost?.isLiked)
-    // );
-    // const isSaved = Boolean(
-    //     currentUserId &&
-    //     (currentPost?.savedBy?.includes(currentUserId) || currentPost?.isSaved)
-    // );
     const isLiked = Boolean(currentPost?.isLiked);
     const isSaved = Boolean(currentPost?.isSaved);
 
@@ -104,6 +136,19 @@ const PostLayout = ({ post }) => {
     const deleteMutation = useDeleteCommentMutation(currentPost._id);
     const likeCommentMutation = useLikeCommentMutation(currentPost._id);
 
+    const fetchCommentsForPost = useCallback(async () => {
+        if (!currentPostId) return;
+        try {
+            const response = await axiosInstance.get(`/posts/${currentPostId}/comments`);
+            const data = response.data;
+            if (Array.isArray(data.comments)) {
+                setComments(data.comments);
+            }
+        } catch (err) {
+            console.error('Failed to fetch post comments:', err);
+        }
+    }, [currentPostId]);
+
     const handleCommentAction = () => {
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
         else commentInputRef.current?.focus();
@@ -111,25 +156,24 @@ const PostLayout = ({ post }) => {
 
     const handleReplyClick = (comment) => {
         setReplyingTo(comment);
-        setCommentText(`@${comment.userId?.username || 'user'} `);
+        setCommentText(`@${comment.userId?.username || comment.author?.username || 'user'} `);
         if (window.innerWidth < 1024) setShowCommentsMobile(true);
         setTimeout(() => commentInputRef.current?.focus(), 100);
     };
 
-    const handlePostComment = () => {
+    const handlePostComment = async () => {
         if (!commentText.trim()) return;
-        commentMutation.mutate(
+
+        await commentMutation.mutateAsync(
             {
                 content: commentText,
                 parentCommentId: replyingTo?._id
-            },
-            {
-                onSuccess: () => {
-                    setCommentText("");
-                    setReplyingTo(null);
-                }
             }
         );
+
+        setCommentText("");
+        setReplyingTo(null);
+        fetchCommentsForPost();
     };
 
     const handleToggleLike = () => {
@@ -150,6 +194,12 @@ const PostLayout = ({ post }) => {
         }
         return () => { document.body.style.overflow = 'unset'; };
     }, [showCommentsMobile]);
+
+    useEffect(() => {
+        if (currentPostId) {
+            fetchCommentsForPost();
+        }
+    }, [fetchCommentsForPost, currentPostId]);
 
     return (
         <article className="w-full bg-gray-900 border border-gray-800/50 rounded-2xl overflow-hidden flex flex-col lg:flex-row shadow-xl lg:h-[650px] relative">
@@ -247,26 +297,8 @@ const PostLayout = ({ post }) => {
                 <UserHeader author={currentPost.author} />
 
                 <div className="grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {/** Flatten comments to a single array with parent reference for flat rendering */}
-                    {(() => {
-                        const flat = [];
-                        for (const c of comments || []) {
-                            const parent = {
-                                ...c,
-                                parentCommentId: c.parentCommentId || null,
-                                parentAuthorName: c.parentAuthorName || null,
-                            };
-                            flat.push(parent);
-                            // handle nested replies if backend returns them under `replies`
-                            if (Array.isArray(c.replies) && c.replies.length) {
-                                for (const r of c.replies) {
-                                    flat.push({ ...r, parentCommentId: c._id, parentAuthorName: c.userId?.username || c.author?.username || null });
-                                }
-                            }
-                        }
-                        // sort newest first
-                        flat.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-                        return flat.map((comment) => (
+                    {commentTree && commentTree.length > 0 ? (
+                        commentTree.map((comment) => (
                             <CommentItem
                                 key={comment._id}
                                 comment={comment}
@@ -275,8 +307,12 @@ const PostLayout = ({ post }) => {
                                 onDelete={(id) => deleteMutation.mutate(id)}
                                 onLike={(id) => likeCommentMutation.mutate(id)}
                             />
-                        ));
-                    })()}
+                        ))
+                    ) : (
+                        <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-6 text-center text-gray-400">
+                            No comments yet. Be the first to comment.
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-4 border-t border-gray-800/50 bg-gray-900">
@@ -381,13 +417,14 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
                         <div className="flex justify-between items-center mb-0.5">
                             <div className="flex items-center gap-2">
                                 <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || comment.author?.username || 'Anonymous'}</span>
+                                
                                 {parentName && <span className="text-[10px] text-gray-500">· replying to <span className="font-bold text-gray-300">@{parentName}</span></span>}
                             </div>
                             {isOwner && (
                                 <Trash2 size={10} className="text-gray-500 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
                             )}
                         </div>
-                        <p className="text-xs text-gray-400 leading-snug">{comment.content}</p>
+                        <p className="text-xs text-gray-400 leading-snug">{comment.content || comment.text}</p>
                     </div>
                     <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-gray-600">
                         <span>{new Date(comment.createdAt || Date.now()).toLocaleTimeString()}</span>
