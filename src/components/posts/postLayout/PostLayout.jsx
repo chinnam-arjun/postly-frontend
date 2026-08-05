@@ -61,34 +61,40 @@ const normalizeComment = (comment) => ({
     replies: Array.isArray(comment.replies) ? comment.replies.map(normalizeComment) : [],
 });
 
-const buildCommentTree = (commentList = []) => {
-    const nodes = {};
-    const roots = [];
+const buildCommentTree = (comments = []) => {
+    const flattenReplies = (replies = []) => {
+        const result = [];
 
-    commentList.forEach((comment) => {
-        const normalized = normalizeComment(comment);
-        nodes[normalized._id] = normalized;
-    });
+        const dfs = (items) => {
+            items.forEach((reply) => {
+                const children = reply.replies || [];
 
-    Object.values(nodes).forEach((comment) => {
-        if (comment.parentCommentId && nodes[comment.parentCommentId] && comment.parentCommentId !== comment._id) {
-            nodes[comment.parentCommentId].replies.push(comment);
-        } else {
-            roots.push(comment);
-        }
-    });
+                result.push({
+                    ...reply,
+                    replies: [], // stop recursive rendering
+                });
 
-    const sortComments = (items) => {
-        items.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        items.forEach((item) => {
-            if (Array.isArray(item.replies) && item.replies.length) {
-                sortComments(item.replies);
-            }
-        });
+                if (children.length) {
+                    dfs(children);
+                }
+            });
+        };
+
+        dfs(replies);
+
+        result.sort(
+            (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+        );
+
+        return result;
     };
 
-    sortComments(roots);
-    return roots;
+    return comments.map((comment) => ({
+        ...comment,
+        replies: flattenReplies(comment.replies || []),
+    }));
 };
 
 const PostLayout = ({ post }) => {
@@ -140,6 +146,7 @@ const PostLayout = ({ post }) => {
         if (!currentPostId) return;
         try {
             const response = await axiosInstance.get(`/posts/${currentPostId}/comments`);
+            console.log(response.data.comments);
             const data = response.data;
             if (Array.isArray(data.comments)) {
                 setComments(data.comments);
@@ -297,24 +304,38 @@ const PostLayout = ({ post }) => {
                 <UserHeader author={currentPost.author} />
 
                 <div className="grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {commentTree && commentTree.length > 0 ? (
-                        commentTree.map((comment) => (
-                            <CommentItem
-                                key={comment._id}
-                                comment={comment}
-                                currentUserId={currentUserId}
-                                onReply={handleReplyClick}
-                                onDelete={(id) => deleteMutation.mutate(id)}
-                                onLike={(id) => likeCommentMutation.mutate(id)}
-                            />
-                        ))
-                    ) : (
-                        <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-6 text-center text-gray-400">
-                            No comments yet. Be the first to comment.
-                        </div>
-                    )}
-                </div>
+    {commentTree && commentTree.length > 0 ? (
+        commentTree.map((comment) => (
+            <div key={comment._id}>
+                {/* Parent Comment */}
+                <CommentItem
+                    comment={comment}
+                    currentUserId={currentUserId}
+                    onReply={handleReplyClick}
+                    onDelete={(id) => deleteMutation.mutate(id)}
+                    onLike={(id) => likeCommentMutation.mutate(id)}
+                />
 
+                {/* All Replies (Flattened) */}
+                {comment.replies?.map((reply) => (
+                    <CommentItem
+                        key={reply._id}
+                        comment={reply}
+                        currentUserId={currentUserId}
+                        onReply={handleReplyClick}
+                        onDelete={(id) => deleteMutation.mutate(id)}
+                        onLike={(id) => likeCommentMutation.mutate(id)}
+                        isReply={true}
+                    />
+                ))}
+            </div>
+        ))
+    ) : (
+        <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-6 text-center text-gray-400">
+            No comments yet. Be the first to comment.
+        </div>
+    )}
+</div>
                 <div className="p-4 border-t border-gray-800/50 bg-gray-900">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-900/20 py-1 rounded-lg">
@@ -438,9 +459,9 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
                     </div>
                 </div>
             </div>
-            {comment.replies?.map((reply, index) => (
+            {/* {comment.replies?.map((reply, index) => (
                 <CommentItem key={reply._id || `reply-${index}`} comment={reply} currentUserId={currentUserId} onReply={onReply} onDelete={onDelete} isReply={true} />
-            ))}
+            ))} */}
         </div>
     );
 };
