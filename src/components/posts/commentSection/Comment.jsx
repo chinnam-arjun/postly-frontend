@@ -251,6 +251,7 @@ const CommentSection = ({ postId }) => {
 
   const toggleLike = async (commentId) => {
     try {
+      // Use PUT to toggle like on comment (backend expects PUT)
       const res = await fetch(`/posts/comment/${commentId}/like`, {
         method: "PUT",
         headers: {
@@ -260,9 +261,9 @@ const CommentSection = ({ postId }) => {
         credentials: "include",
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Failed to like comment");
-      fetchComments();
+      await fetchComments();
     } catch (err) {
       setError(err.message);
     }
@@ -303,7 +304,7 @@ const CommentSection = ({ postId }) => {
           </div>
         </div>
       </div>
-
+                  (comment.isLiked || comment.likedByCurrentUser) ? "text-pink-400" : "text-gray-400"
       <div className="max-h-[520px] overflow-y-auto pr-1">
         {loading && (
           <div className="py-6 text-center text-gray-400">Loading comments…</div>

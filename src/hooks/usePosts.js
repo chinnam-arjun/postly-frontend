@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // usePosts.js
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../utils/AxiosInstance';
@@ -88,8 +89,8 @@ export const useLikeCommentMutation = (postId) => {
 
   return useMutation({
     mutationFn: async (commentId) => {
-      // Backend expected to support toggling like on a comment
-      const res = await axiosInstance.post(`/posts/${postId}/comment/${commentId}/like`);
+      // Backend expects PUT for toggling comment likes
+      const res = await axiosInstance.put(`/posts/comment/${commentId}/like`);
       return res.data;
     },
     onSuccess: () => {

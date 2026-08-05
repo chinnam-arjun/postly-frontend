@@ -59,10 +59,10 @@ const CommentItem = ({
                         <button
                             type="button"
                             onClick={() => onLike && onLike(comment._id)}
-                            className="flex items-center gap-1 transition text-gray-400 hover:text-red-400"
+                            className={`flex items-center gap-1 transition ${(comment.isLiked || comment.likedByCurrentUser) ? 'text-red-500' : 'text-gray-400'} hover:text-red-400`}
                         >
-                            <Heart size={12} fill={comment.likesCount > 0 ? 'currentColor' : 'none'} />
-                            <span>{comment.likesCount > 0 ? comment.likesCount : 'Like'}</span>
+                            <Heart size={12} />
+                            <span>{(comment.isLiked || comment.likedByCurrentUser) ? 'Unlike' : (comment.likesCount > 0 ? comment.likesCount : 'Like')}</span>
                         </button>
                         <button
                             type="button"
