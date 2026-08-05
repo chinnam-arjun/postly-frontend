@@ -62,7 +62,7 @@ const CommentItem = ({
                             className={`flex items-center gap-1 transition ${(comment.isLiked || comment.likedByCurrentUser) ? 'text-red-500' : 'text-gray-400'} hover:text-red-400`}
                         >
                             <Heart size={12} />
-                            <span>{(comment.isLiked || comment.likedByCurrentUser) ? 'Unlike' : (comment.likesCount > 0 ? comment.likesCount : 'Like')}</span>
+                            {comment.likesCount > 0 && <span className="text-sm">{comment.likesCount}</span>}
                         </button>
                         <button
                             type="button"

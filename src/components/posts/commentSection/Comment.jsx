@@ -58,7 +58,7 @@ const CommentItem = ({
                   comment.likesCount > 0 ? "text-pink-400" : "text-gray-400"
                 }`}
               >
-                ♥ {comment.likesCount || 0}
+                  ♥{comment.likesCount > 0 ? ` ${comment.likesCount}` : ''}
               </button>
 
               <button

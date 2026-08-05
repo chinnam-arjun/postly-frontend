@@ -513,10 +513,9 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
                         <button
                             type="button"
                             onClick={() => onLike && onLike(comment._id)}
-                            className="hover:text-red-400 transition-colors flex items-center gap-1"
+                            className="hover:text-red-400 transition-colors flex items-center gap-2"
                         >
                             <Heart size={12} className={`${(comment.isLiked || comment.likedByCurrentUser) ? 'text-red-500' : 'text-gray-400'}`} />
-                            <span>{comment.isLiked || comment.likedByCurrentUser ? 'Unlike' : 'Like'}</span>
                             {comment.likesCount > 0 && (
                                 <span className="text-[10px] text-gray-400">{formatCount(comment.likesCount)}</span>
                             )}
