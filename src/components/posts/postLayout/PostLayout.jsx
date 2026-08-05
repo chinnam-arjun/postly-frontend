@@ -54,12 +54,12 @@ const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderCl
     );
 };
 
-const normalizeComment = (comment) => ({
-    ...comment,
-    content: comment.content || comment.text || '',
-    parentCommentId: comment.parentCommentId || null,
-    replies: Array.isArray(comment.replies) ? comment.replies.map(normalizeComment) : [],
-});
+// const normalizeComment = (comment) => ({
+//     ...comment,
+//     content: comment.content || comment.text || '',
+//     parentCommentId: comment.parentCommentId || null,
+//     replies: Array.isArray(comment.replies) ? comment.replies.map(normalizeComment) : [],
+// });
 
 const buildCommentTree = (comments = []) => {
     const flattenReplies = (replies = []) => {
