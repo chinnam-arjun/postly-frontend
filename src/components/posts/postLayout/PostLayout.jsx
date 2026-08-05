@@ -29,6 +29,39 @@ const getInitials = (name = '') => {
         .join('');
 };
 
+const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return 'Just now';
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return 'Just now';
+
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 5) return 'Just now';
+    if (seconds < 60) return `${seconds}s ago`;
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+
+    const years = Math.floor(months / 12);
+    return `${years}y ago`;
+};
+
+const formatCount = (value) => {
+    const count = Number(value ?? 0);
+    if (Number.isNaN(count)) return '0';
+    if (count < 1000) return `${count}`;
+    if (count < 1000000) return `${(count / 1000).toFixed(count < 10000 ? 1 : 0).replace(/\.0$/, '')}k`;
+    return `${(count / 1000000).toFixed(count < 10000000 ? 1 : 0).replace(/\.0$/, '')}m`;
+};
+
 const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderClass = 'border-gray-700' }) => {
     const profileUrl = author?.profilepic || author?.profile || '';
     const initials = getInitials(author?.username);
@@ -183,10 +216,36 @@ const PostLayout = ({ post }) => {
         fetchCommentsForPost();
     };
 
+    const handleDeleteComment = (commentId) => {
+        if (!commentId) return;
+        if (!window.confirm('Delete this comment?')) return;
+        deleteMutation.mutate(commentId, {
+            onSuccess: () => fetchCommentsForPost(),
+        });
+    };
+
+    const handleLikeComment = (commentId) => {
+        if (!commentId || !currentUserId) return;
+        likeCommentMutation.mutate(commentId, {
+            onSuccess: () => fetchCommentsForPost(),
+        });
+    };
+
     const handleToggleLike = () => {
         if (!currentUserId) return;
         dispatch(toggleLikePostThunk(currentPost._id));
     };
+
+    const renderComment = (comment) => (
+        <CommentItem
+            key={comment._id}
+            comment={comment}
+            currentUserId={currentUserId}
+            onReply={handleReplyClick}
+            onDelete={handleDeleteComment}
+            onLike={handleLikeComment}
+        />
+    );
 
     const handleToggleSave = () => {
         if (!currentUserId) return;
@@ -312,19 +371,19 @@ const PostLayout = ({ post }) => {
                     comment={comment}
                     currentUserId={currentUserId}
                     onReply={handleReplyClick}
-                    onDelete={(id) => deleteMutation.mutate(id)}
-                    onLike={(id) => likeCommentMutation.mutate(id)}
+                    onDelete={handleDeleteComment}
+                    onLike={handleLikeComment}
                 />
 
                 {/* All Replies (Flattened) */}
-                {comment.replies?.map((reply) => (
+                {comment.replies?.map((reply, index) => (
                     <CommentItem
-                        key={reply._id}
+                        key={reply._id || `${comment._id}-reply-${index}`}
                         comment={reply}
                         currentUserId={currentUserId}
                         onReply={handleReplyClick}
-                        onDelete={(id) => deleteMutation.mutate(id)}
-                        onLike={(id) => likeCommentMutation.mutate(id)}
+                        onDelete={handleDeleteComment}
+                        onLike={handleLikeComment}
                         isReply={true}
                     />
                 ))}
@@ -426,42 +485,51 @@ const UserHeader = ({ author }) => {
 };
 
 const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isReply = false }) => {
-    const isOwner = comment.userId?._id === currentUserId || comment.userId === currentUserId;
+    const author = comment.userId || comment.author || {};
+    const isOwner = author?._id === currentUserId || author === currentUserId;
     const parentName = comment.parentAuthorName || comment.parentAuthor || null;
+    const content = comment.content || comment.text || '';
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={comment.userId?.profile || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt="" />
+                <img src={author?.profile || author?.profilepic || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt="" />
                 <div className="flex flex-col grow">
                     <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none border border-gray-800/30">
                         <div className="flex justify-between items-center mb-0.5">
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-[11px] text-gray-300">{comment.userId?.username || comment.author?.username || 'Anonymous'}</span>
-                                
+                                <span className="font-bold text-[11px] text-gray-300">{author?.username || 'Anonymous'}</span>
                                 {parentName && <span className="text-[10px] text-gray-500">· replying to <span className="font-bold text-gray-300">@{parentName}</span></span>}
                             </div>
                             {isOwner && (
                                 <Trash2 size={10} className="text-gray-500 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
                             )}
                         </div>
-                        <p className="text-xs text-gray-400 leading-snug">{comment.content || comment.text}</p>
+                        <p className="text-xs text-gray-400 leading-snug">{content}</p>
                     </div>
                     <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-gray-600">
-                        <span>{new Date(comment.createdAt || Date.now()).toLocaleTimeString()}</span>
-                        <button onClick={() => onLike && onLike(comment._id)} className="hover:text-red-400 transition-colors flex items-center gap-1">
+                        <span>{formatTimeAgo(comment.createdAt)}</span>
+                        <button
+                            type="button"
+                            onClick={() => onLike && onLike(comment._id)}
+                            className="hover:text-red-400 transition-colors flex items-center gap-1"
+                        >
                             <Heart size={12} className={`${comment.likesCount > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-                            <span>{comment.likesCount > 0 ? comment.likesCount : 'Like'}</span>
+                            <span>{comment.isLiked || comment.likedByCurrentUser ? 'Unlike' : 'Like'}</span>
+                            {comment.likesCount > 0 && (
+                                <span className="text-[10px] text-gray-400">{formatCount(comment.likesCount)}</span>
+                            )}
                         </button>
-                        <button onClick={() => onReply(comment)} className="hover:text-blue-400 flex items-center gap-1 transition-colors">
+                        <button
+                            type="button"
+                            onClick={() => onReply(comment)}
+                            className="hover:text-blue-400 flex items-center gap-1 transition-colors"
+                        >
                             <Reply size={10} /> Reply
                         </button>
                     </div>
                 </div>
             </div>
-            {/* {comment.replies?.map((reply, index) => (
-                <CommentItem key={reply._id || `reply-${index}`} comment={reply} currentUserId={currentUserId} onReply={onReply} onDelete={onDelete} isReply={true} />
-            ))} */}
         </div>
     );
 };
