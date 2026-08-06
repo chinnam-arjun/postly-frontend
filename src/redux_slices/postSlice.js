@@ -20,8 +20,11 @@ const normalizePosts = (posts = []) => {
 
 const applyPosts = (state, payload) => {
     const posts = Array.isArray(payload) ? payload : payload?.posts || [];
-    state.posts = posts;
-    state.postsById = normalizePosts(posts);
+    state.posts = posts.map((post) => {
+        const existing = state.postsById?.[post._id] || {};
+        return { ...existing, ...post };
+    });
+    state.postsById = normalizePosts(state.posts);
 };
 
 const postSlice = createSlice({

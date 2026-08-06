@@ -4,6 +4,24 @@ const getAuthToken = () => {
   return localStorage.getItem("token") || null;
 };
 
+const getIdString = (value) => {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  return String(value?._id || value?.id || "");
+};
+
+const commentIsLikedByCurrentUser = (comment, currentUserId) => {
+  if (!comment) return false;
+  if (comment.isLiked || comment.likedByCurrentUser) return true;
+
+  const userIdString = getIdString(currentUserId);
+  if (!userIdString) return false;
+
+  const likes = Array.isArray(comment.likes) ? comment.likes : [];
+  return likes.some((likeOwner) => getIdString(likeOwner) === userIdString);
+};
+
 const CommentItem = ({
   comment,
   currentUser,
@@ -54,9 +72,7 @@ const CommentItem = ({
               <button
                 type="button"
                 onClick={() => onToggleLike(comment._id)}
-                className={`rounded-full px-2 py-1 transition ${
-                  comment.likesCount > 0 ? "text-pink-400" : "text-gray-400"
-                }`}
+                className={`rounded-full px-2 py-1 transition ${commentIsLikedByCurrentUser(comment, currentUser?._id || currentUser?.id) ? 'text-pink-400' : 'text-gray-400'}`}
               >
                   ♥{comment.likesCount > 0 ? ` ${comment.likesCount}` : ''}
               </button>
@@ -304,7 +320,6 @@ const CommentSection = ({ postId }) => {
           </div>
         </div>
       </div>
-                  (comment.isLiked || comment.likedByCurrentUser) ? "text-pink-400" : "text-gray-400"
       <div className="max-h-[520px] overflow-y-auto pr-1">
         {loading && (
           <div className="py-6 text-center text-gray-400">Loading comments…</div>

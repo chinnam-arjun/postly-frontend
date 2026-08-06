@@ -1,6 +1,24 @@
 import React from 'react';
 import { Heart, Trash2, Reply } from 'lucide-react';
 
+const getIdString = (value) => {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return String(value);
+    return String(value?._id || value?.id || '');
+};
+
+const commentIsLikedByCurrentUser = (comment, currentUserId) => {
+    if (!comment) return false;
+    if (comment.isLiked || comment.likedByCurrentUser) return true;
+
+    const userIdString = getIdString(currentUserId);
+    if (!userIdString) return false;
+
+    const likes = Array.isArray(comment.likes) ? comment.likes : [];
+    return likes.some((likeOwner) => getIdString(likeOwner) === userIdString);
+};
+
 const CommentItem = ({
     comment,
     currentUserId,
@@ -59,7 +77,7 @@ const CommentItem = ({
                         <button
                             type="button"
                             onClick={() => onLike && onLike(comment._id)}
-                            className={`flex items-center gap-1 transition ${(comment.isLiked || comment.likedByCurrentUser) ? 'text-red-500' : 'text-gray-400'} hover:text-red-400`}
+                            className={`flex items-center gap-1 transition ${commentIsLikedByCurrentUser(comment, currentUserId) ? 'text-red-500' : 'text-gray-400'} hover:text-red-400`}
                         >
                             <Heart size={12} />
                             {comment.likesCount > 0 && <span className="text-sm">{comment.likesCount}</span>}

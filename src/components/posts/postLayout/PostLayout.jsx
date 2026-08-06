@@ -63,6 +63,21 @@ const formatCount = (value) => {
     return `${(count / 1000000).toFixed(count < 10000000 ? 1 : 0).replace(/\.0$/, '')}m`;
 };
 
+const getIdString = (value) => {
+    if (!value && value !== 0) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return String(value);
+    return String(value?._id || value?.id || '');
+};
+
+const commentIsLikedByCurrentUser = (comment, currentUserIdString) => {
+    if (!comment) return false;
+    if (comment.isLiked || comment.likedByCurrentUser) return true;
+    const likes = Array.isArray(comment.likes) ? comment.likes : [];
+    if (!currentUserIdString) return false;
+    return likes.some((likeOwner) => getIdString(likeOwner) === currentUserIdString);
+};
+
 const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderClass = 'border-gray-700' }) => {
     const profileUrl = author?.profilepic || author?.profile || '';
     const initials = getInitials(author?.username);
@@ -161,8 +176,15 @@ const PostLayout = ({ post }) => {
     const [comments, setComments] = useState(currentPost?.comments || []);
     const commentTree = useMemo(() => buildCommentTree(comments), [comments]);
     const likesCount = currentPost?.likesCount ?? currentPost?.likes?.length ?? 0;
-    const isLiked = Boolean(currentPost?.isLiked);
-    const isSaved = Boolean(currentPost?.isSaved);
+    const currentUserIdString = getIdString(currentUserId);
+    const isLiked = Boolean(
+        currentPost?.isLiked ||
+        (Array.isArray(currentPost?.likes) && currentPost.likes.some((userId) => getIdString(userId) === currentUserIdString))
+    );
+    const isSaved = Boolean(
+        currentPost?.isSaved ||
+        (Array.isArray(currentPost?.saves) && currentPost.saves.some((userId) => getIdString(userId) === currentUserIdString))
+    );
 
     const goToPreviousImage = () => {
         setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
@@ -490,6 +512,7 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
     const isOwner = author?._id === currentUserId || author === currentUserId;
     const parentName = comment.parentAuthorName || comment.parentAuthor || null;
     const content = comment.content || comment.text || '';
+    const currentUserIdString = getIdString(currentUserId);
 
     return (
         <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
@@ -515,7 +538,7 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
                             onClick={() => onLike && onLike(comment._id)}
                             className="hover:text-red-400 transition-colors flex items-center gap-2"
                         >
-                            <Heart size={12} className={`${(comment.isLiked || comment.likedByCurrentUser) ? 'text-red-500' : 'text-gray-400'}`} />
+                            <Heart size={12} className={`${commentIsLikedByCurrentUser(comment, currentUserIdString) ? 'text-red-500' : 'text-gray-400'}`} />
                             {comment.likesCount > 0 && (
                                 <span className="text-[10px] text-gray-400">{formatCount(comment.likesCount)}</span>
                             )}
