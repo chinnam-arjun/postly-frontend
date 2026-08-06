@@ -375,7 +375,7 @@ const PostLayout = ({ post }) => {
             </div>
 
             <div className={`
-                w-full lg:w-[40%] flex flex-col h-full bg-gray-950/50
+                w-full lg:w-[40%] flex flex-col h-full bg-gray-950 backdrop-blur-sm
                 ${showCommentsMobile ? 'fixed inset-0 z-60 pt-10 lg:pt-0' : 'hidden lg:flex'}
                 lg:relative border-l border-gray-800/50
             `}>
