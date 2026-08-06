@@ -24,6 +24,10 @@ export const getMyPosts = async () => {
     });
 };
 
+export const getPostById = async (postId) => {
+    return await axiosInstance.get(`/posts/${postId}`);
+};
+
 export const addPost = async (formData) => {
     return await axiosInstance.post("/posts/", formData, {
         headers: {

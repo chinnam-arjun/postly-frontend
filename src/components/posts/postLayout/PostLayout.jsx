@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Heart, MessageCircle, Bookmark, Share2, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, MoreHorizontal, X, Reply, Trash2, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/AxiosInstance';
@@ -9,6 +9,7 @@ import { toggleLikePostThunk, toggleSavePostThunk } from '../../../redux_thunks/
 import { followThunk } from '../../../redux_thunks/userThunk.js';
 import { updateAuthorFollowing } from '../../../redux_slices/postSlice.js';
 import { setFollowRelationship } from '../../../redux_slices/authSlice.js';
+import SharePostButton from '../SharePostButton.jsx';
 
 const normalizeUserIds = (value = []) => {
     if (!Array.isArray(value)) return [];
@@ -356,7 +357,7 @@ const PostLayout = ({ post }) => {
                             size={24}
                         />
                         <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-gray-400 hover:text-gray-200" size={24} />
-                        <Share2 className="cursor-pointer text-gray-400 hover:text-gray-200" size={22} />
+                        <SharePostButton post={currentPost} />
                     </div>
                     <Bookmark
                         onClick={handleToggleSave}
