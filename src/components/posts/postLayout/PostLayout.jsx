@@ -292,8 +292,8 @@ const PostLayout = ({ post }) => {
     }, [fetchCommentsForPost, currentPostId]);
 
     return (
-        <article className="w-full bg-gray-900 border border-gray-800/50 rounded-2xl overflow-hidden flex flex-col lg:flex-row shadow-xl lg:h-[650px] relative">
-            <div className="w-full lg:w-[60%] flex flex-col border-r border-gray-800/50 h-full">
+        <article className="w-full bg-slate-950 border border-slate-800/50 rounded-[2rem] overflow-hidden flex flex-col lg:flex-row shadow-[0_20px_80px_-35px_rgba(15,23,42,0.85)] lg:h-[650px] relative">
+            <div className="w-full lg:w-[60%] flex flex-col border-r border-slate-800/50 h-full">
                 <div className="lg:hidden">
                     <UserHeader author={currentPost.author} />
                 </div>
@@ -349,36 +349,52 @@ const PostLayout = ({ post }) => {
                     )}
                 </div>
 
-                <div className="p-4 flex items-center justify-between bg-gray-900">
-                    <div className="flex items-center gap-5">
+                <div className="p-4 flex items-center justify-between bg-slate-900/90 border-t border-slate-800/60 backdrop-blur-sm">
+                    <div className="flex items-center gap-4 rounded-full bg-slate-950/90 p-2 shadow-inner border border-slate-800/60">
                         <Heart
                             onClick={handleToggleLike}
-                            className={`cursor-pointer transition-all active:scale-125 ${isLiked ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-gray-200'}`}
+                            className={`cursor-pointer transition-all active:scale-110 ${isLiked ? 'text-red-500 fill-red-500' : 'text-slate-400 hover:text-white'}`}
                             size={24}
                         />
-                        <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-gray-400 hover:text-gray-200" size={24} />
+                        <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-slate-400 hover:text-white" size={24} />
                         <SharePostButton post={currentPost} />
                     </div>
                     <Bookmark
                         onClick={handleToggleSave}
-                        className={`cursor-pointer transition-all ${isSaved ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400 hover:text-gray-200'}`}
+                        className={`cursor-pointer transition-all ${isSaved ? 'text-amber-400 fill-amber-400' : 'text-slate-400 hover:text-white'}`}
                         size={24}
                     />
                 </div>
 
-                <div className="px-4 pb-4 bg-gray-900">
-                    <p className="text-sm font-bold text-white mb-1">{likesCount} likes</p>
-                    <p className="text-sm text-gray-400">
-                        <span className="font-bold mr-2 text-gray-200">{currentPost.author?.username}</span>
-                        {currentPost.caption}
-                    </p>
+                <div className="px-4 pb-6 bg-slate-950">
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-semibold text-slate-300 mb-1">{likesCount} likes</p>
+                            <p className="text-sm leading-6 text-slate-300">
+                                <span className="font-semibold text-slate-100 mr-2">{currentPost.author?.username}</span>
+                                {currentPost.caption}
+                            </p>
+                        </div>
+                    </div>
+                    {Array.isArray(currentPost.tags) && currentPost.tags.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {currentPost.tags.map((tag, index) => (
+                                <span
+                                    key={`${tag}-${index}`}
+                                    className="inline-flex items-center rounded-full bg-slate-900/90 px-3 py-1 text-[11px] text-sky-300 font-semibold ring-1 ring-slate-800"
+                                >
+                                    #{String(tag).trim().replace(/^#/, '')}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
             <div className={`
-                w-full lg:w-[40%] flex flex-col h-full bg-gray-950 backdrop-blur-sm
+                w-full lg:w-[40%] flex flex-col h-full bg-slate-950/95 backdrop-blur-xl
                 ${showCommentsMobile ? 'fixed inset-0 z-60 pt-10 lg:pt-0' : 'hidden lg:flex'}
-                lg:relative border-l border-gray-800/50
+                lg:relative border-l border-slate-800/50
             `}>
                 <div className="absolute top-4 right-4 lg:hidden z-70">
                     <X className="text-gray-400 cursor-pointer hover:text-white transition-colors" onClick={() => setShowCommentsMobile(false)} />
@@ -516,11 +532,11 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
     const currentUserIdString = getIdString(currentUserId);
 
     return (
-        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-gray-800/50 pl-3' : 'mt-4'}`}>
+        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-slate-800/50 pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={author?.profile || author?.profilepic || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-800" alt="" />
+                <img src={author?.profile || author?.profilepic || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-800" alt="" />
                 <div className="flex flex-col grow">
-                    <div className="bg-gray-800/40 p-2 rounded-xl rounded-tl-none border border-gray-800/30">
+                    <div className="bg-slate-900/70 p-2 rounded-3xl rounded-tl-none border border-slate-800/40">
                         <div className="flex justify-between items-center mb-0.5">
                             <div className="flex items-center gap-2">
                                 <span className="font-bold text-[11px] text-gray-300">{author?.username || 'Anonymous'}</span>
