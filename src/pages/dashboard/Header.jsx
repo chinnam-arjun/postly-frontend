@@ -63,7 +63,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
             onClick={() => navigate('/lists/create')}
           >
             <PenSquare size={18} />
-            <span>Write Post</span>
+            <span>Write</span>
           </button>
 
           {/* Profile Icon (Visible on All) */}

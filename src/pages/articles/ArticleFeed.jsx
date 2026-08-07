@@ -356,9 +356,6 @@ const ArticleFeed = () => {
       {/* Top bar */}
       <div style={styles.topbar}>
         <span style={styles.pageTitle}>Lists</span>
-        <button style={styles.writeBtn} onClick={() => navigate('/lists/create')}>
-          ✏️ Write article
-        </button>
       </div>
 
       {/* Loading skeletons */}
