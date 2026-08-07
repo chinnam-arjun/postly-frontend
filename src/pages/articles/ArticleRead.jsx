@@ -418,7 +418,7 @@ const ArticleRead = () => {
     const handleDeleteArticle = async () => {
         if (window.confirm('Delete this article?')) {
             await dispatch(deleteArticleThunk(storyId))
-            navigate('/articles')
+            navigate('/lists')
         }
     }
 
@@ -446,8 +446,8 @@ const ArticleRead = () => {
         <div style={s.page}>
             {/* Top bar */}
             <div style={s.topbar}>
-                <button style={s.backBtn} onClick={() => navigate('/articles')}>
-                    ← Back to articles
+                <button style={s.backBtn} onClick={() => navigate('/lists')}>
+                    ← Back to lists
                 </button>
                 {isAuthor && (
                     <>

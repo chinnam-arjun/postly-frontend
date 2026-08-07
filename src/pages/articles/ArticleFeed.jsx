@@ -346,7 +346,7 @@ const ArticleFeed = () => {
   }
 
   const handleCardClick = (storyId) => {
-    navigate(`/articles/${storyId}`)
+    navigate(`/lists/${storyId}`)
   }
 
   const hasMore = pagination && pagination.page < pagination.totalPages
@@ -355,8 +355,8 @@ const ArticleFeed = () => {
     <div style={styles.page}>
       {/* Top bar */}
       <div style={styles.topbar}>
-        <span style={styles.pageTitle}>Articles</span>
-        <button style={styles.writeBtn} onClick={() => navigate('/articles/create')}>
+        <span style={styles.pageTitle}>Lists</span>
+        <button style={styles.writeBtn} onClick={() => navigate('/lists/create')}>
           ✏️ Write article
         </button>
       </div>
@@ -374,8 +374,8 @@ const ArticleFeed = () => {
       {!isLoading && articles.length === 0 && (
         <div style={styles.emptyState}>
           <div style={styles.emptyIcon}>👥</div>
-          <p style={styles.emptyTitle}>No articles yet</p>
-          <p style={styles.emptySub}>Follow people to see their articles here</p>
+          <p style={styles.emptyTitle}>No followed authors' articles yet</p>
+          <p style={styles.emptySub}>Only published stories from authors you follow appear here.</p>
           <button style={styles.discoverBtn} onClick={() => navigate('/feed')}>
             Discover people to follow
           </button>

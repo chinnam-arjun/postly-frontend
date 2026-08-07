@@ -60,7 +60,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
           {/* Desktop: Write Button (Hidden on Mobile) */}
           <button 
             className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium"
-            onClick={() => navigate('/articles/create')}
+            onClick={() => navigate('/lists/create')}
           >
             <PenSquare size={18} />
             <span>Write Post</span>

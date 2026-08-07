@@ -29,11 +29,15 @@ const App = () => {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/library" element={<LibraryPage />} />
 
-            {/* Article Routes */}
+            {/* Article / Lists Routes */}
             <Route path="/articles" element={<ArticleFeed />} />
+            <Route path="/lists" element={<ArticleFeed />} />
             <Route path="/articles/create" element={<CreateArticle />} />
+            <Route path="/lists/create" element={<CreateArticle />} />
             <Route path="/articles/:storyId" element={<ArticleRead />} />
+            <Route path="/lists/:storyId" element={<ArticleRead />} />
             <Route path="/articles/:storyId/edit" element={<EditArticle />} />
+            <Route path="/lists/:storyId/edit" element={<EditArticle />} />
             <Route path="/post/:postId" element={<PostPage />} />
           </Route>
         </Route>

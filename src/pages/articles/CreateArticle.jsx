@@ -77,7 +77,7 @@ const CreateArticle = () => {
         const result = await dispatch(createArticleThunk(formData))
 
         if (createArticleThunk.fulfilled.match(result)) {
-            navigate('/articles')
+            navigate('/lists')
         }
     }
 

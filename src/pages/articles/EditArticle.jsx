@@ -363,7 +363,7 @@ const EditArticle = () => {
 
     const result = await dispatch(updateArticleThunk({ storyId, formData }))
     if (updateArticleThunk.fulfilled.match(result)) {
-      navigate(`/articles/${storyId}`)
+      navigate(`/lists/${storyId}`)
     }
   }
 
@@ -384,7 +384,7 @@ const EditArticle = () => {
         <div style={styles.topbarRight}>
           <button
             style={styles.btnGhost}
-            onClick={() => navigate(`/articles/${storyId}`)}
+            onClick={() => navigate(`/lists/${storyId}`)}
           >
             Cancel
           </button>
