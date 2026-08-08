@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
+import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
 import { useUserPosts } from '../../../hooks/usePosts';
 import PostLayout from '../../../components/posts/postLayout/PostLayout';
@@ -10,11 +11,68 @@ import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSn
 const ProfilePage = () => {
   const dispatch = useDispatch();
   const { user, isLoading: authLoading } = useSelector((state) => state.auth);
+  const { isLoading: profileUpdating, error: profileError } = useSelector((state) => state.users);
   const { data: posts, isLoading: postsLoading, error: postsError } = useUserPosts();
   const { articles, isLoading: articlesLoading, error: articlesError } = useSelector((state) => state.articles);
   const [activeTab, setActiveTab] = useState('posts');
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileFile, setProfileFile] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(user?.profile || user?.profilepic || '');
+  const [formValues, setFormValues] = useState({
+    name: user?.name || '',
+    username: user?.username || '',
+    bio: user?.bio || '',
+    profile: user?.profile || user?.profilepic || ''
+  });
+  const [saveError, setSaveError] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormValues({
+        name: user.name || '',
+        username: user.username || '',
+        bio: user.bio || '',
+        profile: user.profile || user.profilepic || ''
+      });
+      setProfilePreview(user.profile || user.profilepic || '');
+    }
+  }, [user]);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfileFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setProfileFile(file);
+      setProfilePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveProfile = async (event) => {
+    event.preventDefault();
+    setSaveError(null);
+    try {
+      const payload = new FormData();
+      payload.append('name', formValues.name);
+      payload.append('username', formValues.username);
+      payload.append('bio', formValues.bio);
+      if (profileFile) {
+        payload.append('profile', profileFile);
+      } else if (formValues.profile) {
+        payload.append('profile', formValues.profile);
+      }
+      await dispatch(editMyProfileThunk(payload)).unwrap();
+      setIsEditing(false);
+      setProfileFile(null);
+    } catch (error) {
+      setSaveError(error?.message || 'Unable to save changes.');
+    }
+  };
 
   useEffect(() => {
     if (!user) dispatch(getCurrentUserThunk());
@@ -70,7 +128,10 @@ const ProfilePage = () => {
                 <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-900 rounded-full" />
               </div>
 
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl transition-colors">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl transition-colors"
+              >
                 <Settings size={15} />
                 Edit profile
               </button>
@@ -78,7 +139,7 @@ const ProfilePage = () => {
 
             {/* Name + handle */}
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white leading-tight">
-              {user.username}
+              {user.name || user.username}
             </h1>
             <p className="text-sm text-gray-400 mb-2">@{user.username}</p>
 
@@ -237,6 +298,105 @@ const ProfilePage = () => {
           )}
         </div>
       </div>
+
+      {/* ── Edit profile modal ── */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setIsEditing(false)}>
+          <div className="w-full max-w-2xl bg-gray-950 rounded-3xl border border-gray-800 shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Edit profile</h2>
+                <p className="text-sm text-gray-400">Update your display name, username, bio, and avatar.</p>
+              </div>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-900 text-gray-400 hover:text-white transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300" htmlFor="name">Full name</label>
+                  <input
+                    id="name"
+                    name="name"
+                    value={formValues.name}
+                    onChange={handleInputChange}
+                    className="w-full rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300" htmlFor="username">Username</label>
+                  <input
+                    id="username"
+                    name="username"
+                    value={formValues.username}
+                    onChange={handleInputChange}
+                    className="w-full rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                    placeholder="username"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300" htmlFor="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formValues.bio}
+                  onChange={handleInputChange}
+                  className="w-full min-h-[120px] resize-none rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                  placeholder="Tell people a little about yourself"
+                />
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-[120px_1fr] items-center">
+                <div className="rounded-3xl border border-gray-800 bg-gray-900 p-4 flex items-center justify-center overflow-hidden">
+                  {profilePreview ? (
+                    <img src={profilePreview} alt="Profile preview" className="h-24 w-24 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-800 text-gray-500">Preview</div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">Profile photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileFileChange}
+                    className="w-full text-sm text-gray-200 file:mr-4 file:rounded-full file:border-0 file:bg-violet-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+                  />
+                  <p className="text-xs text-gray-500">Leave empty to keep the existing photo.</p>
+                </div>
+              </div>
+
+              {saveError && <p className="text-sm text-red-400">{saveError}</p>}
+              {profileError && <p className="text-sm text-red-400">{profileError}</p>}
+
+              <div className="flex flex-wrap items-center gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-2xl border border-gray-700 bg-gray-900 px-5 py-3 text-sm font-medium text-gray-300 hover:border-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={profileUpdating}
+                  className="rounded-2xl bg-violet-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {profileUpdating ? 'Saving...' : 'Save changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── Post modal ── */}
       {selectedPost && (
