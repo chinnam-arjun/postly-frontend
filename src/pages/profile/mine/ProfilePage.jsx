@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import DOMPurify from 'dompurify';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
 import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
@@ -17,8 +17,8 @@ const ProfilePage = () => {
   const { articles, isLoading: articlesLoading, error: articlesError } = useSelector((state) => state.articles);
   const [activeTab, setActiveTab] = useState('posts');
   const [selectedPost, setSelectedPost] = useState(null);
-  const [selectedArticle, setSelectedArticle] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
   const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState(user?.profile || user?.profilepic || '');
   const [formValues, setFormValues] = useState({
@@ -267,7 +267,7 @@ const ProfilePage = () => {
                   {articles.map((article, idx) => (
                     <div
                       key={article._id}
-                      onClick={() => setSelectedArticle(article)}
+                      onClick={() => navigate(`/lists/${article._id}`)}
                       className={`relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer group
                         ${idx === 0 ? 'rounded-tl-xl' : ''}
                         ${idx === 2 ? 'rounded-tr-xl' : ''}
@@ -439,72 +439,6 @@ const ProfilePage = () => {
         </div>
       )}
 
-      {/* ── Article modal ── */}
-      {selectedArticle && (
-        <div
-          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-          onClick={(e) => e.target === e.currentTarget && setSelectedArticle(null)}
-        >
-          <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative shadow-2xl border border-gray-800">
-            <button
-              onClick={() => setSelectedArticle(null)}
-              className="absolute top-3 right-3 z-10 w-8 h-8 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors"
-            >
-              <X size={16} />
-            </button>
-            <div className="overflow-y-auto max-h-[90vh]">
-              {/* Article header with thumbnail */}
-              {(selectedArticle.thumbnailUrl || selectedArticle.thumbnail) && (
-                <div className="w-full h-96 overflow-hidden bg-gray-800">
-                  <img
-                    src={selectedArticle.thumbnailUrl || selectedArticle.thumbnail}
-                    alt={selectedArticle.title}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null
-                      e.currentTarget.src = 'https://via.placeholder.com/600x400'
-                    }}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              
-              {/* Article content */}
-              <div className="p-8 text-gray-100">
-                <h1 className="text-3xl font-bold mb-4 text-white">{selectedArticle.title}</h1>
-                
-                {/* Author info */}
-                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-700">
-                  <img 
-                    src={selectedArticle.author?.profile || 'https://via.placeholder.com/150'}
-                    alt={selectedArticle.author?.username}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-white">{selectedArticle.author?.username}</p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(selectedArticle.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Article content */}
-                <div
-                  className="prose prose-invert max-w-none mb-6 leading-relaxed"
-                  dangerouslySetInnerHTML={createArticleMarkup(selectedArticle.content)}
-                />
-
-                {/* Stats */}
-                <div className="flex gap-6 text-gray-400 text-sm border-t border-gray-700 pt-6">
-                  <div className="flex items-center gap-2">
-                    <Heart size={18} />
-                    <span>{selectedArticle.likesCount ?? selectedArticle.likes?.length ?? 0}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
