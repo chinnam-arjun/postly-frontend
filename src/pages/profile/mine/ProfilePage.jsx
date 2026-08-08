@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import DOMPurify from 'dompurify';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
 import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
@@ -27,6 +28,10 @@ const ProfilePage = () => {
     profile: user?.profile || user?.profilepic || ''
   });
   const [saveError, setSaveError] = useState(null);
+
+  const createArticleMarkup = (html = '') => ({
+    __html: DOMPurify.sanitize(html)
+  });
 
   useEffect(() => {
     if (user) {
@@ -271,8 +276,12 @@ const ProfilePage = () => {
                       `}
                     >
                       <img
-                        src={article.thumbnail || 'https://via.placeholder.com/300'}
+                        src={article.thumbnailUrl || article.thumbnail || 'https://via.placeholder.com/300'}
                         alt={article.title}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null
+                          e.currentTarget.src = 'https://via.placeholder.com/300'
+                        }}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                       {/* hover overlay */}
@@ -445,11 +454,15 @@ const ProfilePage = () => {
             </button>
             <div className="overflow-y-auto max-h-[90vh]">
               {/* Article header with thumbnail */}
-              {selectedArticle.thumbnail && (
+              {(selectedArticle.thumbnailUrl || selectedArticle.thumbnail) && (
                 <div className="w-full h-96 overflow-hidden bg-gray-800">
-                  <img 
-                    src={selectedArticle.thumbnail} 
+                  <img
+                    src={selectedArticle.thumbnailUrl || selectedArticle.thumbnail}
                     alt={selectedArticle.title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null
+                      e.currentTarget.src = 'https://via.placeholder.com/600x400'
+                    }}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -475,9 +488,10 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Article content */}
-                <div className="prose prose-invert max-w-none mb-6 leading-relaxed">
-                  {selectedArticle.content}
-                </div>
+                <div
+                  className="prose prose-invert max-w-none mb-6 leading-relaxed"
+                  dangerouslySetInnerHTML={createArticleMarkup(selectedArticle.content)}
+                />
 
                 {/* Stats */}
                 <div className="flex gap-6 text-gray-400 text-sm border-t border-gray-700 pt-6">

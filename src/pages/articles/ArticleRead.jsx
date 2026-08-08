@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
+import DOMPurify from 'dompurify'
 import {
     getArticleByIdThunk,
     toggleArticleLikeThunk,
@@ -359,6 +360,10 @@ const readingTime = (content) => {
     return `${Math.max(1, Math.round(words / 200))} min read`
 }
 
+const createArticleMarkup = (html = '') => ({
+    __html: DOMPurify.sanitize(html)
+})
+
 const ArticleRead = () => {
     const { storyId } = useParams()
     const dispatch = useDispatch()
@@ -515,6 +520,10 @@ const ArticleRead = () => {
                     src={currentArticle.thumbnailUrl}
                     alt={currentArticle.title}
                     style={s.coverImg}
+                    onError={(e) => {
+                        e.currentTarget.onerror = null
+                        e.currentTarget.src = 'https://via.placeholder.com/800x480'
+                    }}
                 />
             )}
 
@@ -522,7 +531,7 @@ const ArticleRead = () => {
             <div
                 style={s.articleContent}
                 className="article-ql-content"
-                dangerouslySetInnerHTML={{ __html: currentArticle.content }}
+                dangerouslySetInnerHTML={createArticleMarkup(currentArticle.content)}
             />
 
             <div style={s.divider} />
