@@ -445,7 +445,10 @@ const ArticleRead = () => {
         )
     }
 
-    const author = currentArticle.author || {}
+    const rawAuthor = currentArticle.author || currentArticle.user || currentArticle.userId || currentArticle.authorId || {}
+    const author = typeof rawAuthor === 'object' ? rawAuthor : { _id: rawAuthor }
+    const authorName = author.name || author.username || author.fullname || author.displayName || 'Unknown'
+    const authorProfile = author.profile || author.profilepic || author.image || author.avatar || ''
 
     return (
         <div style={s.page}>
@@ -482,13 +485,13 @@ const ArticleRead = () => {
             <div style={s.authorRow}>
                 <div style={s.authorLeft}>
                     <div style={s.avatar}>
-                        {author.profile
-                            ? <img src={author.profile} alt={author.username} style={s.avatarImg} />
-                            : getInitials(author.username)
+                        {authorProfile
+                            ? <img src={authorProfile} alt={authorName} style={s.avatarImg} />
+                            : getInitials(authorName)
                         }
                     </div>
                     <div>
-                        <div style={s.authorName}>{author.username || 'Unknown'}</div>
+                        <div style={s.authorName}>{authorName}</div>
                         <div style={s.authorMeta}>
                             {formatDate(currentArticle.createdAt)} · {readingTime(currentArticle.content)}
                         </div>

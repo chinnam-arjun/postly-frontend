@@ -81,7 +81,9 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (!user) dispatch(getCurrentUserThunk());
+    if (!user || !user.username || !user.name) {
+      dispatch(getCurrentUserThunk());
+    }
   }, [dispatch, user]);
 
   // Fetch articles when component mounts

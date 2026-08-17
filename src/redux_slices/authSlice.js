@@ -63,9 +63,11 @@ const authSlice = createSlice({
         })
         .addCase(registerThunk.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.role = action.payload.user.role || "user";
+            const payload = action.payload || {};
+            const user = payload.user || payload;
+            state.user = user;
+            state.token = payload.token || state.token;
+            state.role = user?.role || "user";
             state.error = null;
         })
         .addCase(registerThunk.rejected, (state, action) => {
@@ -79,9 +81,11 @@ const authSlice = createSlice({
         })
         .addCase(loginThunk.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.role = action.payload.user.role;
+            const payload = action.payload || {};
+            const user = payload.user || payload;
+            state.user = user;
+            state.token = payload.token || state.token;
+            state.role = user?.role || "user";
             state.error = null;
         })
         .addCase(loginThunk.rejected, (state, action) => {
@@ -95,9 +99,11 @@ const authSlice = createSlice({
         })
         .addCase(getCurrentUserThunk.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.role = action.payload.user.role;
+            const payload = action.payload || {};
+            const user = payload.user || payload;
+            state.user = user;
+            state.token = payload.token || state.token;
+            state.role = user?.role || state.role || "user";
             state.error = null;
         })
         .addCase(getCurrentUserThunk.rejected, (state, action) => {

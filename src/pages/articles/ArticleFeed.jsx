@@ -275,7 +275,10 @@ const SkeletonCard = () => (
 
 // Single Article Card
 const ArticleCard = ({ article, onClick }) => {
-  const author = article.author || {}
+  const rawAuthor = article.author || article.user || article.userId || article.authorId || {}
+  const author = typeof rawAuthor === 'object' ? rawAuthor : { _id: rawAuthor }
+  const authorName = author.name || author.username || author.fullname || author.displayName || 'Unknown'
+  const authorProfile = author.profile || author.profilepic || author.image || author.avatar || ''
 
   return (
     <div style={styles.card} onClick={() => onClick(article._id)}>
@@ -296,12 +299,12 @@ const ArticleCard = ({ article, onClick }) => {
           {/* Meta */}
           <div style={styles.metaRow}>
             <div style={styles.avatar}>
-              {author.profile
-                ? <img src={author.profile} alt={author.username} style={styles.avatarImg} />
-                : getInitials(author.username)
+              {authorProfile
+                ? <img src={authorProfile} alt={authorName} style={styles.avatarImg} />
+                : getInitials(authorName)
               }
             </div>
-            <span style={styles.metaText}>{author.username || 'Unknown'}</span>
+            <span style={styles.metaText}>{authorName}</span>
             <span style={styles.metaDot}>·</span>
             <span style={styles.metaText}>{readingTime(article.content)}</span>
             <span style={styles.metaDot}>·</span>
