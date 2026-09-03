@@ -15,3 +15,8 @@ export const getFollowersOfSpecificUser = async (userId) => {
 export const getFollowingOfSpecificUser = async (userId) => {
     return await axiosInstance.get(`/users/${userId}/following`);
 };
+
+export const getUserById = async (userId) => {
+    const res = await axiosInstance.get(`/users/${userId}`);
+    return res.data;
+};

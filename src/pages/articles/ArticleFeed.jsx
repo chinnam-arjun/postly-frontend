@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { getArticleFeedThunk } from '../../redux_thunks/articleThunk'
+import { getUserById } from '../../redux_apis/user'
 
 const styles = {
   page: {
@@ -258,6 +259,22 @@ const readingTime = (content) => {
   return `${mins} min read`
 }
 
+const getAuthorId = (author) => {
+  if (typeof author === 'string' || typeof author === 'number') return String(author)
+  return author?._id || author?.id || ''
+}
+
+const hasAuthorDetails = (author) => Boolean(
+  author?.name ||
+  author?.username ||
+  author?.fullname ||
+  author?.displayName ||
+  author?.profile ||
+  author?.profilepic ||
+  author?.image ||
+  author?.avatar
+)
+
 // Skeleton loader
 const SkeletonCard = () => (
   <div style={styles.skeleton}>
@@ -276,7 +293,33 @@ const SkeletonCard = () => (
 // Single Article Card
 const ArticleCard = ({ article, onClick }) => {
   const rawAuthor = article.author || article.user || article.userId || article.authorId || {}
-  const author = typeof rawAuthor === 'object' ? rawAuthor : { _id: rawAuthor }
+  const [resolvedAuthor, setResolvedAuthor] = useState(null)
+  const authorId = getAuthorId(rawAuthor)
+  const shouldResolveAuthor = Boolean(authorId && !hasAuthorDetails(rawAuthor))
+
+  useEffect(() => {
+    let mounted = true
+    // Feed responses may contain either a populated author or only its id.
+    // Resolve the latter so the card has the same username/avatar data as PostLayout.
+    if (shouldResolveAuthor) {
+      setResolvedAuthor(null)
+      getUserById(authorId)
+        .then(data => {
+          if (!mounted) return
+          const u = data.user || data
+          setResolvedAuthor(u)
+        })
+        .catch(() => {})
+    } else {
+      setResolvedAuthor(null)
+    }
+    return () => { mounted = false }
+  }, [authorId, shouldResolveAuthor])
+
+  const author = {
+    ...(typeof rawAuthor === 'object' ? rawAuthor : { _id: rawAuthor }),
+    ...(resolvedAuthor || {}),
+  }
   const authorName = author.name || author.username || author.fullname || author.displayName || 'Unknown'
   const authorProfile = author.profile || author.profilepic || author.image || author.avatar || ''
 

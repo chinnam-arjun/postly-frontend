@@ -12,6 +12,7 @@ import {
     deleteArticleThunk,
 } from '../../redux_thunks/articleThunk'
 import { clearCurrentArticle } from '../../redux_slices/articleSlice'
+import { getUserById } from '../../redux_apis/user'
 
 const s = {
     page: {
@@ -371,6 +372,7 @@ const ArticleRead = () => {
 
     const { currentArticle, comments, isLoading, commentsLoading } = useSelector(state => state.articles)
     const { user } = useSelector(state => state.auth)
+    const [resolvedAuthor, setResolvedAuthor] = useState(null)
 
     const [commentText, setCommentText] = useState('')
     const [isLiked, setIsLiked] = useState(false)
@@ -395,6 +397,27 @@ const ArticleRead = () => {
             setLikesCount(currentArticle.likesCount || 0)
         }
     }, [currentArticle, user])
+
+    // If the article's author field is only an id, fetch author details
+    useEffect(() => {
+        let mounted = true
+        const rawAuthor = currentArticle?.author || currentArticle?.user || currentArticle?.userId || currentArticle?.authorId
+        if (rawAuthor && typeof rawAuthor === 'string') {
+            getUserById(rawAuthor)
+                .then(data => {
+                    if (!mounted) return
+                    // backend may return { user: {...} } or the user object directly
+                    const u = data.user || data
+                    setResolvedAuthor(u)
+                })
+                .catch(() => {
+                    // ignore — keep Unknown
+                })
+        } else {
+            setResolvedAuthor(null)
+        }
+        return () => { mounted = false }
+    }, [currentArticle])
 
     const handleLike = async () => {
         // Optimistic update
@@ -446,7 +469,7 @@ const ArticleRead = () => {
     }
 
     const rawAuthor = currentArticle.author || currentArticle.user || currentArticle.userId || currentArticle.authorId || {}
-    const author = typeof rawAuthor === 'object' ? rawAuthor : { _id: rawAuthor }
+    const author = typeof rawAuthor === 'object' ? rawAuthor : (resolvedAuthor || { _id: rawAuthor })
     const authorName = author.name || author.username || author.fullname || author.displayName || 'Unknown'
     const authorProfile = author.profile || author.profilepic || author.image || author.avatar || ''
 
