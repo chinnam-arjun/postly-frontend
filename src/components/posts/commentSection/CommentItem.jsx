@@ -34,8 +34,8 @@ const CommentItem = ({
 
     return (
         <div className={`flex flex-col gap-2 ${depth > 0 ? 'pt-2' : 'mt-4'}`}>
-            <div className={`flex gap-3 group ${depth > 0 ? 'pl-4 border-l border-gray-800/40' : ''}`}>
-                <div className="w-8 h-8 shrink-0 overflow-hidden rounded-full bg-slate-700 text-center text-sm font-bold text-white">
+                <div className={`flex gap-3 group ${depth > 0 ? 'pl-4 border-l border-border' : ''}`}>
+                    <div className="w-8 h-8 shrink-0 overflow-hidden rounded-full bg-surface-muted text-center text-sm font-bold text-text-secondary">
                     {author?.profile ? (
                         <img
                             src={author.profile}
@@ -48,12 +48,12 @@ const CommentItem = ({
                 </div>
 
                 <div className="flex flex-col grow">
-                    <div className="bg-gray-900 border border-gray-800 px-3 py-2 rounded-2xl rounded-tl-none">
+                    <div className="bg-surface-elevated border border-border px-3 py-2 rounded-2xl rounded-tl-none">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-semibold text-sm text-white">{author?.username || 'Anonymous'}</span>
+                                <span className="font-semibold text-sm text-text-primary">{author?.username || 'Anonymous'}</span>
                                 {parentName && (
-                                    <span className="text-xs text-blue-300">replying to @{parentName}</span>
+                                    <span className="text-xs text-info">replying to @{parentName}</span>
                                 )}
                             </div>
 
@@ -61,31 +61,31 @@ const CommentItem = ({
                                 <button
                                     type="button"
                                     onClick={() => onDelete && onDelete(comment._id)}
-                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
+                                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-danger transition-opacity"
                                 >
                                     <Trash2 size={14} />
                                 </button>
                             )}
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-gray-300 whitespace-pre-wrap">
+                            <p className="mt-2 text-sm leading-6 text-text-secondary whitespace-pre-wrap">
                             {content}
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 mt-2 ml-1 text-[10px] font-bold text-gray-500">
+                        <div className="flex flex-wrap items-center gap-3 mt-2 ml-1 text-[10px] font-bold text-text-secondary">
                         <span>{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now'}</span>
                         <button
                             type="button"
                             onClick={() => onLike && onLike(comment._id)}
-                            className={`flex items-center gap-1 transition ${commentIsLikedByCurrentUser(comment, currentUserId) ? 'text-red-500' : 'text-gray-400'} hover:text-red-400`}
+                                className={`flex items-center gap-1 transition ${commentIsLikedByCurrentUser(comment, currentUserId) ? 'text-danger' : 'text-text-secondary'} hover:text-danger`}
                         >
                             <Heart size={12} />
                             {comment.likesCount > 0 && <span className="text-sm">{comment.likesCount}</span>}
                         </button>
                         <button
                             type="button"
-                            onClick={() => onReply && onReply(comment)}
-                            className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition"
+                                onClick={() => onReply && onReply(comment)}
+                                className="flex items-center gap-1 text-text-secondary hover:text-info transition"
                         >
                             <Reply size={12} />
                             Reply

@@ -368,7 +368,7 @@ const AddPost = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-background">
       <div className="max-w-xl mx-auto px-4 py-10">
 
         {/* Page header */}
@@ -385,7 +385,7 @@ const AddPost = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6">
+        <div className="bg-surface rounded-2xl border border-border p-6">
           <StepBar current={step} />
 
           {/* Step content */}
@@ -436,7 +436,7 @@ const AddPost = () => {
         </div>
 
         {/* Step hint */}
-        <p className="text-center text-xs text-gray-400 mt-4">
+        <p className="text-center text-xs text-text-secondary mt-4">
           Step {step + 1} of {STEPS.length}
         </p>
       </div>

@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, FileText, PenSquare, Search, User, X } from 'lucide-react';
+import { ArrowLeft, FileText, Moon, PenSquare, Search, Sun, User, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import NavbarProfileDropdown from './NavBarProfileDropDown';
 import PostLayout from '../../components/posts/postLayout/PostLayout';
 import { searchAPI } from '../../redux_apis/search';
 import { followThunk } from '../../redux_thunks/userThunk';
+import { useTheme } from '../../context/ThemeContext';
 
 const tabs = [
   { id: 'people', label: 'People' },
@@ -21,6 +22,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const { preference, resolvedTheme, toggleTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState('people');
   const [results, setResults] = useState([]);
@@ -94,7 +96,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   };
 
   return (
-    <header className="bg-gray-950/80 backdrop-blur-md fixed w-full top-0 z-50 border-b border-gray-800/50 px-4 sm:px-6 lg:px-8 h-16 flex items-center">
+    <header className="fixed w-full top-0 z-50 border-b px-4 sm:px-6 lg:px-8 h-16 flex items-center bg-surface-elevated border-border">
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center min-w-[40px]">
           <button onClick={() => navigate('/addpost')} className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-full transition-colors"><PenSquare size={24} /></button>
@@ -102,26 +104,29 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
         </div>
         <div className="flex-1 flex justify-center items-center">
           <div className="md:hidden font-bold text-lg flex items-center gap-1 cursor-pointer" onClick={() => navigate('/')}><span>📝</span><span className="text-purple-600">P</span><span className="text-blue-600">L</span></div>
-          <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden md:flex w-full max-w-2xl mx-8 relative items-center text-left pl-12 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-full hover:bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
-            <Search className="absolute left-4 text-gray-500" size={20} />
-            <span className="text-gray-500">Search people, posts, or articles...</span>
+          <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden md:flex w-full max-w-2xl mx-8 relative items-center text-left pl-12 pr-4 py-2.5 rounded-full bg-surface-muted border border-border focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+            <Search className="absolute left-4 text-text-secondary" size={20} />
+            <span className="text-text-secondary">Search people, posts, or articles...</span>
           </button>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 min-w-[40px] justify-end">
           <button className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium" onClick={() => navigate('/lists/create')}><PenSquare size={18} /><span>Write</span></button>
+          <button type="button" onClick={toggleTheme} title={`Theme: ${preference}. Click to change`} aria-label={`Theme: ${preference}. Click to change`} className="grid h-10 w-10 place-items-center rounded-full transition-colors bg-surface-muted text-text-secondary">
+            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <NavbarProfileDropdown />
         </div>
       </div>
 
-      {isSearchOpen && <div className="fixed inset-0 bg-gray-950 z-[100] flex flex-col">
-        <div className="h-16 flex items-center px-4 sm:px-8 border-b border-gray-800 gap-4">
-          <button onClick={closeSearch} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><ArrowLeft size={24} /></button>
-          <div className="flex-1 relative"><Search className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-600" size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Search people, posts, or articles..." className="w-full pl-8 py-2 text-lg bg-transparent text-white focus:outline-none placeholder:text-gray-600" /></div>
-          <button onClick={closeSearch} className="p-2 text-gray-500 hover:text-gray-300"><X size={24} /></button>
+      {isSearchOpen && <div className="fixed inset-0 z-[100] flex flex-col bg-overlay">
+        <div className="h-16 flex items-center px-4 sm:px-8 border-b border-border gap-4 bg-surface-elevated">
+          <button onClick={closeSearch} className="p-2 rounded-full text-text-secondary hover:bg-surface-muted"><ArrowLeft size={24} /></button>
+          <div className="flex-1 relative"><Search className="absolute left-0 top-1/2 -translate-y-1/2 text-text-secondary" size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Search people, posts, or articles..." className="w-full pl-8 py-2 text-lg bg-transparent text-text-primary focus:outline-none placeholder:text-text-secondary" /></div>
+          <button onClick={closeSearch} className="p-2 text-text-secondary hover:text-text-primary"><X size={24} /></button>
         </div>
-        <div className="flex-1 bg-gray-900/50 overflow-y-auto p-4 sm:p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
           <div className="max-w-2xl mx-auto">
-            <div className="flex gap-2 border-b border-gray-800 mb-4">{tabs.map((tab) => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-semibold border-b-2 ${activeTab === tab.id ? 'border-purple-400 text-purple-300' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>{tab.label}</button>)}</div>
+            <div className="flex gap-2 border-b mb-4">{tabs.map((tab) => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-semibold border-b-2 ${activeTab === tab.id ? 'border-purple-400 text-purple-300' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>{tab.label}</button>)}</div>
             {!query.trim() && <EmptySearch />}
             {query.trim() && loading && <p className="py-10 text-center text-sm text-gray-400">Searching...</p>}
             {query.trim() && !loading && error && <p className="py-10 text-center text-sm text-red-400">{error}</p>}
@@ -140,15 +145,15 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   );
 };
 
-const EmptySearch = () => <div className="text-center mt-20"><Search size={48} className="mx-auto text-gray-800 mb-4" /><h3 className="text-gray-400 text-lg">Search Postly</h3><p className="text-gray-600 text-sm">Find people, posts, and articles.</p></div>;
+const EmptySearch = () => <div className="text-center mt-20"><Search size={48} className="mx-auto text-text-primary mb-4" /><h3 className="text-text-secondary text-lg">Search Postly</h3><p className="text-text-secondary text-sm">Find people, posts, and articles.</p></div>;
 
 const SearchResult = ({ type, result, onClick }) => {
   const author = result.author || {};
   const person = type === 'people' ? result : author;
   const image = type === 'posts' ? result.images?.[0]?.url || result.images?.[0] : result.thumbnailUrl;
-  return <button onClick={onClick} className="w-full flex items-center gap-3 p-4 text-left border-b border-gray-800 hover:bg-gray-800/60 transition-colors">
-    {type === 'people' ? (person.profile ? <img src={person.profile} alt="" className="w-11 h-11 rounded-full object-cover" /> : <span className="w-11 h-11 rounded-full bg-gray-800 grid place-items-center text-purple-300"><User size={20} /></span>) : (image ? <img src={image} alt="" className="w-12 h-12 rounded-lg object-cover" /> : <span className="w-12 h-12 rounded-lg bg-gray-800 grid place-items-center text-purple-300"><FileText size={20} /></span>)}
-    <span className="min-w-0"><span className="block text-sm font-semibold text-white truncate">{type === 'people' ? person.name || person.username : result.title}</span><span className="block text-xs text-gray-400 truncate">{type === 'people' ? `@${person.username}` : `by @${author.username || 'unknown'}`}</span></span>
+  return <button onClick={onClick} className="w-full flex items-center gap-3 p-4 text-left border-b border-border hover:bg-surface-muted transition-colors">
+    {type === 'people' ? (person.profile ? <img src={person.profile} alt="" className="w-11 h-11 rounded-full object-cover" /> : <span className="w-11 h-11 rounded-full bg-surface-muted grid place-items-center text-purple-300"><User size={20} /></span>) : (image ? <img src={image} alt="" className="w-12 h-12 rounded-lg object-cover" /> : <span className="w-12 h-12 rounded-lg bg-surface-muted grid place-items-center text-purple-300"><FileText size={20} /></span>)}
+    <span className="min-w-0"><span className="block text-sm font-semibold text-text-primary truncate">{type === 'people' ? person.name || person.username : result.title}</span><span className="block text-xs text-text-secondary truncate">{type === 'people' ? `@${person.username}` : `by @${author.username || 'unknown'}`}</span></span>
   </button>;
 };
 

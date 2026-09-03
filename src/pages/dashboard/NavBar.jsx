@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Home, Library, List, User, Search, CameraIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const NavBar = ({ setIsSearchOpen }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('home');
+  const location = useLocation();
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', path: '/' },
@@ -20,47 +20,40 @@ const NavBar = ({ setIsSearchOpen }) => {
     if (item.id === 'search') {
       setIsSearchOpen(true);
     } else {
-      setActiveTab(item.id);
       navigate(item.path);
     }
   };
 
   return (
-    <nav className="
-      /* Mobile Styles */
-      fixed bottom-0 left-0 w-full h-16 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 px-4 flex flex-row items-center justify-around z-40
-      /* Desktop/Tablet Styles */
-      md:top-16 md:left-0 md:w-16 md:h-[calc(100vh-64px)] md:flex-col md:justify-start md:pt-8 md:border-t-0 md:border-r md:border-gray-800/50
-    ">
+    <nav className="fixed bottom-0 left-0 w-full h-16 px-4 flex flex-row items-center justify-around z-40 bg-surface-elevated border-t border-border md:top-16 md:left-0 md:w-16 md:h-[calc(100vh-64px)] md:flex-col md:justify-start md:pt-8 md:border-t-0 md:border-r">
       {navItems.map((item) => {
         const Icon = item.icon;
         
         // Hide search icon on desktop/tablet
-        if (item.id === 'search') {
+          if (item.id === 'search') {
           return (
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className="p-2 text-gray-400 hover:text-purple-400 md:hidden transition-colors"
+                className="p-2 text-text-secondary hover:text-primary md:hidden transition-colors"
             >
               <Icon size={24} />
             </button>
           );
         }
 
+        const isActive = item.path === '/' ? location.pathname === '/' || location.pathname === '/feed' : location.pathname.startsWith(item.path);
         return (
           <button
             key={item.id}
             onClick={() => handleNavClick(item)}
-            className={`p-3 md:mb-4 rounded-xl transition-all duration-200 flex flex-col items-center group relative
-              ${activeTab === item.id ? 'text-purple-400 bg-purple-500/10' : 'text-gray-500 hover:bg-gray-900 hover:text-gray-300'}
-            `}
+            className={`p-3 md:mb-4 rounded-xl transition-all duration-200 flex flex-col items-center group relative ${isActive ? 'text-primary bg-primary-10' : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary'}`}
           >
-            <Icon size={24} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+            <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
             <span className="text-[10px] mt-1 md:hidden font-medium">{item.label}</span>
             
             {/* Tooltip for Desktop */}
-            <span className="hidden md:group-hover:block absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded ml-2 whitespace-nowrap z-50">
+            <span className="hidden md:group-hover:block absolute left-14 bg-surface-elevated text-text-primary text-xs px-2 py-1 rounded ml-2 whitespace-nowrap z-50 border border-border">
               {item.label}
             </span>
           </button>

@@ -292,18 +292,18 @@ const PostLayout = ({ post }) => {
     }, [fetchCommentsForPost, currentPostId]);
 
     return (
-        <article className="w-full bg-slate-950 border border-slate-800/50 rounded-[2rem] overflow-hidden flex flex-col lg:flex-row shadow-[0_20px_80px_-35px_rgba(15,23,42,0.85)] lg:h-[650px] relative">
+        <article className="w-full bg-surface border border-border-strong rounded-[2rem] overflow-hidden flex flex-col lg:flex-row shadow-[var(--shadow-medium)] lg:h-[650px] relative">
             <div className="w-full lg:w-[60%] flex flex-col border-r border-slate-800/50 h-full">
                 <div className="lg:hidden">
                     <UserHeader author={currentPost.author} />
                 </div>
 
-                <div className="hidden lg:flex px-4 border-b border-gray-800/50 h-14 items-center justify-between bg-gray-900/50">
-                    <h2 className="text-sm font-bold text-gray-200 truncate">{currentPost.title}</h2>
-                    <MoreHorizontal className="text-gray-500 cursor-pointer hover:text-gray-300 transition-colors" size={18} />
+                <div className="hidden lg:flex px-4 border-b border-border h-14 items-center justify-between bg-surface-elevated">
+                    <h2 className="text-sm font-bold text-text-primary truncate">{currentPost.title}</h2>
+                    <MoreHorizontal className="text-text-secondary cursor-pointer hover:text-text-primary transition-colors" size={18} />
                 </div>
 
-                <div className="relative aspect-square lg:aspect-auto lg:grow bg-black flex items-center justify-center overflow-hidden">
+                <div className="relative aspect-square lg:aspect-auto lg:grow bg-surface-muted flex items-center justify-center overflow-hidden">
                     {currentImageUrl ? (
                         <img
                             key={currentImageUrl}
@@ -312,7 +312,7 @@ const PostLayout = ({ post }) => {
                             className="w-full h-full object-cover object-top"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-sm">
+                        <div className="w-full h-full bg-surface-muted flex items-center justify-center text-text-secondary text-sm">
                             No image available
                         </div>
                     )}
@@ -322,7 +322,7 @@ const PostLayout = ({ post }) => {
                             <button
                                 type="button"
                                 onClick={goToPreviousImage}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-overlay hover:opacity-90 text-text-primary rounded-full p-2"
                             >
                                 <ChevronLeft size={18} />
                             </button>
@@ -339,9 +339,7 @@ const PostLayout = ({ post }) => {
                                         key={index}
                                         type="button"
                                         onClick={() => setCurrentImageIndex(index)}
-                                        className={`h-2 rounded-full transition-all ${
-                                            index === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
-                                        }`}
+                                        className={`h-2 rounded-full transition-all ${index === currentImageIndex ? 'w-6 bg-surface' : 'w-2 bg-surface-muted'}`}
                                     />
                                 ))}
                             </div>
@@ -349,29 +347,29 @@ const PostLayout = ({ post }) => {
                     )}
                 </div>
 
-                <div className="p-4 flex items-center justify-between bg-slate-900/90 border-t border-slate-800/60 backdrop-blur-sm">
-                    <div className="flex items-center gap-4 rounded-full bg-slate-950/90 p-2 shadow-inner border border-slate-800/60">
+                <div className="p-4 flex items-center justify-between bg-surface border-t border-border backdrop-blur-sm">
+                    <div className="flex items-center gap-4 rounded-full bg-surface-muted p-2 shadow-inner border border-border">
                         <Heart
                             onClick={handleToggleLike}
-                            className={`cursor-pointer transition-all active:scale-110 ${isLiked ? 'text-red-500 fill-red-500' : 'text-slate-400 hover:text-white'}`}
+                            className={`cursor-pointer transition-all active:scale-110 ${isLiked ? 'text-danger fill-danger' : 'text-text-secondary hover:text-text-primary'}`}
                             size={24}
                         />
-                        <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-slate-400 hover:text-white" size={24} />
+                        <MessageCircle onClick={handleCommentAction} className="cursor-pointer text-text-secondary hover:text-text-primary" size={24} />
                         <SharePostButton post={currentPost} />
                     </div>
                     <Bookmark
                         onClick={handleToggleSave}
-                        className={`cursor-pointer transition-all ${isSaved ? 'text-amber-400 fill-amber-400' : 'text-slate-400 hover:text-white'}`}
+                        className={`cursor-pointer transition-all ${isSaved ? 'text-warning fill-warning' : 'text-text-secondary hover:text-text-primary'}`}
                         size={24}
                     />
                 </div>
 
-                <div className="px-4 pb-6 bg-slate-950">
+                <div className="px-4 pb-6 bg-surface">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-sm font-semibold text-slate-300 mb-1">{likesCount} likes</p>
-                            <p className="text-sm leading-6 text-slate-300">
-                                <span className="font-semibold text-slate-100 mr-2">{currentPost.author?.username}</span>
+                            <p className="text-sm font-semibold text-text-secondary mb-1">{likesCount} likes</p>
+                            <p className="text-sm leading-6 text-text-secondary">
+                                <span className="font-semibold text-text-primary mr-2">{currentPost.author?.username}</span>
                                 {currentPost.caption}
                             </p>
                         </div>
@@ -379,25 +377,21 @@ const PostLayout = ({ post }) => {
                     {Array.isArray(currentPost.tags) && currentPost.tags.length > 0 && (
                         <div className="mt-4 flex flex-wrap gap-2">
                             {currentPost.tags.map((tag, index) => (
-                                <span
-                                    key={`${tag}-${index}`}
-                                    className="inline-flex items-center rounded-full bg-slate-900/90 px-3 py-1 text-[11px] text-sky-300 font-semibold ring-1 ring-slate-800"
-                                >
-                                    #{String(tag).trim().replace(/^#/, '')}
-                                </span>
-                            ))}
+                                    <span
+                                        key={`${tag}-${index}`}
+                                        className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-[11px] text-info font-semibold ring-1 ring-border"
+                                    >
+                                        #{String(tag).trim().replace(/^#/, '')}
+                                    </span>
+                                ))}
                         </div>
                     )}
                 </div>
             </div>
 
-            <div className={`
-                w-full lg:w-[40%] flex flex-col h-full bg-slate-950/95 backdrop-blur-xl
-                ${showCommentsMobile ? 'fixed inset-0 z-60 pt-10 lg:pt-0' : 'hidden lg:flex'}
-                lg:relative border-l border-slate-800/50
-            `}>
+            <div className={`w-full lg:w-[40%] flex flex-col h-full bg-surface backdrop-blur-xl ${showCommentsMobile ? 'fixed inset-0 z-60 pt-10 lg:pt-0' : 'hidden lg:flex'} lg:relative border-l border-border`}>
                 <div className="absolute top-4 right-4 lg:hidden z-70">
-                    <X className="text-gray-400 cursor-pointer hover:text-white transition-colors" onClick={() => setShowCommentsMobile(false)} />
+                    <X className="text-text-secondary cursor-pointer hover:text-text-primary transition-colors" onClick={() => setShowCommentsMobile(false)} />
                 </div>
 
                 <UserHeader author={currentPost.author} />
@@ -430,31 +424,31 @@ const PostLayout = ({ post }) => {
             </div>
         ))
     ) : (
-        <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-6 text-center text-gray-400">
+        <div className="rounded-3xl border border-border bg-surface-muted p-6 text-center text-text-secondary">
             No comments yet. Be the first to comment.
         </div>
     )}
 </div>
-                <div className="p-4 border-t border-gray-800/50 bg-gray-900">
+                <div className="p-4 border-t border-border bg-surface-elevated">
                     {replyingTo && (
                         <div className="flex justify-between items-center mb-2 px-2 bg-blue-900/20 py-1 rounded-lg">
                             <span className="text-[10px] text-blue-400 font-bold">Replying to @{replyingTo.userId?.username || 'user'}</span>
                             <X size={12} className="cursor-pointer text-blue-400" onClick={() => { setReplyingTo(null); setCommentText(""); }} />
                         </div>
                     )}
-                    <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-700 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                    <div className="flex items-center gap-2 bg-surface px-4 py-2 rounded-full border border-border focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                         <input
                             ref={commentInputRef}
                             type="text"
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
                             placeholder="Add a comment..."
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm text-white"
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm text-text-primary"
                         />
                         <button
                             onClick={handlePostComment}
                             disabled={commentMutation.isPending || !commentText.trim()}
-                            className="text-blue-400 font-bold text-sm disabled:opacity-30"
+                            className="text-primary font-bold text-sm disabled:opacity-30"
                         >
                             {commentMutation.isPending ? "..." : "Post"}
                         </button>

@@ -7,7 +7,7 @@ const MainLayout = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <div className='min-h-screen bg-gray-950 relative text-gray-100'>
+    <div className='app-shell min-h-screen relative'>
       {/* Header: Fixed at top */}
       <Header isSearchOpen={isSearchOpen} setIsSearchOpen={setIsSearchOpen} />
       

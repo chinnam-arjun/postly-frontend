@@ -1,0 +1,1 @@
+export const EmptyState = ({ icon, title, description, action }) => <div className="ui-empty-state">{icon && <div className="ui-empty-icon">{icon}</div>}<h2>{title}</h2>{description && <p>{description}</p>}{action}</div>;
