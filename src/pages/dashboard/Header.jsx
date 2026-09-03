@@ -1,118 +1,159 @@
-import React from 'react';
-import { Search, PenSquare, User, X, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, FileText, PenSquare, Search, User, X } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import NavbarProfileDropdown from './NavBarProfileDropDown';
+import PostLayout from '../../components/posts/postLayout/PostLayout';
+import { searchAPI } from '../../redux_apis/search';
+import { followThunk } from '../../redux_thunks/userThunk';
+
+const tabs = [
+  { id: 'people', label: 'People' },
+  { id: 'posts', label: 'Posts' },
+  { id: 'articles', label: 'Articles' },
+];
+
+const authorId = (item) => String(item?.author?._id || item?.author?.id || item?.author || '');
+const isFollowing = (user, id) => (user?.followingIds || user?.following || [])
+  .some((item) => String(typeof item === 'object' ? item._id || item.id : item) === String(id));
 
 const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const [query, setQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('people');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [lockedArticle, setLockedArticle] = useState(null);
+  const [following, setFollowing] = useState(false);
+  const requestId = useRef(0);
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSelectedPost(null);
+    setLockedArticle(null);
+  };
+
+  useEffect(() => {
+    const cleanQuery = query.trim();
+    requestId.current += 1;
+    const currentRequest = requestId.current;
+    if (!isSearchOpen || !cleanQuery) {
+      setResults([]);
+      setLoading(false);
+      setError('');
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const nextResults = await searchAPI({ query: cleanQuery, type: activeTab });
+        if (currentRequest === requestId.current) setResults(nextResults);
+      } catch (searchError) {
+        if (currentRequest === requestId.current) {
+          setResults([]);
+          setError(searchError?.response?.data?.message || 'Unable to search right now.');
+        }
+      } finally {
+        if (currentRequest === requestId.current) setLoading(false);
+      }
+    }, 300);
+    return () => window.clearTimeout(timeout);
+  }, [activeTab, isSearchOpen, query]);
+
+  const openArticle = (article) => {
+    const id = authorId(article);
+    if (id && String(user?._id) !== id && !isFollowing(user, id)) {
+      setLockedArticle(article);
+      return;
+    }
+    navigate(`/lists/${article._id}`);
+    closeSearch();
+  };
+
+  const followAndOpenArticle = async () => {
+    const id = authorId(lockedArticle);
+    if (!id) return;
+    setFollowing(true);
+    try {
+      await dispatch(followThunk(id)).unwrap();
+      const storyId = lockedArticle._id;
+      setLockedArticle(null);
+      navigate(`/lists/${storyId}`);
+      closeSearch();
+    } catch {
+      setError('Unable to follow this author. Please try again.');
+    } finally {
+      setFollowing(false);
+    }
+  };
 
   return (
     <header className="bg-gray-950/80 backdrop-blur-md fixed w-full top-0 z-50 border-b border-gray-800/50 px-4 sm:px-6 lg:px-8 h-16 flex items-center">
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
-        
-        {/* --- LEFT SECTION --- */}
         <div className="flex items-center min-w-[40px]">
-          {/* Mobile: Write Post Icon (Hidden on md+) */}
-          <button 
-            onClick={() => navigate('/addpost')}
-            className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-full transition-colors"
-          >
-            <PenSquare size={24} />
-          </button>
-
-          {/* Desktop: Logo (Hidden on Mobile) */}
-          <div 
-            className="hidden md:flex font-bold text-xl items-center gap-1 cursor-pointer" 
-            onClick={() => navigate('/')}
-          >
-            <span>📝</span>
-            <span className="text-purple-500">POST</span>
-            <span className="text-blue-500">LY</span>
-          </div>
+          <button onClick={() => navigate('/addpost')} className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-full transition-colors"><PenSquare size={24} /></button>
+          <div className="hidden md:flex font-bold text-xl items-center gap-1 cursor-pointer" onClick={() => navigate('/')}><span>📝</span><span className="text-purple-500">POST</span><span className="text-blue-500">LY</span></div>
         </div>
-
-        {/* --- CENTER SECTION --- */}
         <div className="flex-1 flex justify-center items-center">
-          {/* Mobile: Logo (Hidden on md+) */}
-          <div className="md:hidden font-bold text-lg flex items-center gap-1" onClick={() => navigate('/')}>
-            <span>📝</span>
-            <span className="text-purple-600">P</span>
-            <span className="text-blue-600">L</span>
-          </div>
-
-          {/* Desktop: Search Bar (Hidden on Mobile) */}
-          <div className="hidden md:block w-full max-w-2xl mx-8">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-purple-500 transition-colors" size={20} />
-              <input
-                type="text"
-                readOnly
-                onClick={() => setIsSearchOpen(true)}
-                placeholder="Search articles, topics, or authors..."
-                className="w-full pl-12 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-full cursor-pointer hover:bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-gray-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* --- RIGHT SECTION --- */}
-        <div className="flex items-center gap-2 sm:gap-4 min-w-[40px] justify-end">
-          {/* Desktop: Write Button (Hidden on Mobile) */}
-          <button 
-            className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium"
-            onClick={() => navigate('/lists/create')}
-          >
-            <PenSquare size={18} />
-            <span>Write</span>
+          <div className="md:hidden font-bold text-lg flex items-center gap-1 cursor-pointer" onClick={() => navigate('/')}><span>📝</span><span className="text-purple-600">P</span><span className="text-blue-600">L</span></div>
+          <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden md:flex w-full max-w-2xl mx-8 relative items-center text-left pl-12 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-full hover:bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+            <Search className="absolute left-4 text-gray-500" size={20} />
+            <span className="text-gray-500">Search people, posts, or articles...</span>
           </button>
-
-          {/* Profile Icon (Visible on All) */}
+        </div>
+        <div className="flex items-center gap-2 sm:gap-4 min-w-[40px] justify-end">
+          <button className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all font-medium" onClick={() => navigate('/lists/create')}><PenSquare size={18} /><span>Write</span></button>
           <NavbarProfileDropdown />
         </div>
       </div>
 
-      {/* --- FULL SCREEN SEARCH OVERLAY --- */}
-      {isSearchOpen && (
-        <div className="fixed inset-0 bg-gray-950 z-[100] flex flex-col animate-in fade-in duration-200">
-          <div className="h-16 flex items-center px-4 sm:px-8 border-b border-gray-800 gap-4">
-            <button 
-              onClick={() => setIsSearchOpen(false)}
-              className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors"
-            >
-              <ArrowLeft size={24} />
-            </button>
-            
-            <div className="flex-1 relative">
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search articles, topics, or authors..."
-                className="w-full py-2 text-lg bg-transparent text-white focus:outline-none placeholder:text-gray-600"
-              />
-            </div>
-
-            <button 
-              onClick={() => setIsSearchOpen(false)}
-              className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
-          
-          {/* Overlay Content / Results Area */}
-          <div className="flex-1 bg-gray-900/50 p-8 overflow-y-auto">
-            <div className="max-w-2xl mx-auto">
-              <div className="text-center mt-20">
-                <Search size={48} className="mx-auto text-gray-800 mb-4" />
-                <h3 className="text-gray-400 text-lg">Search for anything on Postly</h3>
-                <p className="text-gray-600 text-sm">Find posts, authors, or topics that interest you.</p>
-              </div>
-            </div>
+      {isSearchOpen && <div className="fixed inset-0 bg-gray-950 z-[100] flex flex-col">
+        <div className="h-16 flex items-center px-4 sm:px-8 border-b border-gray-800 gap-4">
+          <button onClick={closeSearch} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><ArrowLeft size={24} /></button>
+          <div className="flex-1 relative"><Search className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-600" size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Search people, posts, or articles..." className="w-full pl-8 py-2 text-lg bg-transparent text-white focus:outline-none placeholder:text-gray-600" /></div>
+          <button onClick={closeSearch} className="p-2 text-gray-500 hover:text-gray-300"><X size={24} /></button>
+        </div>
+        <div className="flex-1 bg-gray-900/50 overflow-y-auto p-4 sm:p-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex gap-2 border-b border-gray-800 mb-4">{tabs.map((tab) => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-semibold border-b-2 ${activeTab === tab.id ? 'border-purple-400 text-purple-300' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>{tab.label}</button>)}</div>
+            {!query.trim() && <EmptySearch />}
+            {query.trim() && loading && <p className="py-10 text-center text-sm text-gray-400">Searching...</p>}
+            {query.trim() && !loading && error && <p className="py-10 text-center text-sm text-red-400">{error}</p>}
+            {query.trim() && !loading && !error && results.length === 0 && <p className="py-10 text-center text-sm text-gray-400">No {activeTab} found.</p>}
+            {!loading && !error && results.map((result) => <SearchResult key={result._id} type={activeTab} result={result} onClick={() => {
+              if (activeTab === 'people') { navigate(`/profile/${result._id}`); closeSearch(); }
+              if (activeTab === 'posts') setSelectedPost(result);
+              if (activeTab === 'articles') openArticle(result);
+            }} />)}
           </div>
         </div>
-      )}
+        {selectedPost && <PostOverlay post={selectedPost} onClose={() => setSelectedPost(null)} />}
+        {lockedArticle && <FollowGate article={lockedArticle} loading={following} onClose={() => setLockedArticle(null)} onFollow={followAndOpenArticle} />}
+      </div>}
     </header>
   );
 };
+
+const EmptySearch = () => <div className="text-center mt-20"><Search size={48} className="mx-auto text-gray-800 mb-4" /><h3 className="text-gray-400 text-lg">Search Postly</h3><p className="text-gray-600 text-sm">Find people, posts, and articles.</p></div>;
+
+const SearchResult = ({ type, result, onClick }) => {
+  const author = result.author || {};
+  const person = type === 'people' ? result : author;
+  const image = type === 'posts' ? result.images?.[0]?.url || result.images?.[0] : result.thumbnailUrl;
+  return <button onClick={onClick} className="w-full flex items-center gap-3 p-4 text-left border-b border-gray-800 hover:bg-gray-800/60 transition-colors">
+    {type === 'people' ? (person.profile ? <img src={person.profile} alt="" className="w-11 h-11 rounded-full object-cover" /> : <span className="w-11 h-11 rounded-full bg-gray-800 grid place-items-center text-purple-300"><User size={20} /></span>) : (image ? <img src={image} alt="" className="w-12 h-12 rounded-lg object-cover" /> : <span className="w-12 h-12 rounded-lg bg-gray-800 grid place-items-center text-purple-300"><FileText size={20} /></span>)}
+    <span className="min-w-0"><span className="block text-sm font-semibold text-white truncate">{type === 'people' ? person.name || person.username : result.title}</span><span className="block text-xs text-gray-400 truncate">{type === 'people' ? `@${person.username}` : `by @${author.username || 'unknown'}`}</span></span>
+  </button>;
+};
+
+const PostOverlay = ({ post, onClose }) => <div className="fixed inset-0 z-[110] bg-black/70 p-4 flex items-center justify-center" onClick={(event) => event.target === event.currentTarget && onClose()}><div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto relative"><button onClick={onClose} className="absolute right-3 top-3 z-10 rounded-full bg-gray-950/90 p-2 text-gray-300 hover:text-white"><X size={20} /></button><PostLayout post={post} /></div></div>;
+
+const FollowGate = ({ article, loading, onClose, onFollow }) => <div className="fixed inset-0 z-[110] bg-black/70 p-4 flex items-center justify-center"><div className="w-full max-w-sm rounded-2xl border border-gray-800 bg-gray-950 p-6 text-center shadow-2xl"><button onClick={onClose} className="float-right text-gray-500 hover:text-white"><X size={20} /></button><FileText className="mx-auto mt-4 text-purple-300" /><h2 className="mt-4 text-lg font-semibold text-white">Follow @{article.author?.username || 'this author'} to read this article</h2><p className="mt-2 text-sm text-gray-400">{article.title}</p><button onClick={onFollow} disabled={loading} className="mt-6 w-full rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 disabled:opacity-60">{loading ? 'Following...' : 'Follow'}</button></div></div>;
 
 export default Header;

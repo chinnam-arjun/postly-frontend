@@ -27,6 +27,7 @@ const App = () => {
             <Route path="/feed" element={<Feed />} />
             <Route path="/addpost" element={<AddPost />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
             <Route path="/library" element={<LibraryPage />} />
 
             {/* Article / Lists Routes */}

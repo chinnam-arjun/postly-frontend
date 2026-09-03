@@ -2,15 +2,19 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
 import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
 import { useUserPosts } from '../../../hooks/usePosts';
+import { getSpecificUserPosts } from '../../../redux_apis/post';
+import { getUserProfile } from '../../../redux_apis/user';
+import { getUserArticlesAPI } from '../../../redux_apis/article';
 import PostLayout from '../../../components/posts/postLayout/PostLayout';
 import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSnow } from 'lucide-react';
 
 const ProfilePage = () => {
+  const { userId } = useParams();
   const dispatch = useDispatch();
   const { user, token, isLoading: authLoading } = useSelector((state) => state.auth);
   const { isLoading: profileUpdating, error: profileError } = useSelector((state) => state.users);
@@ -29,6 +33,12 @@ const ProfilePage = () => {
     profile: user?.profile || user?.profilepic || ''
   });
   const [saveError, setSaveError] = useState(null);
+  const [viewedUser, setViewedUser] = useState(null);
+  const [viewedPosts, setViewedPosts] = useState([]);
+  const [viewedArticles, setViewedArticles] = useState([]);
+  const [viewLoading, setViewLoading] = useState(false);
+  const isOwnProfile = !userId || String(userId) === String(user?._id);
+  const profileUser = isOwnProfile ? user : viewedUser;
 
   const createArticleMarkup = (html = '') => ({
     __html: DOMPurify.sanitize(html)
@@ -91,6 +101,25 @@ const ProfilePage = () => {
     dispatch(getMyArticlesThunk());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (isOwnProfile || !userId) return undefined;
+    let active = true;
+    setViewLoading(true);
+    Promise.all([getUserProfile(userId), getSpecificUserPosts(userId), getUserArticlesAPI(userId)])
+      .then(([profileResponse, postsResponse, articlesResponse]) => {
+        if (!active) return;
+        setViewedUser(profileResponse.user || profileResponse);
+        setViewedPosts(postsResponse.data?.posts || []);
+        setViewedArticles(articlesResponse.stories || []);
+      })
+      .catch(() => active && setViewedUser(null))
+      .finally(() => active && setViewLoading(false));
+    return () => { active = false; };
+  }, [isOwnProfile, userId]);
+
+  const profilePosts = isOwnProfile ? posts : viewedPosts;
+  const profileArticles = isOwnProfile ? articles : viewedArticles;
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -99,7 +128,7 @@ const ProfilePage = () => {
     );
   }
 
-  if (!user) {
+  if (!profileUser || viewLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <p className="text-gray-400 text-sm">Unable to load profile</p>
@@ -107,7 +136,6 @@ const ProfilePage = () => {
     );
   }
 
-  console.log(user)//why its just id not any details ?
   return (
     <div className="min-h-screen bg-gray-950">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-3">
@@ -128,42 +156,42 @@ const ProfilePage = () => {
             <div className="flex items-end justify-between -mt-10 mb-3">
               <div className="relative">
                 <img
-                  src={user.profile || 'https://via.placeholder.com/150'}
-                  alt={user.username}
+                  src={profileUser.profile || 'https://via.placeholder.com/150'}
+                  alt={profileUser.username}
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white dark:border-gray-900 object-cover bg-gray-100 dark:bg-gray-800"
                 />
                 {/* online indicator */}
                 <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-900 rounded-full" />
               </div>
 
-              <button
+              {isOwnProfile && <button
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl transition-colors"
               >
                 <Settings size={15} />
                 Edit profile
-              </button>
+              </button>}
             </div>
 
             {/* Name + handle */}
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white leading-tight">
-              {user.name || user.username}
+              {profileUser.name || profileUser.username}
             </h1>
-            <p className="text-sm text-gray-400 mb-2">@{user.username}</p>
+            <p className="text-sm text-gray-400 mb-2">@{profileUser.username}</p>
 
             {/* Bio */}
-            {user.bio && (
+            {profileUser.bio && (
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                {user.bio}
+                {profileUser.bio}
               </p>
             )}
 
             {/* Stats strip */}
             <div className="flex border-t border-gray-100 dark:border-gray-800 pt-4 mt-1">
               {[
-                { label: 'Posts', value: posts?.length ?? 0 },
-                { label: 'Followers', value: user.followers?.length ?? 0 },
-                { label: 'Following', value: user.following?.length ?? 0 },
+                { label: 'Posts', value: profilePosts?.length ?? 0 },
+                { label: 'Followers', value: profileUser.followers?.length ?? profileUser.followersCount ?? 0 },
+                { label: 'Following', value: profileUser.following?.length ?? profileUser.followingCount ?? 0 },
               ].map((s, i) => (
                 <div key={s.label} className={`flex-1 text-center ${i !== 0 ? 'border-l border-gray-100 dark:border-gray-800' : ''}`}>
                   <p className="text-base font-semibold text-gray-900 dark:text-white">
@@ -211,17 +239,17 @@ const ProfilePage = () => {
                 <div className="py-16 text-center text-sm text-gray-400">
                   Failed to load posts
                 </div>
-              ) : posts && posts.length > 0 ? (
+              ) : profilePosts && profilePosts.length > 0 ? (
                 <div className="grid grid-cols-3 gap-0.5 p-0.5">
-                  {posts.map((post, idx) => (
+                  {profilePosts.map((post, idx) => (
                     <div
                       key={post._id}
                       onClick={() => setSelectedPost(post)}
                       className={`relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer group
                         ${idx === 0 ? 'rounded-tl-xl' : ''}
                         ${idx === 2 ? 'rounded-tr-xl' : ''}
-                        ${idx === posts.length - 1 && posts.length % 3 === 0 ? 'rounded-br-xl' : ''}
-                        ${idx === posts.length - 3 && posts.length % 3 === 0 ? 'rounded-bl-xl' : ''}
+                        ${idx === profilePosts.length - 1 && profilePosts.length % 3 === 0 ? 'rounded-br-xl' : ''}
+                        ${idx === profilePosts.length - 3 && profilePosts.length % 3 === 0 ? 'rounded-bl-xl' : ''}
                       `}
                     >
                       <img
@@ -265,17 +293,17 @@ const ProfilePage = () => {
                 <div className="py-16 text-center text-sm text-gray-400">
                   Failed to load articles
                 </div>
-              ) : articles && articles.length > 0 ? (
+              ) : profileArticles && profileArticles.length > 0 ? (
                 <div className="grid grid-cols-3 gap-0.5 p-0.5">
-                  {articles.map((article, idx) => (
+                  {profileArticles.map((article, idx) => (
                     <div
                       key={article._id}
                       onClick={() => navigate(`/lists/${article._id}`)}
                       className={`relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer group
                         ${idx === 0 ? 'rounded-tl-xl' : ''}
                         ${idx === 2 ? 'rounded-tr-xl' : ''}
-                        ${idx === articles.length - 1 && articles.length % 3 === 0 ? 'rounded-br-xl' : ''}
-                        ${idx === articles.length - 3 && articles.length % 3 === 0 ? 'rounded-bl-xl' : ''}
+                        ${idx === profileArticles.length - 1 && profileArticles.length % 3 === 0 ? 'rounded-br-xl' : ''}
+                        ${idx === profileArticles.length - 3 && profileArticles.length % 3 === 0 ? 'rounded-bl-xl' : ''}
                       `}
                     >
                       <img

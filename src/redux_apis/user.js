@@ -20,3 +20,5 @@ export const getUserById = async (userId) => {
     const res = await axiosInstance.get(`/users/${userId}`);
     return res.data;
 };
+
+export const getUserProfile = getUserById;

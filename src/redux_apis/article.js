@@ -68,3 +68,8 @@ export const deleteArticleCommentAPI = async (storyId, commentId) => {
     const res = await axiosInstance.delete(`/stories/${storyId}/comment/${commentId}`);
     return res.data;
 };
+
+export const getUserArticlesAPI = async (userId) => {
+    const res = await axiosInstance.get(`/stories/user/${userId}`);
+    return res.data;
+};
