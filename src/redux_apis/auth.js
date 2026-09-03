@@ -9,5 +9,12 @@ export const login = (formData) => {
 };
 
 export const getCurrentUser = () => {    
-    return axiosInstance.get("/auth/current");
+    // Prevent browser/service-worker caching and conditional 304 responses
+    return axiosInstance.get("/auth/current", {
+        headers: {
+            "Cache-Control": "no-cache",
+        },
+        // ensure cookies or credentials are not implicitly sent unless needed
+        withCredentials: false,
+    });
 };

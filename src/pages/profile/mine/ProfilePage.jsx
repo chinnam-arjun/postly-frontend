@@ -12,7 +12,7 @@ import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSn
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
-  const { user, isLoading: authLoading } = useSelector((state) => state.auth);
+  const { user, token, isLoading: authLoading } = useSelector((state) => state.auth);
   const { isLoading: profileUpdating, error: profileError } = useSelector((state) => state.users);
   const { data: posts, isLoading: postsLoading, error: postsError } = useUserPosts();
   const { articles, isLoading: articlesLoading, error: articlesError } = useSelector((state) => state.articles);
@@ -81,10 +81,10 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (!user || !user.username || !user.name) {
+    if (token && (!user || !user.username || !user.name)) {
       dispatch(getCurrentUserThunk());
     }
-  }, [dispatch, user]);
+  }, [dispatch, token]);
 
   // Fetch articles when component mounts
   useEffect(() => {
