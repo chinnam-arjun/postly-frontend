@@ -99,7 +99,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
     <header className="fixed w-full top-0 z-50 border-b px-4 sm:px-6 lg:px-8 h-16 flex items-center bg-surface-elevated border-border">
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center min-w-[40px]">
-          <button onClick={() => navigate('/addpost')} className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-full transition-colors"><PenSquare size={24} /></button>
+          <button onClick={() => navigate('/lists/create')} className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-full transition-colors"><PenSquare size={24} /></button>
           <div className="hidden md:flex font-bold text-xl items-center gap-1 cursor-pointer" onClick={() => navigate('/')}><span>📝</span><span className="text-purple-500">POST</span><span className="text-blue-500">LY</span></div>
         </div>
         <div className="flex-1 flex justify-center items-center">
