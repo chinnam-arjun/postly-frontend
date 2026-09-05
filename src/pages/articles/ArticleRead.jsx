@@ -473,6 +473,43 @@ const ArticleRead = () => {
     const authorName = author.name || author.username || author.fullname || author.displayName || 'Unknown'
     const authorProfile = author.profile || author.profilepic || author.image || author.avatar || ''
 
+    const normalizedArticleTags = (() => {
+        const raw = currentArticle?.tags;
+        if (!raw) return [];
+        if (Array.isArray(raw)) {
+            const looksLikeJsonPieces = raw.some((it) => typeof it === 'string' && (it.includes('[') || it.includes(']')));
+            if (looksLikeJsonPieces) {
+                try {
+                    const joined = raw.join(',');
+                    const parsed = JSON.parse(joined);
+                    if (Array.isArray(parsed)) return parsed.map((p) => String(p).replace(/^#/, '').trim()).filter(Boolean);
+                } catch (e) {
+                    // fallthrough to per-item parsing
+                }
+            }
+            return raw.flatMap((item) => {
+                if (typeof item === 'string') {
+                    const t = item.trim();
+                    if (t.startsWith('[') && (t.includes('"') || t.includes("'"))) {
+                        try { const parsed = JSON.parse(t); return Array.isArray(parsed) ? parsed.map(p => String(p)) : [t]; } catch (e) { return [t]; }
+                    }
+                    return [t];
+                }
+                if (typeof item === 'object' && item) {
+                    if (item.tag) return [String(item.tag)];
+                    if (item.name) return [String(item.name)];
+                    return [String(item)];
+                }
+                return [];
+            }).map(x => String(x).replace(/^#/, '').trim()).filter(Boolean);
+        }
+        if (typeof raw === 'string') {
+            try { const p = JSON.parse(raw); if (Array.isArray(p)) return p.map(t => String(t).replace(/^#/, '').trim()).filter(Boolean); } catch (e) { }
+            return raw.split(/[ ,]+/).map(t => String(t).replace(/^#/, '').trim()).filter(Boolean);
+        }
+        return [];
+    })();
+
     return (
         <div style={s.page}>
             {/* Top bar */}
@@ -493,10 +530,10 @@ const ArticleRead = () => {
             </div>
 
             {/* Tags */}
-            {currentArticle.tags?.length > 0 && (
+            {normalizedArticleTags.length > 0 && (
                 <div style={s.tagsRow}>
-                    {currentArticle.tags.map((tag, i) => (
-                        <span key={i} style={s.tag}>{tag}</span>
+                    {normalizedArticleTags.map((tag, i) => (
+                        <span key={i} style={s.tag}>#{tag}</span>
                     ))}
                 </div>
             )}

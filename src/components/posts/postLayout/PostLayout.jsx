@@ -187,6 +187,54 @@ const PostLayout = ({ post }) => {
         (Array.isArray(currentPost?.saves) && currentPost.saves.some((userId) => getIdString(userId) === currentUserIdString))
     );
 
+    const normalizedTags = useMemo(() => {
+        const raw = currentPost?.tags;
+        if (!raw) return [];
+        if (Array.isArray(raw)) {
+            // Handle malformed cases where tags were stored as a single JSON string but split into array parts
+            const looksLikeJsonPieces = raw.some((it) => typeof it === 'string' && (it.includes('[') || it.includes(']')));
+            if (looksLikeJsonPieces) {
+                try {
+                    const joined = raw.join(',');
+                    const parsed = JSON.parse(joined);
+                    if (Array.isArray(parsed)) return parsed.map((p) => String(p).replace(/^#/, '').trim()).filter(Boolean);
+                } catch (e) {
+                    // ignore and fall back to per-item parsing
+                }
+            }
+            return raw.flatMap((item) => {
+                if (typeof item === 'string') {
+                    const t = item.trim();
+                    if (t.startsWith('[') && (t.includes('"') || t.includes("'"))) {
+                        try {
+                            const parsed = JSON.parse(t);
+                            return Array.isArray(parsed) ? parsed.map((p) => String(p)) : [t];
+                        } catch (e) {
+                            return [t];
+                        }
+                    }
+                    return [t];
+                }
+                if (typeof item === 'object' && item) {
+                    if (item.tag) return [String(item.tag)];
+                    if (item.name) return [String(item.name)];
+                    return [String(item)];
+                }
+                return [];
+            }).map((x) => String(x).replace(/^#/, '').trim()).filter(Boolean);
+        }
+        if (typeof raw === 'string') {
+            try {
+                const p = JSON.parse(raw);
+                if (Array.isArray(p)) return p.map((t) => String(t).replace(/^#/, '').trim()).filter(Boolean);
+            } catch (e) {
+                // fallthrough
+            }
+            return raw.split(/[ ,]+/).map((t) => String(t).replace(/^#/, '').trim()).filter(Boolean);
+        }
+        return [];
+    }, [currentPost?.tags]);
+
     const goToPreviousImage = () => {
         setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
     };
@@ -374,16 +422,16 @@ const PostLayout = ({ post }) => {
                             </p>
                         </div>
                     </div>
-                    {Array.isArray(currentPost.tags) && currentPost.tags.length > 0 && (
+                    {normalizedTags && normalizedTags.length > 0 && (
                         <div className="mt-4 flex flex-wrap gap-2">
-                            {currentPost.tags.map((tag, index) => (
-                                    <span
-                                        key={`${tag}-${index}`}
-                                        className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-[11px] text-info font-semibold ring-1 ring-border"
-                                    >
-                                        #{String(tag).trim().replace(/^#/, '')}
-                                    </span>
-                                ))}
+                            {normalizedTags.map((tag, index) => (
+                                <span
+                                    key={`${tag}-${index}`}
+                                    className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-[11px] text-info font-semibold ring-1 ring-border"
+                                >
+                                    #{tag}
+                                </span>
+                            ))}
                         </div>
                     )}
                 </div>
