@@ -72,18 +72,18 @@ const ShareOptionsMenu = ({ post, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 px-4 py-6 sm:items-center sm:px-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay px-4 py-6 sm:items-center sm:px-6">
       <div
         ref={menuRef}
-        className="w-full max-w-sm overflow-hidden rounded-3xl border border-gray-800 bg-gray-950 shadow-2xl shadow-black/60"
+        className="w-full max-w-sm overflow-hidden rounded-3xl border border-border bg-surface-elevated shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-800/70 px-4 py-3 text-xs uppercase tracking-[0.22em] text-gray-500">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3 text-xs uppercase tracking-[0.22em] text-text-muted">
           <span>Share post</span>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-gray-400 transition-colors hover:text-gray-200"
+            className="rounded-full p-1 text-text-secondary transition-colors hover:text-text-primary"
             aria-label="Close share menu"
           >
             <X size={16} />
@@ -98,7 +98,7 @@ const ShareOptionsMenu = ({ post, onClose }) => {
                 key={item.id}
                 type="button"
                 onClick={() => handleAction(item)}
-                className="flex w-full items-center gap-2 rounded-2xl px-3 py-3 text-left text-sm text-gray-200 transition hover:bg-gray-900"
+                className="flex w-full items-center gap-2 rounded-2xl px-3 py-3 text-left text-sm text-text-primary transition hover:bg-primary-10 hover:text-text-primary"
               >
                 <Icon size={16} />
                 {item.label}

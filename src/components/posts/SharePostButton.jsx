@@ -56,7 +56,7 @@ const SharePostButton = ({ post }) => {
       <button
         type="button"
         onClick={handleShareClick}
-        className="inline-flex items-center justify-center rounded-full p-2 text-gray-400 transition-colors hover:text-gray-200"
+        className="inline-flex items-center justify-center rounded-full p-2 text-text-secondary transition-colors hover:text-text-primary"
         aria-label="Share post"
       >
         <Share2 size={22} />

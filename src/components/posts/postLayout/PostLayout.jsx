@@ -79,7 +79,7 @@ const commentIsLikedByCurrentUser = (comment, currentUserIdString) => {
     return likes.some((likeOwner) => getIdString(likeOwner) === currentUserIdString);
 };
 
-const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderClass = 'border-gray-700' }) => {
+const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderClass = 'border-border' }) => {
     const profileUrl = author?.profilepic || author?.profile || '';
     const initials = getInitials(author?.username);
 
@@ -94,7 +94,7 @@ const AuthorAvatar = ({ author, sizeClasses = 'w-8 h-8', iconSize = 14, borderCl
     }
 
     return (
-        <div className={`${sizeClasses} rounded-full border ${borderClass} bg-gray-800 text-gray-400 grid place-items-center`}> 
+        <div className={`${sizeClasses} rounded-full border ${borderClass} bg-surface-muted text-text-muted grid place-items-center`}> 
             {initials ? (
                 <span className="text-[10px] font-bold uppercase">{initials}</span>
             ) : (
@@ -329,7 +329,7 @@ const PostLayout = ({ post }) => {
                             <button
                                 type="button"
                                 onClick={goToNextImage}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-overlay hover:opacity-90 text-text-primary rounded-full p-2"
                             >
                                 <ChevronRight size={18} />
                             </button>
@@ -500,17 +500,17 @@ const UserHeader = ({ author }) => {
     };
 
     return (
-        <div className="p-4 flex items-center justify-between border-b border-gray-800/50 h-14 shrink-0 bg-gray-900">
+        <div className="p-4 flex items-center justify-between border-b border-border h-14 shrink-0 bg-surface-elevated">
             <div className="flex items-center gap-3">
                 <AuthorAvatar author={author} sizeClasses="w-8 h-8" iconSize={14} borderClass="border-gray-700" />
                 <div className="flex flex-col">
-                    <span className="font-bold text-xs text-white">{author?.username}</span>
-                    <span className="text-[9px] text-gray-500 uppercase tracking-wider">Author</span>
+                    <span className="font-bold text-xs text-text-primary">{author?.username}</span>
+                    <span className="text-[9px] text-text-muted uppercase tracking-wider">Author</span>
                 </div>
             </div>
             <button
                 onClick={handleFollowToggle}
-                className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-gray-800 text-gray-400 border border-gray-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
+                className={`text-[10px] font-bold px-4 py-1.5 rounded-full transition-all ${isFollowing ? 'bg-surface-muted text-text-secondary border border-border' : 'bg-primary text-white shadow-lg'}`}
             >
                 {isFollowing ? 'Following' : 'Follow'}
             </button>
@@ -526,38 +526,38 @@ const CommentItem = ({ comment, currentUserId, onReply, onDelete, onLike, isRepl
     const currentUserIdString = getIdString(currentUserId);
 
     return (
-        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-slate-800/50 pl-3' : 'mt-4'}`}>
+        <div className={`flex flex-col ${isReply ? 'ml-8 mt-2 border-l border-border pl-3' : 'mt-4'}`}>
             <div className="flex gap-2 group">
-                <img src={author?.profile || author?.profilepic || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-800" alt="" />
+                <img src={author?.profile || author?.profilepic || 'https://via.placeholder.com/28'} className="w-7 h-7 rounded-full object-cover shrink-0 border border-border" alt="" />
                 <div className="flex flex-col grow">
-                    <div className="bg-slate-900/70 p-2 rounded-3xl rounded-tl-none border border-slate-800/40">
+                    <div className="bg-surface-muted dark:bg-slate-900/70 p-2 rounded-3xl rounded-tl-none border border-border">
                         <div className="flex justify-between items-center mb-0.5">
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-[11px] text-gray-300">{author?.username || 'Anonymous'}</span>
-                                {parentName && <span className="text-[10px] text-gray-500">· replying to <span className="font-bold text-gray-300">@{parentName}</span></span>}
+                                <span className="font-bold text-[11px] text-text-primary">{author?.username || 'Anonymous'}</span>
+                                {parentName && <span className="text-[10px] text-text-muted">· replying to <span className="font-bold text-text-primary">@{parentName}</span></span>}
                             </div>
                             {isOwner && (
-                                <Trash2 size={10} className="text-gray-500 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
+                                <Trash2 size={10} className="text-text-secondary hover:text-danger cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(comment._id)} />
                             )}
                         </div>
-                        <p className="text-xs text-gray-400 leading-snug">{content}</p>
+                        <p className="text-xs text-text-secondary leading-snug">{content}</p>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-gray-600">
+                    <div className="flex items-center gap-3 mt-1 ml-1 text-[9px] font-bold text-text-muted">
                         <span>{formatTimeAgo(comment.createdAt)}</span>
                         <button
                             type="button"
                             onClick={() => onLike && onLike(comment._id)}
                             className="hover:text-red-400 transition-colors flex items-center gap-2"
                         >
-                            <Heart size={12} className={`${commentIsLikedByCurrentUser(comment, currentUserIdString) ? 'text-red-500' : 'text-gray-400'}`} />
+                            <Heart size={12} className={`${commentIsLikedByCurrentUser(comment, currentUserIdString) ? 'text-danger' : 'text-text-secondary'}`} />
                             {comment.likesCount > 0 && (
-                                <span className="text-[10px] text-gray-400">{formatCount(comment.likesCount)}</span>
+                                <span className="text-[10px] text-text-secondary">{formatCount(comment.likesCount)}</span>
                             )}
                         </button>
                         <button
                             type="button"
                             onClick={() => onReply(comment)}
-                            className="hover:text-blue-400 flex items-center gap-1 transition-colors"
+                            className="hover:text-info flex items-center gap-1 transition-colors"
                         >
                             <Reply size={10} /> Reply
                         </button>

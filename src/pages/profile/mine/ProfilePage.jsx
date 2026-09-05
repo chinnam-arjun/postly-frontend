@@ -137,11 +137,11 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-3">
 
         {/* ── Profile card ── */}
-        <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
+        <div className="bg-surface-elevated rounded-2xl overflow-hidden border border-border">
 
           {/* Cover */}
           <div className="h-36 sm:h-44 bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 relative">
@@ -158,7 +158,7 @@ const ProfilePage = () => {
                 <img
                   src={profileUser.profile || 'https://via.placeholder.com/150'}
                   alt={profileUser.username}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white dark:border-gray-900 object-cover bg-gray-100 dark:bg-gray-800"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-border object-cover bg-surface-muted"
                 />
                 {/* online indicator */}
                 <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-900 rounded-full" />
@@ -166,7 +166,7 @@ const ProfilePage = () => {
 
               {isOwnProfile && <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-surface-muted hover:bg-surface-elevated text-text-primary rounded-xl transition-colors"
               >
                 <Settings size={15} />
                 Edit profile
@@ -174,30 +174,30 @@ const ProfilePage = () => {
             </div>
 
             {/* Name + handle */}
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white leading-tight">
+            <h1 className="text-lg font-semibold text-text-primary leading-tight">
               {profileUser.name || profileUser.username}
             </h1>
-            <p className="text-sm text-gray-400 mb-2">@{profileUser.username}</p>
+            <p className="text-sm text-text-muted mb-2">@{profileUser.username}</p>
 
             {/* Bio */}
             {profileUser.bio && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+              <p className="text-sm text-text-secondary leading-relaxed mb-4">
                 {profileUser.bio}
               </p>
             )}
 
             {/* Stats strip */}
-            <div className="flex border-t border-gray-100 dark:border-gray-800 pt-4 mt-1">
+            <div className="flex border-t border-border pt-4 mt-1">
               {[
                 { label: 'Posts', value: profilePosts?.length ?? 0 },
                 { label: 'Followers', value: profileUser.followers?.length ?? profileUser.followersCount ?? 0 },
                 { label: 'Following', value: profileUser.following?.length ?? profileUser.followingCount ?? 0 },
               ].map((s, i) => (
                 <div key={s.label} className={`flex-1 text-center ${i !== 0 ? 'border-l border-gray-100 dark:border-gray-800' : ''}`}>
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">
+                  <p className="text-base font-semibold text-text-primary">
                     {s.value >= 1000 ? `${(s.value / 1000).toFixed(1)}k` : s.value}
                   </p>
-                  <p className="text-xs text-gray-400 uppercase tracking-wide mt-0.5">{s.label}</p>
+                  <p className="text-xs text-text-muted uppercase tracking-wide mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -205,7 +205,7 @@ const ProfilePage = () => {
         </div>
 
         {/* ── Tabs + content ── */}
-        <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
+        <div className="bg-surface-elevated rounded-2xl overflow-hidden border border-border">
 
           {/* Tab bar */}
           <div className="flex border-b border-gray-800">
@@ -272,17 +272,15 @@ const ProfilePage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
-                  <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                    <Grid3X3 size={24} className="text-gray-300 dark:text-gray-600" />
+                <div className="py-16 flex flex-col items-center gap-3 text-text-muted">
+                  <div className="w-14 h-14 rounded-full bg-surface-muted flex items-center justify-center">
+                    <Grid3X3 size={24} className="text-text-secondary" />
                   </div>
                   <p className="text-sm">No posts yet</p>
                 </div>
               )}
             </>
           )}
-
-          {/* Articles tab */}
           {activeTab === 'articles' && (
             <>
               {articlesLoading ? (

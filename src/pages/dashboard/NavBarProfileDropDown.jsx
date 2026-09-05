@@ -44,34 +44,34 @@ const NavbarProfileDropdown = () => {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-[calc(100%+10px)] w-60 bg-gray-800 border border-gray-700 rounded-2xl overflow-hidden shadow-2xl z-50
+        <div className="absolute right-0 top-[calc(100%+10px)] w-60 bg-surface-elevated border border-border rounded-2xl overflow-hidden shadow-2xl z-50
           animate-in fade-in slide-in-from-top-2 duration-150">
 
           {/* Header */}
-          <div className="flex items-center gap-3 p-4 bg-gray-900 border-b border-gray-700">
+          <div className="flex items-center gap-3 p-4 bg-surface-elevated border-b border-border">
             <img
               src={user.profile || 'https://via.placeholder.com/150'}
               alt={user.username}
               className="w-11 h-11 rounded-full object-cover border-2 border-gray-700"
             />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user.username}</p>
-              <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+                <p className="text-sm font-medium text-text-primary truncate">{user.username}</p>
+                <p className="text-xs text-text-muted truncate">@{user.username}</p>
             </div>
           </div>
 
           {/* Menu items */}
           <div className="p-1.5 space-y-0.5">
             <button onClick={() => { navigate(`/profile`); setOpen(false); }}
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
               <User size={16} /> View profile
             </button>
             <button onClick={() => { navigate('/saved'); setOpen(false); }}
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
               <Bookmark size={16} /> Saved posts
             </button>
             <button onClick={() => { navigate('/settings'); setOpen(false); }}
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
               <Settings size={16} /> Settings
             </button>
           </div>
@@ -80,10 +80,10 @@ const NavbarProfileDropdown = () => {
 
           {/* Switch account */}
           <div className="p-1.5">
-            <p className="text-xs text-gray-600 uppercase tracking-wide px-3 py-1.5">switch account</p>
+            <p className="text-xs text-text-muted uppercase tracking-wide px-3 py-1.5">switch account</p>
             <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-gray-700 transition-colors">
               <img src={user.profile} className="w-7 h-7 rounded-full object-cover border border-gray-600" />
-              <span className="text-sm text-gray-300 truncate">{user.username}</span>
+              <span className="text-sm text-text-secondary truncate">{user.username}</span>
               <span className="ml-auto w-2 h-2 rounded-full bg-green-400" />
             </button>
             <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-violet-400 hover:bg-violet-500/10 transition-colors text-sm">

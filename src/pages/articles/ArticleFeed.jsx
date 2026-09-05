@@ -11,7 +11,7 @@ const styles = {
     padding: '2rem 1rem',
     fontFamily: "'DM Sans', sans-serif",
     minHeight: '100vh',
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
   },
   topbar: {
     display: 'flex',
@@ -19,21 +19,21 @@ const styles = {
     justifyContent: 'space-between',
     marginBottom: '2rem',
     paddingBottom: '1rem',
-    borderBottom: '1px solid #1f2937', // border-gray-800
+    borderBottom: '1px solid var(--color-border)', // border
   },
   pageTitle: {
     fontFamily: "'Lora', serif",
     fontSize: '24px',
     fontWeight: '600',
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
   },
   writeBtn: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: '#4caf6e',
+    background: 'var(--color-primary)',
     border: 'none',
-    color: '#0d1a10',
+    color: '#ffffff',
     padding: '8px 20px',
     borderRadius: '999px',
     fontSize: '14px',
@@ -45,8 +45,8 @@ const styles = {
 
   // Article Card
   card: {
-    background: '#111827', // bg-gray-900
-    border: '1px solid #1f2937', // border-gray-800
+    background: 'var(--color-surface-elevated)',
+    border: '1px solid var(--color-border)',
     borderRadius: '16px',
     marginBottom: '1.5rem',
     cursor: 'pointer',
@@ -74,15 +74,15 @@ const styles = {
     fontWeight: '500',
     padding: '3px 10px',
     borderRadius: '999px',
-    background: '#1e3328',
-    color: '#4caf6e',
-    border: '0.5px solid #2e4d2e',
+    background: 'var(--color-surface-muted)',
+    color: 'var(--color-info)',
+    border: '0.5px solid var(--color-border)',
   },
   articleTitle: {
     fontSize: '16px',
     fontWeight: '500',
     fontFamily: "'Lora', serif",
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
     lineHeight: '1.4',
     marginBottom: '10px',
     overflow: 'hidden',
@@ -101,13 +101,13 @@ const styles = {
     width: '22px',
     height: '22px',
     borderRadius: '50%',
-    background: '#1a2535',
+    background: 'var(--color-surface-muted)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '9px',
     fontWeight: '500',
-    color: '#60a5fa',
+    color: 'var(--color-primary)',
     flexShrink: 0,
     overflow: 'hidden',
   },
@@ -119,7 +119,7 @@ const styles = {
   },
   metaText: {
     fontSize: '12px',
-    color: '#7a8a7d',
+    color: 'var(--color-text-secondary)',
   },
   metaDot: {
     fontSize: '12px',
@@ -135,13 +135,13 @@ const styles = {
     alignItems: 'center',
     gap: '4px',
     fontSize: '12px',
-    color: '#7a8a7d',
+    color: 'var(--color-text-secondary)',
   },
   cardThumb: {
     width: '90px',
     height: '72px',
     borderRadius: '8px',
-    background: '#1a2535',
+    background: 'var(--color-surface-muted)',
     flexShrink: 0,
     overflow: 'hidden',
     marginTop: '2px',
@@ -165,8 +165,8 @@ const styles = {
   emptyState: {
     textAlign: 'center',
     padding: '4rem 1rem',
-    background: '#141716',
-    border: '0.5px solid #2a2e2c',
+    background: 'var(--color-surface-elevated)',
+    border: '0.5px solid var(--color-border)',
     borderRadius: '12px',
   },
   emptyIcon: {
@@ -177,7 +177,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: '500',
     fontFamily: "'Lora', serif",
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
     marginBottom: '6px',
   },
   emptySub: {
@@ -186,7 +186,7 @@ const styles = {
     marginBottom: '1rem',
   },
   discoverBtn: {
-    background: '#60a5fa',
+    background: 'var(--color-primary)',
     border: 'none',
     color: '#fff',
     padding: '8px 20px',
