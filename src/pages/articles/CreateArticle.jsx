@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,  } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Quill from 'quill'
@@ -18,13 +18,14 @@ const CreateArticle = () => {
     // Quill setup
     const editorRef = useRef(null)
     const quillRef = useRef(null)
+    const fileInputRef = useRef(null)
 
     useEffect(() => {
         if (quillRef.current) return
 
         quillRef.current = new Quill(editorRef.current, {
             theme: 'snow',
-            placeholder: 'Write your article here...',
+            placeholder: 'Start writing your article...',
             modules: {
                 toolbar: [
                     [{ header: [1, 2, 3, false] }],
@@ -37,7 +38,7 @@ const CreateArticle = () => {
             },
         })
 
-        // Content change track cheyyadam
+        // Content change tracking
         quillRef.current.on('text-change', () => {
             setContent(quillRef.current.root.innerHTML)
         })
@@ -53,12 +54,18 @@ const CreateArticle = () => {
         }
     }, [])
 
-    // Thumbnail select cheyyadam
+    // Thumbnail select
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0]
         if (!file) return
         setThumbnail(file)
         setThumbnailPreview(URL.createObjectURL(file))
+    }
+
+    const removeThumbnail = () => {
+        setThumbnail(null)
+        setThumbnailPreview(null)
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
     // Submit
@@ -82,79 +89,83 @@ const CreateArticle = () => {
     }
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-            <h1>Write Article</h1>
+        <main className="mx-auto px-4 sm:px-6 md:px-8" style={{ maxWidth: '800px' }}>
+            {/* Top action row */}
+            <div className="flex items-center justify-between py-4">
+                <div>
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                        ← Back
+                    </button>
+                </div>
+                <div className="flex items-center gap-3">
+                    {/* Placeholder for saved state - no autosave implemented */}
+                    <div className="text-text-secondary text-sm hidden sm:block">Draft</div>
+                    <button
+                        onClick={handlePublish}
+                        disabled={isLoading}
+                        className="ui-button ui-button-primary"
+                        aria-disabled={isLoading}
+                    >
+                        {isLoading ? 'Publishing...' : 'Publish'}
+                    </button>
+                </div>
+            </div>
 
-            {/* Cover Image */}
-            <div style={{ marginBottom: '1.5rem' }}>
-                <label>Cover Image</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleThumbnailChange}
-                    style={{ display: 'block', marginTop: '0.5rem' }}
-                />
-                {thumbnailPreview && (
-                    <img
-                        src={thumbnailPreview}
-                        alt="preview"
-                        style={{
-                            marginTop: '0.5rem',
-                            width: '100%',
-                            maxHeight: '300px',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                        }}
+            <article className="prose mx-auto">
+                {/* Cover image */}
+                <div className="mb-6">
+                    {!thumbnailPreview ? (
+                        <div className="flex justify-center">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-4 py-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors"
+                            >
+                                + Add cover image
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="relative">
+                            <img src={thumbnailPreview} alt="cover preview" className="w-full rounded-md object-cover" style={{ maxHeight: 420 }} />
+                            <div className="absolute top-3 right-3 flex gap-2">
+                                <button onClick={() => fileInputRef.current?.click()} className="ui-button ui-button-secondary">Change</button>
+                                <button onClick={removeThumbnail} className="ui-button ui-button-ghost">Remove</button>
+                            </div>
+                        </div>
+                    )}
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleThumbnailChange} style={{ display: 'none' }} />
+                </div>
+
+                {/* Title */}
+                <header className="mb-4">
+                    <input
+                        aria-label="Article title"
+                        className="w-full bg-transparent text-text-primary placeholder:text-text-secondary focus:outline-none"
+                        placeholder="Title your story..."
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        style={{ fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.15 }}
                     />
-                )}
-            </div>
+                    {/* Subtitle omitted (no backend field) */}
+                </header>
 
-            {/* Title */}
-            <div style={{ marginBottom: '1.5rem' }}>
-                <input
-                    type="text"
-                    placeholder="Article Title..."
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    style={{
-                        width: '100%',
-                        fontSize: '1.8rem',
-                        fontWeight: 'bold',
-                        border: 'none',
-                        borderBottom: '1px solid #ddd',
-                        outline: 'none',
-                        padding: '0.5rem 0',
-                    }}
-                />
-            </div>
-
-            {/* Quill Editor */}
-            <div style={{ marginBottom: '2rem' }}>
-                <div ref={editorRef} style={{ minHeight: '400px' }} />
-            </div>
+                {/* Quill Editor */}
+                <section>
+                    <div className="article-quill-wrapper">
+                        <div ref={editorRef} className="article-ql-editor" style={{ minHeight: 400 }} />
+                    </div>
+                </section>
+            </article>
 
             {/* Error */}
             {error && (
-                <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>
+                <p className="text-danger mt-4">{error}</p>
             )}
-
-            {/* Publish Button */}
-            <button
-                onClick={handlePublish}
-                disabled={isLoading}
-                style={{
-                    backgroundColor: '#1a8917',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem 2rem',
-                    borderRadius: '999px',
-                    fontSize: '1rem',
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                }}
-            >
-                {isLoading ? 'Publishing...' : 'Publish'}
-            </button>
-        </div>
+        </main>
     )
 }
 
