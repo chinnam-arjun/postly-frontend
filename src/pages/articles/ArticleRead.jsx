@@ -21,7 +21,7 @@ const s = {
         padding: '2rem 1rem 4rem',
         fontFamily: "'DM Sans', sans-serif",
         minHeight: '100vh',
-        color: '#e8ede9',
+            color: 'var(--color-text-primary)',
     },
     // top bar
     topbar: {
@@ -30,7 +30,7 @@ const s = {
         justifyContent: 'space-between',
         marginBottom: '2rem',
         paddingBottom: '1rem',
-        borderBottom: '1px solid #1f2937', // border-gray-800
+            borderBottom: '1px solid var(--color-border)', // border
     },
     backBtn: {
         display: 'flex',
@@ -38,7 +38,7 @@ const s = {
         gap: '6px',
         background: 'none',
         border: 'none',
-        color: '#9ca3af', // gray-400
+            color: 'var(--color-text-secondary)', // gray-400
         fontSize: '14px',
         fontFamily: "'DM Sans', sans-serif",
         cursor: 'pointer',
@@ -55,16 +55,16 @@ const s = {
         fontWeight: '500',
         padding: '4px 12px',
         borderRadius: '999px',
-        background: '#1e3328',
-        color: '#4caf6e',
-        border: '1px solid #2e4d2e',
+        background: 'var(--color-surface-muted)',
+        color: 'var(--color-success)',
+        border: '1px solid var(--color-border-strong)',
     },
     // title
     title: {
         fontFamily: "'Lora', serif",
         fontSize: '2.5rem',
         fontWeight: '700',
-        color: '#f3f4f6', // gray-100
+        color: 'var(--color-text-primary)', // gray-100
         lineHeight: '1.3',
         marginBottom: '1.5rem',
     },
@@ -75,7 +75,7 @@ const s = {
         justifyContent: 'space-between',
         marginBottom: '2rem',
         paddingBottom: '1.5rem',
-        borderBottom: '1px solid #1f2937', // border-gray-800
+        borderBottom: '1px solid var(--color-border)', // border
     },
     authorLeft: {
         display: 'flex',
@@ -86,16 +86,16 @@ const s = {
         width: '44px',
         height: '44px',
         borderRadius: '50%',
-        background: '#1f2937', // gray-800
+        background: 'var(--color-surface-muted)', // gray-800
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '14px',
         fontWeight: '600',
-        color: '#60a5fa',
+        color: 'var(--color-primary)',
         flexShrink: 0,
         overflow: 'hidden',
-        border: '1px solid #374151',
+        border: '1px solid var(--color-border-strong)',
     },
     avatarImg: {
         width: '100%',
@@ -106,11 +106,11 @@ const s = {
     authorName: {
         fontSize: '15px',
         fontWeight: '600',
-        color: '#f3f4f6',
+        color: 'var(--color-text-primary)',
     },
     authorMeta: {
         fontSize: '13px',
-        color: '#9ca3af',
+        color: 'var(--color-text-secondary)',
         marginTop: '2px',
     },
     // interactions bar
@@ -125,7 +125,7 @@ const s = {
         gap: '6px',
         background: 'none',
         border: 'none',
-        color: '#9ca3af',
+        color: 'var(--color-text-secondary)',
         fontSize: '14px',
         fontFamily: "'DM Sans', sans-serif",
         cursor: 'pointer',
@@ -137,9 +137,9 @@ const s = {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        background: 'rgba(239, 68, 68, 0.1)',
+        background: 'color-mix(in srgb, var(--color-danger) 10%, transparent)',
         border: 'none',
-        color: '#ef4444',
+        color: 'var(--color-danger)',
         fontSize: '14px',
         fontFamily: "'DM Sans', sans-serif",
         cursor: 'pointer',
@@ -150,9 +150,9 @@ const s = {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        background: 'rgba(245, 158, 11, 0.1)',
+        background: 'color-mix(in srgb, var(--color-warning) 10%, transparent)',
         border: 'none',
-        color: '#f59e0b',
+        color: 'var(--color-warning)',
         fontSize: '14px',
         fontFamily: "'DM Sans', sans-serif",
         cursor: 'pointer',
@@ -173,13 +173,13 @@ const s = {
         fontFamily: "'Lora', serif",
         fontSize: '1.125rem',
         lineHeight: '1.9',
-        color: '#d1d5db',
+        color: 'var(--color-text-secondary)',
         marginBottom: '4rem',
     },
     // divider
     divider: {
         height: '1px',
-        background: '#1f2937',
+        background: 'var(--color-border)',
         marginBottom: '3rem',
     },
     // comments section
@@ -189,7 +189,7 @@ const s = {
     commentsTitle: {
         fontSize: '18px',
         fontWeight: '600',
-        color: '#f3f4f6',
+        color: 'var(--color-text-primary)',
         marginBottom: '1.5rem',
     },
     // comment input
@@ -201,11 +201,11 @@ const s = {
     },
     commentInput: {
         flex: 1,
-        background: '#111827',
-        border: '1px solid #1f2937',
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
         borderRadius: '12px',
         padding: '12px 16px',
-        color: '#f3f4f6',
+        color: 'var(--color-text-primary)',
         fontSize: '15px',
         fontFamily: "'DM Sans', sans-serif",
         outline: 'none',
@@ -213,9 +213,9 @@ const s = {
         transition: 'border-color 0.2s',
     },
     commentPostBtn: {
-        background: '#4caf6e',
+        background: 'var(--color-success)',
         border: 'none',
-        color: '#0d1a10',
+        color: 'var(--color-background)',
         padding: '12px 24px',
         borderRadius: '12px',
         fontSize: '14px',
@@ -226,9 +226,9 @@ const s = {
         transition: 'transform 0.2s',
     },
     commentPostBtnDisabled: {
-        background: '#1f2937',
+        background: 'var(--color-surface-muted)',
         border: 'none',
-        color: '#4b5563',
+        color: 'var(--color-text-muted)',
         padding: '12px 24px',
         borderRadius: '12px',
         fontSize: '14px',
@@ -247,21 +247,21 @@ const s = {
         width: '32px',
         height: '32px',
         borderRadius: '50%',
-        background: '#1f2937',
+        background: 'var(--color-surface-muted)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '12px',
         fontWeight: '600',
-        color: '#60a5fa',
+        color: 'var(--color-primary)',
         flexShrink: 0,
         overflow: 'hidden',
-        border: '1px solid #374151',
+        border: '1px solid var(--color-border-strong)',
     },
     commentBody: {
         flex: 1,
-        background: '#111827',
-        border: '1px solid #1f2937',
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
         borderRadius: '12px',
         padding: '12px 16px',
     },
@@ -274,21 +274,21 @@ const s = {
     commentUsername: {
         fontSize: '14px',
         fontWeight: '600',
-        color: '#f3f4f6',
+        color: 'var(--color-text-primary)',
     },
     commentDate: {
         fontSize: '12px',
-        color: '#6b7280',
+        color: 'var(--color-text-muted)',
     },
     commentText: {
         fontSize: '15px',
-        color: '#9ca3af',
+        color: 'var(--color-text-secondary)',
         lineHeight: '1.6',
     },
     commentDeleteBtn: {
         background: 'none',
         border: 'none',
-        color: '#ef4444',
+        color: 'var(--color-danger)',
         fontSize: '12px',
         fontFamily: "'DM Sans', sans-serif",
         cursor: 'pointer',
@@ -299,8 +299,8 @@ const s = {
     // delete article btn
     deleteBtn: {
         background: 'none',
-        border: '1px solid #7f1d1d',
-        color: '#ef4444',
+        border: '1px solid color-mix(in srgb, var(--color-danger) 20%, transparent)',
+        color: 'var(--color-danger)',
         padding: '8px 18px',
         borderRadius: '999px',
         fontSize: '13px',
@@ -312,7 +312,7 @@ const s = {
     centered: {
         textAlign: 'center',
         padding: '6rem 1rem',
-        color: '#9ca3af',
+        color: 'var(--color-text-secondary)',
     },
 }
 
@@ -328,14 +328,14 @@ const injectFonts = () => {
     const style = document.createElement('style')
     style.id = 'article-read-content-styles'
     style.textContent = `
-        .article-ql-content h1 { font-size: 1.6rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #e8ede9; }
-        .article-ql-content h2 { font-size: 1.3rem; font-weight: 600; margin: 1.25rem 0 0.6rem; color: #e8ede9; }
-        .article-ql-content h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #e8ede9; }
-        .article-ql-content p { margin: 0 0 1rem; }
-        .article-ql-content strong { color: #e8ede9; }
-        .article-ql-content blockquote { border-left: 3px solid #4caf6e; padding-left: 1rem; margin: 1rem 0; color: #7a8a7d; font-style: italic; }
-        .article-ql-content pre { background: #141716; border: 0.5px solid #2a2e2c; border-radius: 8px; padding: 1rem; font-size: 0.9rem; overflow-x: auto; margin: 1rem 0; }
-        .article-ql-content a { color: #4caf6e; text-decoration: underline; }
+        .article-ql-content h1 { font-size: 1.6rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--color-text-primary); }
+        .article-ql-content h2 { font-size: 1.3rem; font-weight: 600; margin: 1.25rem 0 0.6rem; color: var(--color-text-primary); }
+        .article-ql-content h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--color-text-primary); }
+        .article-ql-content p { margin: 0 0 1rem; color: var(--color-text-secondary); }
+        .article-ql-content strong { color: var(--color-text-primary); }
+        .article-ql-content blockquote { border-left: 3px solid var(--color-success); padding-left: 1rem; margin: 1rem 0; color: var(--color-text-muted); font-style: italic; }
+        .article-ql-content pre { background: var(--color-surface-muted); border: 0.5px solid var(--color-border); border-radius: 8px; padding: 1rem; font-size: 0.9rem; overflow-x: auto; margin: 1rem 0; }
+        .article-ql-content a { color: var(--color-success); text-decoration: underline; }
         .article-ql-content ul, .article-ql-content ol { padding-left: 1.5rem; margin: 0 0 1rem; }
         .article-ql-content li { margin-bottom: 0.4rem; }
         .article-ql-content img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
