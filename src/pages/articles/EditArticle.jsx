@@ -15,8 +15,8 @@ const styles = {
     padding: '1.5rem 1rem',
     fontFamily: "'DM Sans', sans-serif",
     minHeight: '100vh',
-    backgroundColor: '#0d0f0e',
-    color: '#e8ede9',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-text-primary)',
   },
   topbar: {
     display: 'flex',
@@ -24,12 +24,12 @@ const styles = {
     justifyContent: 'space-between',
     marginBottom: '2rem',
     paddingBottom: '1rem',
-    borderBottom: '0.5px solid #2a2e2c',
+    borderBottom: '0.5px solid var(--color-border)',
   },
   logo: {
     fontFamily: "'Lora', serif",
     fontSize: '16px',
-    color: '#7a8a7d',
+    color: 'var(--color-text-secondary)',
     letterSpacing: '0.02em',
   },
   topbarRight: {
@@ -39,8 +39,8 @@ const styles = {
   },
   btnGhost: {
     background: 'none',
-    border: '0.5px solid #353a38',
-    color: '#7a8a7d',
+    border: '0.5px solid var(--color-border-strong)',
+    color: 'var(--color-text-secondary)',
     padding: '7px 16px',
     borderRadius: '999px',
     fontSize: '13px',
@@ -48,9 +48,9 @@ const styles = {
     cursor: 'pointer',
   },
   btnUpdate: {
-    background: '#4caf6e',
+    background: 'var(--color-primary)',
     border: 'none',
-    color: '#0d1a10',
+    color: 'var(--color-surface)',
     padding: '7px 20px',
     borderRadius: '999px',
     fontSize: '13px',
@@ -59,9 +59,9 @@ const styles = {
     cursor: 'pointer',
   },
   btnUpdateDisabled: {
-    background: '#2a3d2e',
+    background: 'var(--color-surface-muted)',
     border: 'none',
-    color: '#4a6a50',
+    color: 'var(--color-text-muted)',
     padding: '7px 20px',
     borderRadius: '999px',
     fontSize: '13px',
@@ -73,8 +73,8 @@ const styles = {
     width: '100%',
     height: '220px',
     borderRadius: '12px',
-    border: '0.5px dashed #353a38',
-    background: '#141716',
+    border: '0.5px dashed var(--color-border-strong)',
+    background: 'var(--color-surface-muted)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -97,7 +97,7 @@ const styles = {
   coverOverlay: {
     position: 'absolute',
     inset: 0,
-    background: 'rgba(0,0,0,0.5)',
+    background: 'var(--color-overlay)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -105,10 +105,10 @@ const styles = {
   },
   coverChangeText: {
     fontSize: '13px',
-    color: '#fff',
+    color: 'var(--color-surface)',
   },
-  coverLabel: { fontSize: '13px', color: '#7a8a7d' },
-  coverHint: { fontSize: '11px', color: '#4a5a4d' },
+  coverLabel: { fontSize: '13px', color: 'var(--color-text-secondary)' },
+  coverHint: { fontSize: '11px', color: 'var(--color-text-muted)' },
   tagsSection: { marginBottom: '1.25rem' },
   tagsLabel: {
     fontSize: '11px',
@@ -127,9 +127,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '5px',
-    background: '#1e3328',
-    color: '#4caf6e',
-    border: '0.5px solid #2e5a3a',
+    background: 'var(--color-surface)',
+    color: 'var(--color-success)',
+    border: '0.5px solid var(--color-border-strong)',
     borderRadius: '999px',
     padding: '4px 12px',
     fontSize: '12px',
@@ -137,7 +137,7 @@ const styles = {
   tagRemoveBtn: {
     background: 'none',
     border: 'none',
-    color: '#4caf6e',
+    color: 'var(--color-success)',
     cursor: 'pointer',
     fontSize: '14px',
     lineHeight: '1',
@@ -147,20 +147,20 @@ const styles = {
     background: 'none',
     border: 'none',
     outline: 'none',
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
     fontSize: '13px',
     fontFamily: "'DM Sans', sans-serif",
     minWidth: '120px',
   },
   titleInput: {
     width: '100%',
-    background: 'none',
+    background: 'transparent',
     border: 'none',
     outline: 'none',
     fontFamily: "'Lora', serif",
     fontSize: '2rem',
     fontWeight: '600',
-    color: '#e8ede9',
+    color: 'var(--color-text-primary)',
     lineHeight: '1.3',
     marginBottom: '1.5rem',
     resize: 'none',
@@ -169,7 +169,7 @@ const styles = {
   editorWrapper: {
     borderRadius: '12px',
     overflow: 'hidden',
-    border: '0.5px solid #2a2e2c',
+    border: '0.5px solid var(--color-border)',
   },
   footerBar: {
     display: 'flex',
@@ -177,9 +177,9 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: '1rem',
   },
-  wordCount: { fontSize: '12px', color: '#7a8a7d' },
-  errorMsg: { color: '#ef4444', fontSize: '13px' },
-  centered: { textAlign: 'center', padding: '4rem 1rem', color: '#7a8a7d' },
+  wordCount: { fontSize: '12px', color: 'var(--color-text-secondary)' },
+  errorMsg: { color: 'var(--color-danger)', fontSize: '13px' },
+  centered: { textAlign: 'center', padding: '4rem 1rem', color: 'var(--color-text-secondary)' },
 }
 
 const injectStyles = () => {
@@ -194,20 +194,20 @@ const injectStyles = () => {
   style.id = 'edit-article-styles'
   style.textContent = `
     .ea-editor .ql-toolbar.ql-snow {
-      background: #141716;
+      background: var(--color-surface-elevated);
       border: none !important;
-      border-bottom: 0.5px solid #2a2e2c !important;
+      border-bottom: 0.5px solid var(--color-border) !important;
       padding: 10px 14px;
     }
-    .ea-editor .ql-toolbar.ql-snow .ql-stroke { stroke: #7a8a7d; }
-    .ea-editor .ql-toolbar.ql-snow .ql-fill { fill: #7a8a7d; }
+    .ea-editor .ql-toolbar.ql-snow .ql-stroke { stroke: var(--color-text-secondary); }
+    .ea-editor .ql-toolbar.ql-snow .ql-fill { fill: var(--color-text-secondary); }
     .ea-editor .ql-toolbar.ql-snow button:hover .ql-stroke,
-    .ea-editor .ql-toolbar.ql-snow button.ql-active .ql-stroke { stroke: #4caf6e !important; }
+    .ea-editor .ql-toolbar.ql-snow button.ql-active .ql-stroke { stroke: var(--color-primary) !important; }
     .ea-editor .ql-toolbar.ql-snow button:hover .ql-fill,
-    .ea-editor .ql-toolbar.ql-snow button.ql-active .ql-fill { fill: #4caf6e !important; }
-    .ea-editor .ql-toolbar.ql-snow .ql-picker-label { color: #7a8a7d; }
+    .ea-editor .ql-toolbar.ql-snow button.ql-active .ql-fill { fill: var(--color-primary) !important; }
+    .ea-editor .ql-toolbar.ql-snow .ql-picker-label { color: var(--color-text-secondary); }
     .ea-editor .ql-container.ql-snow {
-      background: #1a1d1c;
+      background: var(--color-surface);
       border: none !important;
       font-family: 'Lora', serif;
     }
@@ -215,16 +215,17 @@ const injectStyles = () => {
       min-height: 320px;
       font-size: 1rem;
       line-height: 1.8;
-      color: #e8ede9;
+      color: var(--color-text-primary);
       padding: 1.5rem;
+      background: transparent;
     }
     .ea-editor .ql-editor.ql-blank::before {
-      color: #3a4a3d !important;
+      color: var(--color-text-muted) !important;
       font-style: italic;
     }
-    .ea-editor .ql-snow .ql-picker-options { background: #1a1d1c; border: 0.5px solid #353a38; }
-    .ea-editor .ql-snow .ql-picker-item { color: #7a8a7d; }
-    .ea-editor .ql-snow .ql-picker-item:hover { color: #4caf6e; }
+    .ea-editor .ql-snow .ql-picker-options { background: var(--color-surface); border: 0.5px solid var(--color-border-strong); }
+    .ea-editor .ql-snow .ql-picker-item { color: var(--color-text-secondary); }
+    .ea-editor .ql-snow .ql-picker-item:hover { color: var(--color-primary); }
   `
   document.head.appendChild(style)
 }
@@ -458,6 +459,7 @@ const EditArticle = () => {
       {/* Title */}
       <textarea
         ref={titleRef}
+        aria-label="Article title"
         style={styles.titleInput}
         placeholder="Article title…"
         value={title}

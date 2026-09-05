@@ -20,17 +20,15 @@ export const getArticleByIdAPI = async (storyId) => {
 
 // Create article — FormData (title + content + thumbnail)
 export const createArticleAPI = async (formData) => {
-    const res = await axiosInstance.post(`/stories`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
+    // Let axios/browser set the Content-Type (with boundary) for FormData
+    const res = await axiosInstance.post(`/stories`, formData);
     return res.data;
 };
 
 // Update article
 export const updateArticleAPI = async (storyId, formData) => {
-    const res = await axiosInstance.put(`/stories/${storyId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
+    // Let axios/browser set the Content-Type (with boundary) for FormData
+    const res = await axiosInstance.put(`/stories/${storyId}`, formData);
     return res.data;
 };
 
