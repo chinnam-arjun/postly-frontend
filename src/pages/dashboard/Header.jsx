@@ -132,7 +132,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
             {query.trim() && !loading && error && <p className="py-10 text-center text-sm text-red-400">{error}</p>}
             {query.trim() && !loading && !error && results.length === 0 && <p className="py-10 text-center text-sm text-gray-400">No {activeTab} found.</p>}
             {!loading && !error && results.map((result) => <SearchResult key={result._id} type={activeTab} result={result} onClick={() => {
-              if (activeTab === 'people') { navigate(`/profile/${result._id}`); closeSearch(); }
+              if (activeTab === 'people') { navigate(`/profile/${result._id}`, { state: { fromSearch: true } }); closeSearch(); }
               if (activeTab === 'posts') setSelectedPost(result);
               if (activeTab === 'articles') openArticle(result);
             }} />)}
@@ -159,6 +159,47 @@ const SearchResult = ({ type, result, onClick }) => {
 
 const PostOverlay = ({ post, onClose }) => <div className="fixed inset-0 z-[110] bg-black/70 p-4 flex items-center justify-center" onClick={(event) => event.target === event.currentTarget && onClose()}><div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto relative"><button onClick={onClose} className="absolute right-3 top-3 z-10 rounded-full bg-gray-950/90 p-2 text-gray-300 hover:text-white"><X size={20} /></button><PostLayout post={post} /></div></div>;
 
-const FollowGate = ({ article, loading, onClose, onFollow }) => <div className="fixed inset-0 z-[110] bg-black/70 p-4 flex items-center justify-center"><div className="w-full max-w-sm rounded-2xl border border-gray-800 bg-gray-950 p-6 text-center shadow-2xl"><button onClick={onClose} className="float-right text-gray-500 hover:text-white"><X size={20} /></button><FileText className="mx-auto mt-4 text-purple-300" /><h2 className="mt-4 text-lg font-semibold text-white">Follow @{article.author?.username || 'this author'} to read this article</h2><p className="mt-2 text-sm text-gray-400">{article.title}</p><button onClick={onFollow} disabled={loading} className="mt-6 w-full rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 disabled:opacity-60">{loading ? 'Following...' : 'Follow'}</button></div></div>;
+const FollowGate = ({ article, loading, onClose, onFollow }) => (
+  <div className="fixed inset-0 z-[110] bg-black/70 p-4 flex items-center justify-center">
+    <div className="w-full max-w-sm rounded-2xl border border-gray-800 bg-gray-950 p-6 shadow-2xl">
+      <div className="flex items-center justify-between">
+        <button onClick={onClose} className="flex items-center gap-1 text-sm text-gray-400 hover:text-white">
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </button>
+        <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={18} /></button>
+      </div>
+
+      <div className="mt-6 flex items-center justify-center gap-3 rounded-2xl border border-gray-800 bg-gray-900/80 px-3 py-3">
+        <img
+          src={article.author?.profilepic || article.author?.profile || 'https://via.placeholder.com/64'}
+          alt={article.author?.username || 'Author'}
+          className="h-11 w-11 rounded-full object-cover border border-gray-700"
+        />
+        <div className="flex-1 text-left min-w-0">
+          <p className="truncate text-sm font-semibold text-white">@{article.author?.username || 'this author'}</p>
+          <p className="text-[11px] text-gray-400">Author</p>
+        </div>
+        <button
+          onClick={onFollow}
+          disabled={loading}
+          className="rounded-full bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-60"
+        >
+          {loading ? 'Following...' : 'Follow'}
+        </button>
+      </div>
+
+      <div className="mt-6 text-center">
+        <FileText className="mx-auto text-purple-300" />
+        <h2 className="mt-4 text-lg font-semibold text-white">Please follow the author to read this article</h2>
+        <p className="mt-2 text-sm text-gray-400 line-clamp-2">{article.title}</p>
+      </div>
+
+      <button onClick={onClose} className="mt-6 w-full text-left text-sm text-gray-300 hover:text-white">
+        ← Back to search results
+      </button>
+    </div>
+  </div>
+);
 
 export default Header;

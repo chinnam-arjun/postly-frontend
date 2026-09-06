@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
 import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
@@ -16,6 +16,7 @@ import { Settings, Grid3X3, FileText, X, Heart, MessageCircle, Bookmark, CloudSn
 const ProfilePage = () => {
   const { userId } = useParams();
   const dispatch = useDispatch();
+  const location = useLocation();
   const { user, token, isLoading: authLoading } = useSelector((state) => state.auth);
   const { isLoading: profileUpdating, error: profileError } = useSelector((state) => state.users);
   const { data: posts, isLoading: postsLoading, error: postsError } = useUserPosts();
@@ -39,6 +40,7 @@ const ProfilePage = () => {
   const [viewLoading, setViewLoading] = useState(false);
   const isOwnProfile = !userId || String(userId) === String(user?._id);
   const profileUser = isOwnProfile ? user : viewedUser;
+  const showBackToSearch = !isOwnProfile && Boolean(location.state?.fromSearch);
 
   const createArticleMarkup = (html = '') => ({
     __html: DOMPurify.sanitize(html)
@@ -139,6 +141,17 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-3">
+
+        {showBackToSearch && (
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-elevated px-3 py-2 text-sm font-medium text-text-primary hover:bg-surface-muted"
+          >
+            <span aria-hidden="true">←</span>
+            Back to search results
+          </button>
+        )}
 
         {/* ── Profile card ── */}
         <div className="bg-surface-elevated rounded-2xl overflow-hidden border border-border">

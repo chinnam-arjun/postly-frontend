@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 import DOMPurify from 'dompurify'
@@ -13,6 +13,7 @@ import {
 } from '../../redux_thunks/articleThunk'
 import { clearCurrentArticle } from '../../redux_slices/articleSlice'
 import { getUserById } from '../../redux_apis/user'
+import { followThunk } from '../../redux_thunks/userThunk'
 
 const s = {
     page: {
@@ -378,6 +379,8 @@ const ArticleRead = () => {
     const [isLiked, setIsLiked] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
     const [likesCount, setLikesCount] = useState(0)
+    const [isFollowingAuthor, setIsFollowingAuthor] = useState(false)
+    const [followLoading, setFollowLoading] = useState(false)
 
     useEffect(() => {
         injectFonts()
@@ -450,7 +453,39 @@ const ArticleRead = () => {
         }
     }
 
-    const isAuthor = user && currentArticle?.author?._id === user._id
+    const authorId = useMemo(() => {
+        const rawAuthor = currentArticle?.author || currentArticle?.user || currentArticle?.userId || currentArticle?.authorId || {};
+        if (typeof rawAuthor === 'string') return rawAuthor;
+        return rawAuthor?._id || '';
+    }, [currentArticle]);
+
+    useEffect(() => {
+        if (!user || !authorId) {
+            setIsFollowingAuthor(false);
+            return;
+        }
+
+        const followingIds = user.followingIds || user.following || [];
+        const nextIsFollowing = followingIds.some((item) => String(typeof item === 'object' ? item._id || item.id : item) === String(authorId));
+        setIsFollowingAuthor(nextIsFollowing || Boolean(currentArticle?.author?.isFollowing));
+    }, [authorId, currentArticle?.author?.isFollowing, user]);
+
+    const handleFollowAuthor = async () => {
+        if (!authorId) return;
+        setFollowLoading(true);
+        try {
+            const result = await dispatch(followThunk(authorId)).unwrap();
+            const nextIsFollowing = typeof result?.isFollowing === 'boolean' ? result.isFollowing : true;
+            setIsFollowingAuthor(nextIsFollowing);
+        } catch (error) {
+            console.error('Failed to follow author:', error);
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    const isAuthor = user && authorId === String(user._id)
+    const shouldLockArticle = Boolean(currentArticle) && !!authorId && !isAuthor && !isFollowingAuthor;
 
     if (isLoading) {
         return (
@@ -464,6 +499,57 @@ const ArticleRead = () => {
         return (
             <div style={s.page}>
                 <div style={s.centered}>Article not found.</div>
+            </div>
+        )
+    }
+
+    if (shouldLockArticle) {
+        const lockAuthor = currentArticle.author || currentArticle.user || currentArticle.userId || currentArticle.authorId || {};
+        const lockProfile = typeof lockAuthor === 'object' ? (lockAuthor.profile || lockAuthor.profilepic || '') : '';
+        const lockName = typeof lockAuthor === 'object' ? (lockAuthor.username || lockAuthor.name || 'this author') : 'this author';
+
+        return (
+            <div style={s.page}>
+                <div style={{ ...s.centered, maxWidth: '480px', margin: '0 auto', paddingTop: '6rem' }}>
+                    <div className="rounded-2xl border border-border bg-surface-elevated p-6 shadow-[var(--shadow-medium)]">
+                        <div className="flex items-center justify-between text-left">
+                            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary">
+                                <span aria-hidden="true">←</span>
+                                Back
+                            </button>
+                            <button onClick={() => navigate(-1)} className="text-sm text-text-secondary hover:text-text-primary">Back to search results</button>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted px-3 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                                {lockProfile ? (
+                                    <img src={lockProfile} alt={lockName} className="h-11 w-11 rounded-full object-cover border border-border" />
+                                ) : (
+                                    <div className="grid h-11 w-11 place-items-center rounded-full bg-surface text-sm font-semibold text-primary">{lockName.slice(0, 2).toUpperCase()}</div>
+                                )}
+                                <div className="min-w-0">
+                                    <p className="truncate text-sm font-semibold text-text-primary">@{lockName}</p>
+                                    <p className="text-[11px] text-text-muted">Author</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleFollowAuthor}
+                                disabled={followLoading}
+                                className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
+                            >
+                                {followLoading ? 'Following...' : 'Follow'}
+                            </button>
+                        </div>
+
+                        <div className="mt-6 text-center">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface-muted text-primary">
+                                <span aria-hidden="true">✍️</span>
+                            </div>
+                            <h2 className="mt-4 text-lg font-semibold text-text-primary">Please follow the author to read this article</h2>
+                            <p className="mt-2 text-sm text-text-secondary">{currentArticle.title}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }
