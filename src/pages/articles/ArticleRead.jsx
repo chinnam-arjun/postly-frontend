@@ -483,7 +483,7 @@ const ArticleRead = () => {
                     const joined = raw.join(',');
                     const parsed = JSON.parse(joined);
                     if (Array.isArray(parsed)) return parsed.map((p) => String(p).replace(/^#/, '').trim()).filter(Boolean);
-                } catch (e) {
+                } catch {
                     // fallthrough to per-item parsing
                 }
             }
@@ -491,7 +491,7 @@ const ArticleRead = () => {
                 if (typeof item === 'string') {
                     const t = item.trim();
                     if (t.startsWith('[') && (t.includes('"') || t.includes("'"))) {
-                        try { const parsed = JSON.parse(t); return Array.isArray(parsed) ? parsed.map(p => String(p)) : [t]; } catch (e) { return [t]; }
+                        try { const parsed = JSON.parse(t); return Array.isArray(parsed) ? parsed.map(p => String(p)) : [t]; } catch { return [t]; }
                     }
                     return [t];
                 }
@@ -504,7 +504,7 @@ const ArticleRead = () => {
             }).map(x => String(x).replace(/^#/, '').trim()).filter(Boolean);
         }
         if (typeof raw === 'string') {
-            try { const p = JSON.parse(raw); if (Array.isArray(p)) return p.map(t => String(t).replace(/^#/, '').trim()).filter(Boolean); } catch (e) { }
+            try { const p = JSON.parse(raw); if (Array.isArray(p)) return p.map(t => String(t).replace(/^#/, '').trim()).filter(Boolean); } catch { /* ignore invalid JSON tags */ }
             return raw.split(/[ ,]+/).map(t => String(t).replace(/^#/, '').trim()).filter(Boolean);
         }
         return [];

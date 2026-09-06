@@ -15,7 +15,7 @@ export const getPostShareUrl = (postId) => {
 
   try {
     return new URL(`/post/${postId}`, origin).toString();
-  } catch (err) {
+  } catch {
     return `${origin.replace(/\/$/, '')}/post/${postId}`;
   }
 };
