@@ -8,6 +8,7 @@ import {
     deleteArticleAPI,
     toggleArticleLikeAPI,
     toggleArticleSaveAPI,
+    getSavedArticlesAPI,
     getArticleCommentsAPI,
     addArticleCommentAPI,
     deleteArticleCommentAPI,
@@ -99,9 +100,22 @@ export const toggleArticleSaveThunk = createAsyncThunk(
     async (storyId, { rejectWithValue }) => {
         try {
             const data = await toggleArticleSaveAPI(storyId);
-            return { storyId, savesCount: data.savesCount };
+            return { storyId, savesCount: data.savesCount, isSaved: data.isSaved };
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || "Failed to toggle save");
+        }
+    }
+);
+
+export const getSavedArticlesThunk = createAsyncThunk(
+    "articles/getSaved",
+    async (_, { rejectWithValue }) => {
+        try {
+            const data = await getSavedArticlesAPI();
+            const stories = Array.isArray(data) ? data : data?.stories || data?.savedStories || [];
+            return stories;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Failed to fetch saved articles");
         }
     }
 );

@@ -50,6 +50,11 @@ export const toggleArticleSaveAPI = async (storyId) => {
     return res.data;
 };
 
+export const getSavedArticlesAPI = async () => {
+    const res = await axiosInstance.get('/stories/saved');
+    return res.data;
+};
+
 // ── Comments ──────────────────────────────────────────
 
 export const getArticleCommentsAPI = async (storyId) => {

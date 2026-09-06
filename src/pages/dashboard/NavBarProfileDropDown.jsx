@@ -66,9 +66,9 @@ const NavbarProfileDropdown = () => {
               className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
               <User size={16} /> View profile
             </button>
-            <button onClick={() => { navigate('/saved'); setOpen(false); }}
+            <button onClick={() => { navigate('/library'); setOpen(false); }}
               className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
-              <Bookmark size={16} /> Saved posts
+              <Bookmark size={16} /> Saved items
             </button>
             <button onClick={() => { navigate('/settings'); setOpen(false); }}
               className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">

@@ -50,7 +50,7 @@ const SignUp = () => {
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--color-background)' }}>
       <div className="ui-card max-w-md w-full space-y-8 p-8 sm:p-10">
         <div>
-          <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl text-xl font-bold text-white" style={{ background: 'var(--color-primary)' }}>✦</div>
+          <div className="mx-auto w-fit text-2xl font-bold tracking-wide" style={{ color: 'var(--color-primary)' }}>POSTLY</div>
           <h2 className="mt-5 text-center text-3xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             Sign up to your account
           </h2>

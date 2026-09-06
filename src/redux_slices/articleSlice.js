@@ -9,19 +9,30 @@ import {
     deleteArticleThunk,
     toggleArticleLikeThunk,
     toggleArticleSaveThunk,
+    getSavedArticlesThunk,
     getArticleCommentsThunk,
     addArticleCommentThunk,
     deleteArticleCommentThunk,
 } from "../redux_thunks/articleThunk";
 
+const normalizeArticles = (stories = []) => {
+    return stories.reduce((acc, story) => {
+        if (story?._id) acc[story._id] = story;
+        return acc;
+    }, {});
+};
+
 const articleSlice = createSlice({
     name: "articles",
     initialState: {
         articles: [],
+        savedArticles: [],
+        savedArticlesById: {},
         currentArticle: null,
         comments: [],
         pagination: null,
         isLoading: false,
+        savedArticlesLoading: false,
         commentsLoading: false,
         error: null,
     },
@@ -149,13 +160,48 @@ const articleSlice = createSlice({
 
         // ── Toggle Save ───────────────────────────────────
         .addCase(toggleArticleSaveThunk.fulfilled, (state, action) => {
-            const { storyId, savesCount } = action.payload;
-            if (state.currentArticle?._id === storyId) {
-                state.currentArticle.savesCount = savesCount;
+            const { storyId, savesCount, isSaved } = action.payload;
+            const updatedStory = state.currentArticle?._id === storyId
+                ? { ...state.currentArticle, savesCount, isSaved }
+                : null;
+
+            if (updatedStory) {
+                state.currentArticle = updatedStory;
             }
             state.articles = state.articles.map(a =>
-                a._id === storyId ? { ...a, savesCount } : a
+                a._id === storyId ? { ...a, savesCount, isSaved } : a
             );
+
+            if (!isSaved) {
+                delete state.savedArticlesById[storyId];
+                state.savedArticles = state.savedArticles.filter(a => a._id !== storyId);
+            } else {
+                const savedStory = state.savedArticlesById[storyId] || updatedStory || state.articles.find(a => a._id === storyId) || null;
+                if (savedStory) {
+                    const nextStory = { ...savedStory, savesCount, isSaved };
+                    state.savedArticlesById[storyId] = nextStory;
+                    state.savedArticles = [
+                        ...state.savedArticles.filter(a => a._id !== storyId),
+                        nextStory,
+                    ];
+                }
+            }
+        })
+
+        // ── Saved Articles ────────────────────────────────
+        .addCase(getSavedArticlesThunk.pending, (state) => {
+            state.savedArticlesLoading = true;
+            state.error = null;
+        })
+        .addCase(getSavedArticlesThunk.fulfilled, (state, action) => {
+            state.savedArticlesLoading = false;
+            const stories = Array.isArray(action.payload) ? action.payload : [];
+            state.savedArticles = stories;
+            state.savedArticlesById = normalizeArticles(stories);
+        })
+        .addCase(getSavedArticlesThunk.rejected, (state, action) => {
+            state.savedArticlesLoading = false;
+            state.error = action.payload;
         })
 
         // ── Get Comments ──────────────────────────────────
