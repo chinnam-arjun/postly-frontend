@@ -149,6 +149,7 @@ const buildCommentTree = (comments = []) => {
 
 const PostLayout = ({ post }) => {
     const dispatch = useDispatch();
+    const queryClient = useQueryClient();
     const { user } = useSelector((state) => state.auth);
     const reduxPost = useSelector((state) => state.posts.postsById?.[post._id] || null);
     const currentPost = reduxPost || post;
@@ -303,9 +304,44 @@ const PostLayout = ({ post }) => {
         });
     };
 
-    const handleToggleLike = () => {
-        if (!currentUserId) return;
-        dispatch(toggleLikePostThunk(currentPost._id));
+    const handleToggleLike = async () => {
+        if (!currentUserId || !currentPostId) return;
+
+        const nextIsLiked = !isLiked;
+        const nextLikesCount = Math.max((likesCount ?? 0) + (nextIsLiked ? 1 : -1), 0);
+
+        queryClient.setQueriesData({ queryKey: ['posts'] }, (previousData) => {
+            if (!previousData || !Array.isArray(previousData.pages)) return previousData;
+
+            return {
+                ...previousData,
+                pages: previousData.pages.map((page) => ({
+                    ...page,
+                    posts: (page.posts || []).map((feedPost) => {
+                        if (feedPost._id !== currentPostId) return feedPost;
+
+                        const existingLikes = normalizeUserIds(feedPost.likes);
+                        const nextLikes = nextIsLiked
+                            ? [...existingLikes, currentUserIdString]
+                            : existingLikes.filter((userId) => userId !== currentUserIdString);
+
+                        return {
+                            ...feedPost,
+                            likesCount: nextLikesCount,
+                            isLiked: nextIsLiked,
+                            likes: nextLikes,
+                        };
+                    }),
+                })),
+            };
+        });
+
+        try {
+            await dispatch(toggleLikePostThunk(currentPostId)).unwrap();
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
+        } catch (error) {
+            console.error('Like toggle failed:', error);
+        }
     };
 
     const renderComment = (comment) => (
