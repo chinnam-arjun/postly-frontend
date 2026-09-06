@@ -600,8 +600,30 @@ const ArticleRead = () => {
         <div style={s.page}>
             {/* Top bar */}
             <div style={s.topbar}>
-                <button style={s.backBtn} onClick={() => navigate('/lists')}>
-                    ← Back to lists
+                <button style={s.backBtn} onClick={() => {
+                    const savedContext = sessionStorage.getItem('postly-search-context');
+                    if (savedContext) {
+                        try {
+                            const parsed = JSON.parse(savedContext);
+                            if (parsed?.query || parsed?.activeTab) {
+                                navigate('/feed');
+                                setTimeout(() => {
+                                    window.dispatchEvent(new CustomEvent('postly-open-search', { detail: parsed }));
+                                }, 0);
+                                return;
+                            }
+                        } catch {
+                            // ignore and fall back
+                        }
+                    }
+
+                    if (window.history.length > 2) {
+                        navigate(-1);
+                        return;
+                    }
+                    navigate('/lists');
+                }}>
+                    ← Back
                 </button>
                 {isAuthor && (
                     <>

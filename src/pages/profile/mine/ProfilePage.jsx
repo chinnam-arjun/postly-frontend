@@ -42,6 +42,30 @@ const ProfilePage = () => {
   const profileUser = isOwnProfile ? user : viewedUser;
   const showBackToSearch = !isOwnProfile && Boolean(location.state?.fromSearch);
 
+  const goBackToSearchResults = () => {
+    const savedContext = sessionStorage.getItem('postly-search-context');
+    if (savedContext) {
+      try {
+        const parsed = JSON.parse(savedContext);
+        if (parsed?.query || parsed?.activeTab) {
+          navigate('/feed');
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('postly-open-search', { detail: parsed }));
+          }, 0);
+          return;
+        }
+      } catch {
+        // ignore and fall back
+      }
+    }
+
+    if (window.history.length > 2) {
+      navigate(-1);
+      return;
+    }
+    navigate('/feed');
+  };
+
   const createArticleMarkup = (html = '') => ({
     __html: DOMPurify.sanitize(html)
   });
@@ -145,7 +169,7 @@ const ProfilePage = () => {
         {showBackToSearch && (
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={goBackToSearchResults}
             className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-elevated px-3 py-2 text-sm font-medium text-text-primary hover:bg-surface-muted"
           >
             <span aria-hidden="true">←</span>

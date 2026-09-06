@@ -37,13 +37,37 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
     setIsSearchOpen(false);
     setSelectedPost(null);
     setLockedArticle(null);
+    setLoading(false);
+    setError('');
   };
+
+  const saveSearchContext = () => {
+    const payload = { query, activeTab };
+    sessionStorage.setItem('postly-search-context', JSON.stringify(payload));
+  };
+
+  useEffect(() => {
+    const handleOpenSearchEvent = (event) => {
+      const detail = event?.detail || {};
+      if (!detail || typeof detail !== 'object') return;
+      setQuery(detail.query || '');
+      setActiveTab(detail.activeTab || 'people');
+      setIsSearchOpen(true);
+    };
+
+    window.addEventListener('postly-open-search', handleOpenSearchEvent);
+    return () => window.removeEventListener('postly-open-search', handleOpenSearchEvent);
+  }, []);
 
   useEffect(() => {
     const cleanQuery = query.trim();
     requestId.current += 1;
     const currentRequest = requestId.current;
-    if (!isSearchOpen || !cleanQuery) {
+    if (!isSearchOpen) {
+      return undefined;
+    }
+
+    if (!cleanQuery) {
       setResults([]);
       setLoading(false);
       setError('');
@@ -55,14 +79,14 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
       setError('');
       try {
         const nextResults = await searchAPI({ query: cleanQuery, type: activeTab });
-        if (currentRequest === requestId.current) setResults(nextResults);
+        if (currentRequest === requestId.current && isSearchOpen) setResults(nextResults);
       } catch (searchError) {
-        if (currentRequest === requestId.current) {
+        if (currentRequest === requestId.current && isSearchOpen) {
           setResults([]);
           setError(searchError?.response?.data?.message || 'Unable to search right now.');
         }
       } finally {
-        if (currentRequest === requestId.current) setLoading(false);
+        if (currentRequest === requestId.current && isSearchOpen) setLoading(false);
       }
     }, 300);
     return () => window.clearTimeout(timeout);
@@ -74,8 +98,9 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
       setLockedArticle(article);
       return;
     }
-    navigate(`/lists/${article._id}`);
+    saveSearchContext();
     closeSearch();
+    navigate(`/lists/${article._id}`);
   };
 
   const followAndOpenArticle = async () => {
@@ -86,8 +111,9 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
       await dispatch(followThunk(id)).unwrap();
       const storyId = lockedArticle._id;
       setLockedArticle(null);
-      navigate(`/lists/${storyId}`);
+      saveSearchContext();
       closeSearch();
+      navigate(`/lists/${storyId}`);
     } catch {
       setError('Unable to follow this author. Please try again.');
     } finally {
@@ -132,8 +158,17 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
             {query.trim() && !loading && error && <p className="py-10 text-center text-sm text-red-400">{error}</p>}
             {query.trim() && !loading && !error && results.length === 0 && <p className="py-10 text-center text-sm text-gray-400">No {activeTab} found.</p>}
             {!loading && !error && results.map((result) => <SearchResult key={result._id} type={activeTab} result={result} onClick={() => {
-              if (activeTab === 'people') { navigate(`/profile/${result._id}`, { state: { fromSearch: true } }); closeSearch(); }
-              if (activeTab === 'posts') setSelectedPost(result);
+              saveSearchContext();
+              if (activeTab === 'people') {
+                closeSearch();
+                navigate(`/profile/${result._id}`, { state: { fromSearch: true } });
+                return;
+              }
+              if (activeTab === 'posts') {
+                closeSearch();
+                setSelectedPost(result);
+                return;
+              }
               if (activeTab === 'articles') openArticle(result);
             }} />)}
           </div>
