@@ -118,13 +118,13 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
         </div>
       </div>
 
-      {isSearchOpen && <div className="fixed inset-0 z-[100] flex flex-col bg-overlay">
+      {isSearchOpen && <div className="fixed inset-0 z-[100] flex flex-col bg-background">
         <div className="h-16 flex items-center px-4 sm:px-8 border-b border-border gap-4 bg-surface-elevated">
           <button onClick={closeSearch} className="p-2 rounded-full text-text-secondary hover:bg-surface-muted"><ArrowLeft size={24} /></button>
           <div className="flex-1 relative"><Search className="absolute left-0 top-1/2 -translate-y-1/2 text-text-secondary" size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Search people, posts, or articles..." className="w-full pl-8 py-2 text-lg bg-transparent text-text-primary focus:outline-none placeholder:text-text-secondary" /></div>
           <button onClick={closeSearch} className="p-2 text-text-secondary hover:text-text-primary"><X size={24} /></button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-background">
           <div className="max-w-2xl mx-auto">
             <div className="flex gap-2 border-b mb-4">{tabs.map((tab) => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-semibold border-b-2 ${activeTab === tab.id ? 'border-purple-400 text-purple-300' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>{tab.label}</button>)}</div>
             {!query.trim() && <EmptySearch />}
