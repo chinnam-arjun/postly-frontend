@@ -418,7 +418,7 @@ const AddPost = () => {
                 type="button"
                 onClick={() => setStep((s) => s + 1)}
                 disabled={!canNext()}
-                className="flex-1 py-3 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:bg-gray-700 dark:hover:bg-gray-200 disabled:opacity-40 transition flex items-center justify-center gap-2"
+                className="flex-1 py-3 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-hover disabled:opacity-40 transition flex items-center justify-center gap-2"
               >
                 Next <ChevronRight size={16} />
               </button>
@@ -427,7 +427,7 @@ const AddPost = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex-1 py-3 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:bg-gray-700 dark:hover:bg-gray-200 disabled:opacity-60 transition flex items-center justify-center gap-2"
+                className="flex-1 py-3 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-hover disabled:opacity-60 transition flex items-center justify-center gap-2"
               >
                 {isLoading ? <><Loader2 size={16} className="animate-spin" /> Publishing…</> : 'Publish post'}
               </button>

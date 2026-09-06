@@ -208,7 +208,7 @@ const ProfilePage = () => {
         <div className="bg-surface-elevated rounded-2xl overflow-hidden border border-border">
 
           {/* Tab bar */}
-          <div className="flex border-b border-gray-800">
+          <div className="flex border-b border-border">
             {[
               { key: 'posts', label: 'Posts', Icon: Grid3X3 },
               { key: 'articles', label: 'Articles', Icon: FileText },
@@ -218,8 +218,8 @@ const ProfilePage = () => {
                 onClick={() => setActiveTab(key)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === key
-                    ? 'border-white text-white'
-                    : 'border-transparent text-gray-400 hover:text-gray-300'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <Icon size={16} />
@@ -340,15 +340,15 @@ const ProfilePage = () => {
       {/* ── Edit profile modal ── */}
       {isEditing && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setIsEditing(false)}>
-          <div className="w-full max-w-2xl bg-gray-950 rounded-3xl border border-gray-800 shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <div className="w-full max-w-2xl bg-surface-elevated rounded-3xl border border-border shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <div>
-                <h2 className="text-lg font-semibold text-white">Edit profile</h2>
-                <p className="text-sm text-gray-400">Update your display name, username, bio, and avatar.</p>
+                <h2 className="text-lg font-semibold text-text-primary">Edit profile</h2>
+                <p className="text-sm text-text-secondary">Update your display name, username, bio, and avatar.</p>
               </div>
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-900 text-gray-400 hover:text-white transition"
+                className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-surface-muted text-text-secondary hover:text-text-primary transition"
               >
                 <X size={18} />
               </button>
@@ -357,58 +357,58 @@ const ProfilePage = () => {
             <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300" htmlFor="name">Full name</label>
+                  <label className="text-sm font-medium text-text-primary" htmlFor="name">Full name</label>
                   <input
                     id="name"
                     name="name"
                     value={formValues.name}
                     onChange={handleInputChange}
-                    className="w-full rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                    className="w-full rounded-2xl border border-border bg-surface-muted px-4 py-3 text-sm text-text-primary outline-none focus:border-primary"
                     placeholder="Your name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300" htmlFor="username">Username</label>
+                  <label className="text-sm font-medium text-text-primary" htmlFor="username">Username</label>
                   <input
                     id="username"
                     name="username"
                     value={formValues.username}
                     onChange={handleInputChange}
-                    className="w-full rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                    className="w-full rounded-2xl border border-border bg-surface-muted px-4 py-3 text-sm text-text-primary outline-none focus:border-primary"
                     placeholder="username"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300" htmlFor="bio">Bio</label>
+                <label className="text-sm font-medium text-text-primary" htmlFor="bio">Bio</label>
                 <textarea
                   id="bio"
                   name="bio"
                   value={formValues.bio}
                   onChange={handleInputChange}
-                  className="w-full min-h-[120px] resize-none rounded-2xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+                  className="w-full min-h-[120px] resize-none rounded-2xl border border-border bg-surface-muted px-4 py-3 text-sm text-text-primary outline-none focus:border-primary"
                   placeholder="Tell people a little about yourself"
                 />
               </div>
 
               <div className="grid gap-4 md:grid-cols-[120px_1fr] items-center">
-                <div className="rounded-3xl border border-gray-800 bg-gray-900 p-4 flex items-center justify-center overflow-hidden">
+                <div className="rounded-3xl border border-border bg-surface-muted p-4 flex items-center justify-center overflow-hidden">
                   {profilePreview ? (
                     <img src={profilePreview} alt="Profile preview" className="h-24 w-24 rounded-full object-cover" />
                   ) : (
-                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-800 text-gray-500">Preview</div>
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-surface-muted text-text-muted">Preview</div>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">Profile photo</label>
+                  <label className="block text-sm font-medium text-text-primary">Profile photo</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleProfileFileChange}
-                    className="w-full text-sm text-gray-200 file:mr-4 file:rounded-full file:border-0 file:bg-violet-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+                    className="w-full text-sm text-text-secondary file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
                   />
-                  <p className="text-xs text-gray-500">Leave empty to keep the existing photo.</p>
+                  <p className="text-xs text-text-muted">Leave empty to keep the existing photo.</p>
                 </div>
               </div>
 
@@ -419,14 +419,14 @@ const ProfilePage = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="rounded-2xl border border-gray-700 bg-gray-900 px-5 py-3 text-sm font-medium text-gray-300 hover:border-gray-500"
+                  className="rounded-2xl border border-border bg-surface-muted px-5 py-3 text-sm font-medium text-text-primary hover:border-border-strong"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={profileUpdating}
-                  className="rounded-2xl bg-violet-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {profileUpdating ? 'Saving...' : 'Save changes'}
                 </button>
