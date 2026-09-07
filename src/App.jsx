@@ -13,6 +13,7 @@ import ArticleRead from './pages/articles/ArticleRead';
 import EditArticle from './pages/articles/EditArticle';
 import LibraryPage from './pages/library/LibraryPage';
 import PostPage from './pages/PostPage';
+import SettingsPage from './pages/settings/SettingsPage';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/profile/:userId" element={<ProfilePage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/saved" element={<LibraryPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
 
             {/* Article / Lists Routes */}
             <Route path="/articles" element={<ArticleFeed />} />

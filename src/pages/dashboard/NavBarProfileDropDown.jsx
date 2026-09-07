@@ -81,12 +81,16 @@ const NavbarProfileDropdown = () => {
           {/* Switch account */}
           <div className="p-1.5">
             <p className="text-xs text-text-muted uppercase tracking-wide px-3 py-1.5">switch account</p>
-            <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-gray-700 transition-colors">
+            <button type="button" className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-gray-700 transition-colors">
               <img src={user.profile} className="w-7 h-7 rounded-full object-cover border border-gray-600" />
               <span className="text-sm text-text-secondary truncate">{user.username}</span>
               <span className="ml-auto w-2 h-2 rounded-full bg-green-400" />
             </button>
-            <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-violet-400 hover:bg-violet-500/10 transition-colors text-sm">
+            <button
+              type="button"
+              onClick={() => { navigate('/signin'); setOpen(false); }}
+              className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-violet-400 hover:bg-violet-500/10 transition-colors text-sm"
+            >
               <Plus size={15} /> Add account
             </button>
           </div>
