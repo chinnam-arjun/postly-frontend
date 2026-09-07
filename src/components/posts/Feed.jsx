@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useDispatch, useSelector } from 'react-redux';
-import PostLayout from './PostLayout/PostLayout';
+import PostLayout from './postLayout/PostLayout';
 import { usePosts } from '../../hooks/usePosts';
 import { setPosts } from '../../redux_slices/postSlice';
 import { ChevronUp, Filter, Check } from 'lucide-react';
