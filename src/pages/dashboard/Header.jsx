@@ -14,9 +14,27 @@ const tabs = [
   { id: 'articles', label: 'Articles' },
 ];
 
-const authorId = (item) => String(item?.author?._id || item?.author?.id || item?.author || '');
+const authorId = (item) => {
+  const candidates = [
+    item?.author,
+    item?.authorId,
+    item?.author_id,
+    item?.user,
+    item?.userId,
+    item?.user_id,
+    item?.createdBy,
+    item?.createdById,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate) return candidate;
+    if (candidate?._id || candidate?.id || candidate?.userId || candidate?.user_id) {
+      return String(candidate._id || candidate.id || candidate.userId || candidate.user_id);
+    }
+  }
+  return '';
+};
 const isFollowing = (user, id) => (user?.followingIds || user?.following || [])
-  .some((item) => String(typeof item === 'object' ? item._id || item.id : item) === String(id));
+  .some((item) => String(typeof item === 'object' ? item._id || item.id || item.userId || item.user_id : item) === String(id));
 
 const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const navigate = useNavigate();
@@ -94,7 +112,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
 
   const openArticle = (article) => {
     const id = authorId(article);
-    if (id && String(user?._id) !== id && !isFollowing(user, id)) {
+    if (!id || (String(user?._id) !== id && !isFollowing(user, id))) {
       setLockedArticle(article);
       return;
     }
@@ -207,12 +225,12 @@ const FollowGate = ({ article, loading, onClose, onFollow }) => (
 
       <div className="mt-6 flex items-center justify-center gap-3 rounded-2xl border border-gray-800 bg-gray-900/80 px-3 py-3">
         <img
-          src={article.author?.profilepic || article.author?.profile || 'https://via.placeholder.com/64'}
-          alt={article.author?.username || 'Author'}
+          src={article.author?.profilepic || article.author?.profile || article.user?.profilepic || article.user?.profile || 'https://via.placeholder.com/64'}
+          alt={article.author?.username || article.user?.username || 'Author'}
           className="h-11 w-11 rounded-full object-cover border border-gray-700"
         />
         <div className="flex-1 text-left min-w-0">
-          <p className="truncate text-sm font-semibold text-white">@{article.author?.username || 'this author'}</p>
+          <p className="truncate text-sm font-semibold text-white">@{article.author?.username || article.user?.username || 'this author'}</p>
           <p className="text-[11px] text-gray-400">Author</p>
         </div>
         <button

@@ -454,9 +454,23 @@ const ArticleRead = () => {
     }
 
     const authorId = useMemo(() => {
-        const rawAuthor = currentArticle?.author || currentArticle?.user || currentArticle?.userId || currentArticle?.authorId || {};
-        if (typeof rawAuthor === 'string') return rawAuthor;
-        return rawAuthor?._id || '';
+        const candidates = [
+            currentArticle?.author,
+            currentArticle?.authorId,
+            currentArticle?.author_id,
+            currentArticle?.user,
+            currentArticle?.userId,
+            currentArticle?.user_id,
+            currentArticle?.createdBy,
+            currentArticle?.createdById,
+        ];
+        for (const candidate of candidates) {
+            if (typeof candidate === 'string' || typeof candidate === 'number') return String(candidate);
+            if (candidate?._id || candidate?.id || candidate?.userId || candidate?.user_id) {
+                return String(candidate._id || candidate.id || candidate.userId || candidate.user_id);
+            }
+        }
+        return '';
     }, [currentArticle]);
 
     useEffect(() => {
@@ -466,9 +480,10 @@ const ArticleRead = () => {
         }
 
         const followingIds = user.followingIds || user.following || [];
-        const nextIsFollowing = followingIds.some((item) => String(typeof item === 'object' ? item._id || item.id : item) === String(authorId));
-        setIsFollowingAuthor(nextIsFollowing || Boolean(currentArticle?.author?.isFollowing));
-    }, [authorId, currentArticle?.author?.isFollowing, user]);
+        const nextIsFollowing = followingIds.some((item) => String(typeof item === 'object' ? item._id || item.id || item.userId || item.user_id : item) === String(authorId));
+        const rawAuthor = currentArticle?.author || currentArticle?.user || {};
+        setIsFollowingAuthor(nextIsFollowing || Boolean(rawAuthor?.isFollowing));
+    }, [authorId, currentArticle, user]);
 
     const handleFollowAuthor = async () => {
         if (!authorId) return;
@@ -485,7 +500,7 @@ const ArticleRead = () => {
     };
 
     const isAuthor = user && authorId === String(user._id)
-    const shouldLockArticle = Boolean(currentArticle) && !!authorId && !isAuthor && !isFollowingAuthor;
+    const shouldLockArticle = Boolean(currentArticle) && !isAuthor && (!authorId || !isFollowingAuthor);
 
     if (isLoading) {
         return (
