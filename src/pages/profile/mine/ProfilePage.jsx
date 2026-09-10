@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { getCurrentUserThunk } from '../../../redux_thunks/authThunk';
-import { editMyProfileThunk } from '../../../redux_thunks/userThunk';
+import { editMyProfileThunk, followThunk } from '../../../redux_thunks/userThunk';
+import { setFollowRelationship } from '../../../redux_slices/authSlice';
 import { getMyArticlesThunk } from '../../../redux_thunks/articleThunk';
 import { useUserPosts } from '../../../hooks/usePosts';
 import { getSpecificUserPosts } from '../../../redux_apis/post';
@@ -38,8 +39,13 @@ const ProfilePage = () => {
   const [viewedPosts, setViewedPosts] = useState([]);
   const [viewedArticles, setViewedArticles] = useState([]);
   const [viewLoading, setViewLoading] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const isOwnProfile = !userId || String(userId) === String(user?._id);
   const profileUser = isOwnProfile ? user : viewedUser;
+  const followingIds = user?.followingIds || user?.following || [];
+  const isFollowing = !isOwnProfile && followingIds.some((item) => (
+    String(typeof item === 'object' ? item?._id || item?.id || item?.userId : item) === String(userId)
+  ));
   const showBackToSearch = !isOwnProfile && Boolean(location.state?.fromSearch);
 
   const goBackToSearchResults = () => {
@@ -120,7 +126,7 @@ const ProfilePage = () => {
     if (token && (!user || !user.username || !user.name)) {
       dispatch(getCurrentUserThunk());
     }
-  }, [dispatch, token]);
+  }, [dispatch, token, user]);
 
   // Fetch articles when component mounts
   useEffect(() => {
@@ -142,6 +148,28 @@ const ProfilePage = () => {
       .finally(() => active && setViewLoading(false));
     return () => { active = false; };
   }, [isOwnProfile, userId]);
+
+  const handleFollowToggle = async () => {
+    if (!userId || followLoading) return;
+    setFollowLoading(true);
+    try {
+      const result = await dispatch(followThunk(userId)).unwrap();
+      const nextIsFollowing = typeof result?.isFollowing === 'boolean' ? result.isFollowing : !isFollowing;
+      dispatch(setFollowRelationship({ userId, isFollowing: nextIsFollowing }));
+      setViewedUser((current) => {
+        if (!current) return current;
+        const currentCount = current.followersCount ?? (Array.isArray(current.followers)
+          ? current.followers.length
+          : 0);
+        const nextCount = Math.max(0, currentCount + (nextIsFollowing ? 1 : -1));
+        return { ...current, followersCount: nextCount };
+      });
+    } catch (error) {
+      console.error('Failed to update follow relationship:', error);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   const profilePosts = isOwnProfile ? posts : viewedPosts;
   const profileArticles = isOwnProfile ? articles : viewedArticles;
@@ -201,13 +229,24 @@ const ProfilePage = () => {
                 <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-900 rounded-full" />
               </div>
 
-              {isOwnProfile && <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-surface-muted hover:bg-surface-elevated text-text-primary rounded-xl transition-colors"
-              >
-                <Settings size={15} />
-                Edit profile
-              </button>}
+              {isOwnProfile ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-surface-muted hover:bg-surface-elevated text-text-primary rounded-xl transition-colors"
+                >
+                  <Settings size={15} />
+                  Edit profile
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleFollowToggle}
+                  disabled={followLoading}
+                  className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors disabled:opacity-60 ${isFollowing ? 'bg-surface-muted text-text-secondary border border-border' : 'bg-primary text-white'}`}
+                >
+                  {followLoading ? 'Updating...' : isFollowing ? 'Following' : 'Follow'}
+                </button>
+              )}
             </div>
 
             {/* Name + handle */}
@@ -227,8 +266,8 @@ const ProfilePage = () => {
             <div className="flex border-t border-border pt-4 mt-1">
               {[
                 { label: 'Posts', value: profilePosts?.length ?? 0 },
-                { label: 'Followers', value: profileUser.followers?.length ?? profileUser.followersCount ?? 0 },
-                { label: 'Following', value: profileUser.following?.length ?? profileUser.followingCount ?? 0 },
+                { label: 'Followers', value: profileUser.followersCount ?? profileUser.followers?.length ?? 0 },
+                { label: 'Following', value: profileUser.followingCount ?? profileUser.following?.length ?? 0 },
               ].map((s, i) => (
                 <div key={s.label} className={`flex-1 text-center ${i !== 0 ? 'border-l border-gray-100 dark:border-gray-800' : ''}`}>
                   <p className="text-base font-semibold text-text-primary">

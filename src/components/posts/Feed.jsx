@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useDispatch, useSelector } from 'react-redux';
 import PostLayout from './postLayout/PostLayout';
@@ -14,12 +14,19 @@ const normalizeUserIds = (value = []) => {
         .map(String);
 };
 
+    const isAuthorFollowed = (author, followingIds) => {
+        const authorId = author?._id || author?.id;
+        if (!authorId) return false;
+        return Array.isArray(followingIds)
+        ? normalizeUserIds(followingIds).includes(String(authorId))
+        : Boolean(author?.isFollowing);
+    };
+
 const Feed = () => {
     const [activeTab, setActiveTab] = useState('for-you');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dispatch = useDispatch();
-    const currentUserFollowingIds = useSelector((state) => state.auth.user?.followingIds || state.auth.user?.following || null);
-    const currentUserFollowing = useMemo(() => normalizeUserIds(currentUserFollowingIds), [currentUserFollowingIds]);
+    const currentUserFollowingIds = useSelector((state) => state.auth.user?.followingIds ?? state.auth.user?.following);
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = usePosts(activeTab);
     const { ref, inView } = useInView({ rootMargin: '600px' });
     const menuRef = useRef(null);
@@ -32,15 +39,14 @@ const Feed = () => {
         if (data?.pages) {
             const allPosts = data.pages.flatMap((page) => page.posts || []);
             const filteredPosts = allPosts.filter((post) => {
-                const authorId = post?.author?._id ? String(post.author._id) : '';
-                const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                const isFollowedAuthor = isAuthorFollowed(post?.author, currentUserFollowingIds);
                 return activeTab === 'following' ? isFollowedAuthor : !isFollowedAuthor;
             });
             // Diagnostic logging to help debug why posts may be filtered out
             
             dispatch(setPosts(filteredPosts));
         }
-    }, [activeTab, currentUserFollowing, data, dispatch]);
+    }, [activeTab, currentUserFollowingIds, data, dispatch]);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -76,8 +82,7 @@ const Feed = () => {
                 ) : (
                     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
                         {activeTab === 'following' && (!data?.pages?.some((page) => (page.posts || []).some((post) => {
-                            const authorId = post?.author?._id ? String(post.author._id) : '';
-                            return Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                            return isAuthorFollowed(post?.author, currentUserFollowingIds);
                         })) ) ? (
                             <div className="rounded-3xl border border-gray-800 bg-gray-900/70 p-8 text-center">
                                 <p className="text-lg font-semibold text-white">No posts from people you follow yet.</p>
@@ -87,8 +92,7 @@ const Feed = () => {
                             data?.pages.map((page, i) => (
                                 <React.Fragment key={i}>
                                     {page.posts?.filter((post) => {
-                                        const authorId = post?.author?._id ? String(post.author._id) : '';
-                                        const isFollowedAuthor = Boolean(post?.author?.isFollowing) || currentUserFollowing.includes(authorId);
+                                        const isFollowedAuthor = isAuthorFollowed(post?.author, currentUserFollowingIds);
                                         // Show all posts for "for-you"; only followed authors for "following"
                                         return activeTab === 'following' ? isFollowedAuthor : true;
                                     }).sort((a, b) => {

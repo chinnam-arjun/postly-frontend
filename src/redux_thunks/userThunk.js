@@ -17,10 +17,10 @@ export const followThunk = createAsyncThunk("users/follow/:userId", async (userI
     const message = typeof data.message === 'string' ? data.message.toLowerCase() : '';
     const isFollowing = typeof data.isFollowing === 'boolean'
         ? data.isFollowing
-        : message.includes('followed') || message.includes('follow')
-            ? true
-            : message.includes('unfollow')
-                ? false
+        : message.includes('unfollow') || message.includes('unfollowed')
+            ? false
+            : message.includes('followed') || message.includes('follow')
+                ? true
                 : undefined;
 
     return {
