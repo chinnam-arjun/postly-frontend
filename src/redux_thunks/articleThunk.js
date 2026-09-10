@@ -42,7 +42,12 @@ export const getArticleByIdThunk = createAsyncThunk(
         try {
             return await getArticleByIdAPI(storyId);
         } catch (err) {
-            return rejectWithValue(err.response?.data?.message || "Failed to fetch article");
+            return rejectWithValue({
+                status: err.response?.status,
+                code: err.response?.data?.code,
+                message: err.response?.data?.message || "Failed to fetch article",
+                author: err.response?.data?.author || null,
+            });
         }
     }
 );

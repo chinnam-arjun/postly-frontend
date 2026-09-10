@@ -371,7 +371,7 @@ const ArticleRead = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const { currentArticle, comments, isLoading, commentsLoading } = useSelector(state => state.articles)
+    const { currentArticle, comments, isLoading, commentsLoading, error: articleError } = useSelector(state => state.articles)
     const { user } = useSelector(state => state.auth)
     const [resolvedAuthor, setResolvedAuthor] = useState(null)
 
@@ -463,6 +463,7 @@ const ArticleRead = () => {
             currentArticle?.user_id,
             currentArticle?.createdBy,
             currentArticle?.createdById,
+            articleError?.author,
         ];
         for (const candidate of candidates) {
             if (typeof candidate === 'string' || typeof candidate === 'number') return String(candidate);
@@ -471,7 +472,7 @@ const ArticleRead = () => {
             }
         }
         return '';
-    }, [currentArticle]);
+    }, [articleError, currentArticle]);
 
     useEffect(() => {
         if (!user || !authorId) {
@@ -481,9 +482,9 @@ const ArticleRead = () => {
 
         const followingIds = user.followingIds || user.following || [];
         const nextIsFollowing = followingIds.some((item) => String(typeof item === 'object' ? item._id || item.id || item.userId || item.user_id : item) === String(authorId));
-        const rawAuthor = currentArticle?.author || currentArticle?.user || {};
+        const rawAuthor = currentArticle?.author || currentArticle?.user || articleError?.author || {};
         setIsFollowingAuthor(nextIsFollowing || Boolean(rawAuthor?.isFollowing));
-    }, [authorId, currentArticle, user]);
+    }, [articleError, authorId, currentArticle, user]);
 
     const handleFollowAuthor = async () => {
         if (!authorId) return;
@@ -492,6 +493,10 @@ const ArticleRead = () => {
             const result = await dispatch(followThunk(authorId)).unwrap();
             const nextIsFollowing = typeof result?.isFollowing === 'boolean' ? result.isFollowing : true;
             setIsFollowingAuthor(nextIsFollowing);
+            if (articleError?.code === 'FOLLOW_REQUIRED') {
+                await dispatch(getArticleByIdThunk(storyId)).unwrap();
+                dispatch(getArticleCommentsThunk(storyId));
+            }
         } catch (error) {
             console.error('Failed to follow author:', error);
         } finally {
@@ -501,6 +506,7 @@ const ArticleRead = () => {
 
     const isAuthor = user && authorId === String(user._id)
     const shouldLockArticle = Boolean(currentArticle) && !isAuthor && (!authorId || !isFollowingAuthor);
+    const isFollowRequired = articleError?.status === 403 && articleError?.code === 'FOLLOW_REQUIRED';
 
     if (isLoading) {
         return (
@@ -510,16 +516,8 @@ const ArticleRead = () => {
         )
     }
 
-    if (!currentArticle) {
-        return (
-            <div style={s.page}>
-                <div style={s.centered}>Article not found.</div>
-            </div>
-        )
-    }
-
-    if (shouldLockArticle) {
-        const lockAuthor = currentArticle.author || currentArticle.user || currentArticle.userId || currentArticle.authorId || {};
+    if (shouldLockArticle || isFollowRequired) {
+        const lockAuthor = articleError?.author || currentArticle?.author || currentArticle?.user || currentArticle?.userId || currentArticle?.authorId || {};
         const lockProfile = typeof lockAuthor === 'object' ? (lockAuthor.profile || lockAuthor.profilepic || '') : '';
         const lockName = typeof lockAuthor === 'object' ? (lockAuthor.username || lockAuthor.name || 'this author') : 'this author';
 
@@ -561,10 +559,26 @@ const ArticleRead = () => {
                                 <span aria-hidden="true">✍️</span>
                             </div>
                             <h2 className="mt-4 text-lg font-semibold text-text-primary">Please follow the author to read this article</h2>
-                            <p className="mt-2 text-sm text-text-secondary">{currentArticle.title}</p>
+                            <p className="mt-2 text-sm text-text-secondary">{currentArticle?.title || articleError?.message}</p>
                         </div>
                     </div>
                 </div>
+            </div>
+        )
+    }
+
+    if (!currentArticle && articleError) {
+        return (
+            <div style={s.page}>
+                <div style={s.centered}>{articleError.message || 'Unable to load article.'}</div>
+            </div>
+        )
+    }
+
+    if (!currentArticle) {
+        return (
+            <div style={s.page}>
+                <div style={s.centered}>Article not found.</div>
             </div>
         )
     }
